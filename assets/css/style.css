@@ -1,0 +1,25 @@
+.grid {
+    display: grid;
+    /* Cria 10 colunas de tamanhos iguais */
+    grid-template-columns: repeat(10, 40px); 
+    /* Cria 10 linhas de tamanhos iguais */
+    grid-template-rows: repeat(10, 40px);    
+    gap: 2px; /* Espaço entre as células */
+    background-color: #001a33; /* Cor do mar fundo */
+    border: 2px solid #0055ff;
+    width: fit-content;
+    margin: 20px auto;
+}
+
+.celula {
+    width: 40px;
+    height: 40px;
+    background-color: #003366;
+    border: 1px solid #004488;
+    cursor: pointer;
+    transition: background 0.3s;
+}
+
+.celula:hover {
+    background-color: #0055ff; /* Efeito de destaque */
+}

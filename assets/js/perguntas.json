@@ -1,0 +1,285 @@
+[
+    
+    {
+      "id": 1,
+      "dificuldade": "Nível Fácil",
+      "pergunta": "2 + 2 = 4",
+      "resposta": true,
+      "habilidade": "EF03CO01"
+    },
+    {
+      "id": 2,
+      "dificuldade": "Nível Fácil",
+      "pergunta": "A internet é uma fonte 100% segura.",
+      "resposta": false,
+      "habilidade": "EF04CO08"
+    },
+    {
+      "id": 3,
+      "dificuldade": "Nível Médio",
+      "pergunta": "2 + 3 = 7 - 2",
+      "resposta": true,
+      "habilidade": "EF04CO01"
+    },
+    {
+      "id": 4,
+      "dificuldade": "Nível Médio",
+      "pergunta": "Receber um prêmio de um site que você nunca visitou é uma fonte confiável?",
+      "resposta": true,
+      "habilidade": "EF04CO01"
+    },
+    {
+        "id": 5,
+        "dificuldade": "Difícil",
+        "pergunta": "Para mover um navio da coluna C para a coluna E, ele precisa saltar duas colunas?",
+        "resposta": true,
+        "habilidade": "EF04CO01"
+      },
+      {
+        "id": 6,
+        "dificuldade": "Difícil",
+        "pergunta": "Se uma informação está na internet e tem uma foto, ela é obrigatoriamente verdadeira?",
+        "resposta": false,
+        "habilidade": "EF04CO08"
+      },
+      {
+        "id": 7,
+        "dificuldade": "Difícil",
+        "pergunta": "3 x 2 = 8-3",
+        "resposta": false,
+        "habilidade": "EF04CO08"
+      },
+      {
+        "id": 8,
+        "dificuldade": "Difícil",
+        "pergunta": "2 x 2 = 9-5",
+        "resposta": true,
+        "habilidade": "EF04CO08"
+      },
+      {"id": 9,
+        "dificuldade": "Fácil",
+        "pergunta": "Um navio posicionado em 'A1' está na mesma linha que um navio em 'A5'?",
+        "resposta": true,
+        "habilidade": "EF04CO01"
+      },
+      {
+        "id": 10,
+        "dificuldade": "Fácil",
+        "pergunta": "A sentença '5 é maior que 10' é Verdadeira?",
+        "resposta": false,
+        "habilidade": "EF03CO01"
+      },
+      {
+        "id": 11,
+        "dificuldade": "Médio",
+        "pergunta": "Se um site pede sua senha para te dar moedas grátis no jogo, ele é confiável?",
+        "resposta": false,
+        "habilidade": "EF04CO08"
+      },
+      {
+        "id": 12,
+        "dificuldade": "Médio",
+        "pergunta": "Para mover um navio da Linha 2 para a Linha 4, eu me desloco pelo eixo das colunas?",
+        "resposta": false,
+        "habilidade": "EF04CO01"
+      },
+      {
+        "id": 13,
+        "dificuldade": "Médio",
+        "pergunta": "A expressão (10 - 5 = 5) é uma sentença lógica verdadeira?",
+        "resposta": true,
+        "habilidade": "EF03CO01"
+      },
+      {
+        "id": 14,
+        "dificuldade": "Difícil",
+        "pergunta": "Notícias compartilhadas em redes sociais sem o nome do autor são fontes seguras de informação?",
+        "resposta": false,
+        "habilidade": "EF04CO08"
+      },
+      {
+        "id": 15,
+        "dificuldade": "Difícil",
+        "pergunta": "Em um grid 10x10, a posição 'J10' representa a última célula do tabuleiro?",
+        "resposta": true,
+        "habilidade": "EF04CO01"
+      },
+      {
+        "id": 16,
+        "dificuldade": "Difícil",
+        "pergunta": "A sentença '(4 + 4 = 8) E (3 + 3 = 7)' é totalmente verdadeira?",
+        "resposta": false,
+        "habilidade": "EF03CO01"
+      },
+      {
+        "id": 17,
+        "dificuldade": "Fácil",
+        "pergunta": "Se um robô está na casa B3 e anda uma casa para a direita, ele chega na B4?",
+        "resposta": true,
+        "habilidade": "EF04CO01"
+      },
+      {
+        "id": 18,
+        "dificuldade": "Fácil",
+        "pergunta": "A afirmação 'Cachorros sabem voar' é um valor Falso?",
+        "resposta": true,
+        "habilidade": "EF03CO01"
+      },
+      {
+        "id": 19,
+        "dificuldade": "Fácil",
+        "pergunta": "Devo acreditar em tudo o que recebo por mensagens de pessoas que não conheço?",
+        "resposta": false,
+        "habilidade": "EF04CO08"
+      },
+      {
+        "id": 20,
+        "dificuldade": "Fácil",
+        "pergunta": "Em um tabuleiro, as colunas são representadas por letras e as linhas por números?",
+        "resposta": true,
+        "habilidade": "EF04CO01"
+      },
+      {
+        "id": 21,
+        "dificuldade": "Médio",
+        "pergunta": "A sentença '10 - 2 = 5 + 3' é verdadeira?",
+        "resposta": true,
+        "habilidade": "EF03CO01"
+      },
+      {
+        "id": 22,
+        "dificuldade": "Médio",
+        "pergunta": "Se um site diz que ganhei um iPhone grátis sem eu ter feito nada, isso é um sinal de alerta?",
+        "resposta": true,
+        "habilidade": "EF04CO08"
+      },
+      {
+        "id": 23,
+        "dificuldade": "Médio",
+        "pergunta": "Se um navio ocupa as casas C1, C2 e C3, ele está posicionado na mesma coluna?",
+        "resposta": true,
+        "habilidade": "EF04CO01"
+      },
+      {
+        "id": 24,
+        "dificuldade": "Médio",
+        "pergunta": "Usar a palavra 'NÃO' transforma uma frase verdadeira em uma frase falsa?",
+        "resposta": true,
+        "habilidade": "EF03CO01"
+      },
+      {
+        "id": 25,
+        "dificuldade": "Médio",
+        "pergunta": "É seguro baixar um arquivo de um site que o radar marcou como 'desconhecido'?",
+        "resposta": false,
+        "habilidade": "EF04CO08"
+      },
+      {
+        "id": 26,
+        "dificuldade": "Difícil",
+        "pergunta": "A sentença '(5 + 5 = 10) E (2 + 2 = 5)' é Verdadeira?",
+        "resposta": false,
+        "habilidade": "EF03CO01"
+      },
+      {
+        "id": 27,
+        "dificuldade": "Difícil",
+        "pergunta": "Para mover um navio da posição D4 para a F4, eu mudei de linha?",
+        "resposta": false,
+        "habilidade": "EF04CO01"
+      },
+      {
+        "id": 28,
+        "dificuldade": "Difícil",
+        "pergunta": "Se uma notícia é compartilhada por muitos amigos ao mesmo tempo, eu não preciso verificar se ela é real?",
+        "resposta": false,
+        "habilidade": "EF04CO08"
+      },
+      {
+        "id": 29,
+        "dificuldade": "Difícil",
+        "pergunta": "Um navio que ocupa 4 casas seguidas em um grid 10x10 pode estar metade na linha 5 e metade na linha 6?",
+        "resposta": false,
+        "habilidade": "EF04CO01"
+      },
+      {
+        "id": 30,
+        "dificuldade": "Difícil",
+        "pergunta": "A expressão 'Não (3 + 3 = 6)' resulta em um valor Falso?",
+        "resposta": true,
+        "habilidade": "EF03CO01"
+      },
+      
+      {
+        "id": 31,
+        "dificuldade": "Fácil",
+        "pergunta": "Um navio que ocupa 2 casas pode estar na horizontal (deitado) ou na vertical (em pé)?",
+        "resposta": true,
+        "habilidade": "EF04CO01"
+      },
+      {
+        "id": 32,
+        "dificuldade": "Fácil",
+        "pergunta": "Se 5 + 5 é 10, então a frase '5 + 5 não é 10' é Falsa?",
+        "resposta": true,
+        "habilidade": "EF03CO01"
+      },
+      {
+        "id": 33,
+        "dificuldade": "Fácil",
+        "pergunta": "A posição A1 é vizinha da posição A2?",
+        "resposta": true,
+        "habilidade": "EF04CO01"
+      },
+      {
+        "id": 34,
+        "dificuldade": "Médio",
+        "pergunta": "Para mover um navio da coluna B para a coluna A, eu ando para a esquerda?",
+        "resposta": true,
+        "habilidade": "EF04CO01"
+      },
+      {
+        "id": 35,
+        "dificuldade": "Médio",
+        "pergunta": "O radar mostra um ponto preto. Isso significa que eu já sei com certeza que é um navio inimigo?",
+        "resposta": false,
+        "habilidade": "EF04CO08"
+      },
+      {
+        "id": 36,
+        "dificuldade": "Médio",
+        "pergunta": "A sentença '(10 > 8) E (5 < 3)' é Verdadeira?",
+        "resposta": false,
+        "habilidade": "EF03CO01"
+      },
+      {
+        "id": 37,
+        "dificuldade": "Difícil",
+        "pergunta": "Se um navio está em G7 e se move 3 casas para cima, ele vai parar na posição G4?",
+        "resposta": true,
+        "habilidade": "EF04CO01"
+      },
+      {
+        "id": 38,
+        "dificuldade": "Difícil",
+        "pergunta": "Verificar a fonte de uma notícia significa perguntar para qualquer pessoa se ela gostou da notícia?",
+        "resposta": false,
+        "habilidade": "EF04CO08"
+      },
+      {
+        "id": 39,
+        "dificuldade": "Difícil",
+        "pergunta": "A expressão 'Não (2 + 2 = 5)' resulta em um valor Verdadeiro?",
+        "resposta": true,
+        "habilidade": "EF03CO01"
+      },
+      {
+        "id": 40,
+        "dificuldade": "Difícil",
+        "pergunta": "Em um tabuleiro 10x10, a célula central é a A1?",
+        "resposta": false,
+        "habilidade": "EF04CO01"
+      }
+      
+
+]
