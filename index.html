@@ -3,21 +3,45 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Guerra Dos Mares</title>
+    <title>Guerra dos Mares</title>
+    <link rel="stylesheet" href="assets/css/style.css">
 </head>
 <body>
-    <main id="game-container">
-    
-        <section class="board-section">
-            <h2>Sua Frota</h2>
-            <div id="player-grid" class="grid"></div>
+    <a class="skip-link" href="#game-board">Ir para os oceanos</a>
+
+    <header class="game-header">
+        <div>
+            <p class="game-kicker">Jogo educativo</p>
+            <h1>Guerra dos Mares</h1>
+        </div>
+        <div class="game-status" aria-label="Status inicial da partida">
+            <span>Moedas: <strong id="coins-value">5000</strong></span>
+            <span>Turno: <strong id="turn-value">Jogador</strong></span>
+        </div>
+    </header>
+
+    <main id="game-board" class="game-shell">
+        <section class="boards-layout" aria-label="Oceanos do jogo">
+            <article class="board-panel" aria-labelledby="ally-title">
+                <h2 id="ally-title">Oceano Aliado</h2>
+                <div id="ally-grid" class="ocean-grid" role="grid" aria-label="Grid do Oceano Aliado"></div>
+            </article>
+
+            <article class="board-panel" aria-labelledby="neutral-title">
+                <h2 id="neutral-title">Oceano Neutro</h2>
+                <div id="neutral-grid" class="ocean-grid" role="grid" aria-label="Grid do Oceano Neutro"></div>
+            </article>
+
+            <article class="board-panel" aria-labelledby="enemy-title">
+                <h2 id="enemy-title">Oceano Inimigo</h2>
+                <div id="enemy-grid" class="ocean-grid" role="grid" aria-label="Grid do Oceano Inimigo"></div>
+            </article>
         </section>
-    
-        <section class="board-section">
-            <h2>Radar Inimigo</h2>
-            <div id="machine-grid" class="grid"></div>
-        </section>
-    
     </main>
+
+    <script src="assets/js/score.js"></script>
+    <script src="assets/js/ui.js"></script>
+    <script src="assets/js/ai.js"></script>
+    <script src="assets/js/main.js"></script>
 </body>
 </html>

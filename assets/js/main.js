@@ -1,35 +1,104 @@
+const GRID_SIZE = 10;
+const GRID_COLUMNS = 'ABCDEFGHIJ'.split('');
+
 const gameState = {
-    gridSize: 10,
-    playerBoard: [], // Matriz 10x10
-    machineBoard: [], // Matriz 10x10
+    gridSize: GRID_SIZE,
+    difficulty: 'facil',
+    coins: 5000,
     turn: 'player',
-    moedas: 5000,
-    score: 0
+    boards: {
+        ally: [],
+        neutral: [],
+        enemy: []
+    },
+    questions: []
 };
 
-function gerarGrid(containerId) {
-    const gridElement = document.getElementById(containerId);
-    
-    for (let linha = 0; l < 10; l++) {
-        for (let coluna = 0; c < 10; c++) {
-            const celula = document.createElement('div');
-            celula.classList.add('celula');
-            
-            // Define a coordenada da célula
-            celula.dataset.linha = linha;
-            celula.dataset.coluna = coluna;
+function createEmptyBoard() {
+    return Array.from({ length: GRID_SIZE }, () =>
+        Array.from({ length: GRID_SIZE }, () => ({
+            type: 'water',
+            revealed: false
+        }))
+    );
+}
 
-            // Evento de clique para interagir (atacar ou analisar)
-            celula.addEventListener('click', () => {
-                console.log(`Clicou na posição: Linha ${linha}, Coluna ${coluna}`);
-                // Aqui você chamará a função de ataque ou de pergunta lógica
+function getCoordinate(row, column) {
+    return `${GRID_COLUMNS[column]}${row + 1}`;
+}
+
+function renderGrid(boardName, containerId) {
+    const gridElement = document.getElementById(containerId);
+
+    if (!gridElement) return;
+
+    gridElement.innerHTML = '';
+
+    for (let row = 0; row < GRID_SIZE; row += 1) {
+        for (let column = 0; column < GRID_SIZE; column += 1) {
+            const coordinate = getCoordinate(row, column);
+            const cell = document.createElement('button');
+
+            cell.className = 'ocean-cell';
+            cell.type = 'button';
+            cell.dataset.board = boardName;
+            cell.dataset.row = String(row);
+            cell.dataset.column = String(column);
+            cell.setAttribute('role', 'gridcell');
+            cell.setAttribute('aria-label', `${coordinate}, ${getBoardLabel(boardName)}`);
+
+            cell.addEventListener('click', () => {
+                handleCellSelection(boardName, row, column);
             });
 
-            gridElement.appendChild(celula);
+            gridElement.appendChild(cell);
         }
     }
 }
 
-// Inicializa os grids ao carregar o jogo
-gerarGrid('player-grid');
-gerarGrid('machine-grid');
+function getBoardLabel(boardName) {
+    const labels = {
+        ally: 'Oceano Aliado',
+        neutral: 'Oceano Neutro',
+        enemy: 'Oceano Inimigo'
+    };
+
+    return labels[boardName] || 'Oceano';
+}
+
+function handleCellSelection(boardName, row, column) {
+    const coordinate = getCoordinate(row, column);
+    console.log(`Selecionou ${coordinate} em ${getBoardLabel(boardName)}.`);
+}
+
+async function loadQuestions() {
+    try {
+        const response = await fetch('assets/js/perguntas.json');
+
+        if (!response.ok) {
+            throw new Error(`HTTP ${response.status}`);
+        }
+
+        gameState.questions = await response.json();
+    } catch (error) {
+        console.log('Falha ao carregar perguntas:', error?.message || error);
+        gameState.questions = [];
+    }
+}
+
+function setupBoards() {
+    gameState.boards.ally = createEmptyBoard();
+    gameState.boards.neutral = createEmptyBoard();
+    gameState.boards.enemy = createEmptyBoard();
+
+    renderGrid('ally', 'ally-grid');
+    renderGrid('neutral', 'neutral-grid');
+    renderGrid('enemy', 'enemy-grid');
+}
+
+function initGame() {
+    setupBoards();
+    loadQuestions();
+}
+
+document.addEventListener('DOMContentLoaded', initGame);

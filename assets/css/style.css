@@ -1,25 +1,196 @@
-.grid {
+:root {
+    --bg: #f2f7fb;
+    --surface: #ffffff;
+    --surface-strong: #e6f0f7;
+    --text: #102231;
+    --muted: #526577;
+    --line: #b9cada;
+    --ocean: #0f6fa8;
+    --ocean-deep: #0a4f7a;
+    --focus: #f3b43f;
+    --shadow: 0 14px 30px rgba(17, 47, 72, 0.14);
+    --cell-size: clamp(24px, 5.8vw, 42px);
+}
+
+* {
+    box-sizing: border-box;
+}
+
+body {
+    min-height: 100vh;
+    margin: 0;
+    background: var(--bg);
+    color: var(--text);
+    font-family: Arial, Helvetica, sans-serif;
+    font-size: 16px;
+    line-height: 1.4;
+}
+
+button,
+[tabindex] {
+    font: inherit;
+}
+
+:focus-visible {
+    outline: 3px solid var(--focus);
+    outline-offset: 3px;
+}
+
+.skip-link {
+    position: absolute;
+    left: 16px;
+    top: 12px;
+    z-index: 10;
+    padding: 8px 12px;
+    background: var(--text);
+    color: #ffffff;
+    transform: translateY(-160%);
+}
+
+.skip-link:focus {
+    transform: translateY(0);
+}
+
+.game-header {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 24px;
+    padding: 24px clamp(16px, 4vw, 40px);
+    background: var(--surface);
+    border-bottom: 1px solid var(--line);
+}
+
+.game-kicker {
+    margin: 0 0 4px;
+    color: var(--muted);
+    font-size: 0.85rem;
+    font-weight: 700;
+    text-transform: uppercase;
+}
+
+h1,
+h2 {
+    margin: 0;
+}
+
+h1 {
+    font-size: clamp(1.7rem, 4vw, 2.6rem);
+}
+
+h2 {
+    font-size: 1.05rem;
+}
+
+.game-status {
+    display: flex;
+    flex-wrap: wrap;
+    justify-content: flex-end;
+    gap: 10px;
+    color: var(--muted);
+}
+
+.game-status span {
+    padding: 8px 10px;
+    background: var(--surface-strong);
+    border: 1px solid var(--line);
+    border-radius: 6px;
+}
+
+.game-shell {
+    width: min(1480px, 100%);
+    margin: 0 auto;
+    padding: clamp(16px, 4vw, 32px);
+}
+
+.boards-layout {
     display: grid;
-    /* Cria 10 colunas de tamanhos iguais */
-    grid-template-columns: repeat(10, 40px); 
-    /* Cria 10 linhas de tamanhos iguais */
-    grid-template-rows: repeat(10, 40px);    
-    gap: 2px; /* Espaço entre as células */
-    background-color: #001a33; /* Cor do mar fundo */
-    border: 2px solid #0055ff;
-    width: fit-content;
-    margin: 20px auto;
+    grid-template-columns: repeat(3, minmax(280px, 1fr));
+    gap: 20px;
+    align-items: start;
 }
 
-.celula {
-    width: 40px;
-    height: 40px;
-    background-color: #003366;
-    border: 1px solid #004488;
+.board-panel {
+    min-width: 0;
+}
+
+.board-panel h2 {
+    margin-bottom: 10px;
+}
+
+.ocean-grid {
+    display: grid;
+    grid-template-columns: repeat(10, var(--cell-size));
+    grid-template-rows: repeat(10, var(--cell-size));
+    gap: 2px;
+    width: max-content;
+    max-width: 100%;
+    padding: 6px;
+    overflow: auto;
+    background: var(--ocean-deep);
+    border: 2px solid var(--ocean-deep);
+    border-radius: 8px;
+    box-shadow: var(--shadow);
+}
+
+.ocean-cell {
+    display: grid;
+    place-items: center;
+    width: var(--cell-size);
+    height: var(--cell-size);
+    min-width: var(--cell-size);
+    min-height: var(--cell-size);
+    padding: 0;
+    color: #ffffff;
+    background: var(--ocean);
+    border: 1px solid rgba(255, 255, 255, 0.28);
+    border-radius: 4px;
     cursor: pointer;
-    transition: background 0.3s;
 }
 
-.celula:hover {
-    background-color: #0055ff; /* Efeito de destaque */
+.ocean-cell:hover {
+    background: #1786c8;
+}
+
+.ocean-cell:focus-visible {
+    position: relative;
+    z-index: 1;
+}
+
+body.high-contrast {
+    --bg: #000000;
+    --surface: #101010;
+    --surface-strong: #1f1f1f;
+    --text: #ffffff;
+    --muted: #e8e8e8;
+    --line: #ffffff;
+    --ocean: #003cff;
+    --ocean-deep: #ffffff;
+    --focus: #ffff00;
+}
+
+body.font-large {
+    font-size: 18px;
+}
+
+@media (max-width: 1120px) {
+    .boards-layout {
+        grid-template-columns: 1fr;
+    }
+
+    .ocean-grid {
+        width: 100%;
+        justify-content: start;
+    }
+}
+
+@media (max-width: 640px) {
+    .game-header {
+        align-items: flex-start;
+        flex-direction: column;
+    }
+
+    .game-status {
+        justify-content: flex-start;
+    }
 }
