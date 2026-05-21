@@ -10,38 +10,81 @@
     <a class="skip-link" href="#game-board">Ir para os oceanos</a>
 
     <header class="game-header">
-        <div>
-            <p class="game-kicker">Jogo educativo</p>
-            <h1>Guerra dos Mares</h1>
+        <div class="brand-block">
+            <div>
+                <h1>Guerra dos Mares</h1>
+                <p class="game-subtitle">Estrategia naval, coordenadas e analise de risco.</p>
+            </div>
         </div>
-        <div class="game-status" aria-label="Status inicial da partida">
-            <span>Moedas: <strong id="coins-value">5000</strong></span>
-            <span>Turno: <strong id="turn-value">Jogador</strong></span>
+
+        <div class="game-status" aria-label="Status da partida">
+            <span class="status-chip">
+                <span>Moedas <strong id="coins-value">0</strong></span>
+            </span>
+            <span class="status-chip">
+                <span>Fase <strong id="turn-value">Preparacao</strong></span>
+            </span>
         </div>
     </header>
 
-    <main id="game-board" class="game-shell">
-        <section class="boards-layout" aria-label="Oceanos do jogo">
-            <article class="board-panel" aria-labelledby="ally-title">
-                <h2 id="ally-title">Oceano Aliado</h2>
-                <div id="ally-grid" class="ocean-grid" role="grid" aria-label="Grid do Oceano Aliado"></div>
-            </article>
+    <main class="game-shell">
+        <section id="setup-screen" class="setup-screen" aria-labelledby="setup-title">
+            <div class="section-title">
+                <p>Preparacao</p>
+                <h2 id="setup-title">Configure a partida</h2>
+            </div>
 
-            <article class="board-panel" aria-labelledby="neutral-title">
-                <h2 id="neutral-title">Oceano Neutro</h2>
-                <div id="neutral-grid" class="ocean-grid" role="grid" aria-label="Grid do Oceano Neutro"></div>
-            </article>
+            <div class="setup-layout">
+                <article class="difficulty-panel" aria-labelledby="difficulty-title">
+                    <h3 id="difficulty-title">Dificuldade</h3>
+                    <div id="difficulty-options" class="difficulty-options" role="radiogroup" aria-label="Selecao de dificuldade"></div>
+                    <div class="balance-preview">
+                        <span>Saldo inicial</span>
+                        <strong id="setup-coins-value">0 moedas</strong>
+                    </div>
+                    <button id="start-game-button" class="primary-action" type="button">Iniciar posicionamento</button>
+                </article>
 
-            <article class="board-panel" aria-labelledby="enemy-title">
-                <h2 id="enemy-title">Oceano Inimigo</h2>
-                <div id="enemy-grid" class="ocean-grid" role="grid" aria-label="Grid do Oceano Inimigo"></div>
-            </article>
+                <article class="ship-reference-panel" aria-labelledby="ship-reference-title">
+                    <h3 id="ship-reference-title">Navios disponiveis</h3>
+                    <div id="setup-ship-list" class="setup-ship-list"></div>
+                </article>
+            </div>
+        </section>
+
+        <section id="game-board" class="game-area is-hidden" aria-label="Area principal do jogo">
+            <aside class="fleet-panel" aria-labelledby="fleet-title">
+                <div class="section-title compact">
+                    <p>Loja da frota</p>
+                    <h2 id="fleet-title">Posicionamento</h2>
+                </div>
+                <div id="placement-message" class="placement-message" role="status" aria-live="polite">
+                    Escolha um navio para posicionar no Oceano Aliado.
+                </div>
+                <div id="ship-shop-list" class="ship-shop-list" aria-label="Lista de navios para posicionamento"></div>
+                <div class="keyboard-help" aria-label="Comandos de teclado">
+                    <span>WASD move</span>
+                    <span>R gira</span>
+                    <span>Enter confirma</span>
+                    <span>Esc cancela</span>
+                </div>
+            </aside>
+
+            <section class="board-map" aria-label="Mapa maritimo com grid unica">
+                <div id="boards-layout" class="boards-layout" aria-label="Oceanos do jogo"></div>
+            </section>
         </section>
     </main>
 
+    <script src="assets/js/config.js"></script>
+    <script src="assets/js/state.js"></script>
     <script src="assets/js/score.js"></script>
     <script src="assets/js/ui.js"></script>
     <script src="assets/js/ai.js"></script>
+    <script src="assets/js/sprites.js"></script>
+    <script src="assets/js/grid.js"></script>
+    <script src="assets/js/shop.js"></script>
+    <script src="assets/js/placement.js"></script>
     <script src="assets/js/main.js"></script>
 </body>
 </html>
