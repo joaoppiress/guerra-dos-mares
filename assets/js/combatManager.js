@@ -93,10 +93,12 @@ class CombatManager {
         }
 
         ship.atacar(targetPosition, GameState.match.turnoAtual);
+        TurnManager.updateSelectedShipPanel();
         const target = this.getTargetAt(targetPosition, ship.ownerId);
 
         if (!target) {
             TurnManager.setBattleMessage('Ataque na agua. Nenhum alvo atingido.', 'info');
+            TurnManager.updateSelectedShipPanel();
             TurnManager.finishTurnIfNoActions();
             return true;
         }
@@ -106,11 +108,13 @@ class CombatManager {
             ship.destruir();
             this.markShipDestroyed(ship);
             TurnManager.setBattleMessage(`${ship.nome} atacou uma armadilha e foi destruido.`, 'warning');
+            TurnManager.updateSelectedShipPanel();
             TurnManager.finishTurnIfNoActions();
             return true;
         }
 
         target.item.receberDano(ship.dano);
+        TurnManager.updateSelectedShipPanel();
 
         if (target.item.isDestroyed) {
             this.markShipDestroyed(target.item);
@@ -125,6 +129,7 @@ class CombatManager {
         }
 
         RadarManager.scanRadar();
+        TurnManager.updateSelectedShipPanel();
         TurnManager.finishTurnIfNoActions();
         return true;
     }
@@ -165,6 +170,7 @@ class CombatManager {
         }
 
         ship.atacar(position, GameState.match.turnoAtual);
+        TurnManager.updateSelectedShipPanel();
 
         const trap = new Trap({
             id: `trap-${Date.now()}-${GameState.battle.traps.length}`,
@@ -179,6 +185,7 @@ class CombatManager {
         GameState.battle.mainActionAvailable = false;
         RadarManager.scanRadar();
         TurnManager.setBattleMessage('Armadilha lancada.', 'success');
+        TurnManager.updateSelectedShipPanel();
         TurnManager.finishTurnIfNoActions();
         return true;
     }

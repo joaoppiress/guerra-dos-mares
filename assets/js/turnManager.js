@@ -133,12 +133,12 @@ class TurnManager {
 
     static selectShip(ship) {
         GameState.battle.selectedShipId = ship.id;
-        this.updateSelectionLabel(ship);
+        this.updateSelectedShipPanel();
         this.setBattleMessage(`${ship.nome} selecionado.`, 'info');
     }
 
-    static updateSelectionLabel(ship = null) {
-        const selectedShip = ship || MovementManager.getShipById(GameState.battle.selectedShipId);
+    static updateSelectedShipPanel() {
+        const selectedShip = MovementManager.getShipById(GameState.battle.selectedShipId);
         const label = document.getElementById('battle-selection');
 
         if (!label) return;
@@ -148,7 +148,16 @@ class TurnManager {
             return;
         }
 
-        label.textContent = `${selectedShip.nome} | HP ${selectedShip.hp}/${selectedShip.maxHp} | Cargas ${selectedShip.cargasDisponiveis}/${selectedShip.capacidadeMaximaDeCargas}`;
+        const status = selectedShip.isDestroyed ? ' | Destruido' : '';
+        const position = selectedShip.zoneId
+            ? ` | Pos ${selectedShip.zoneId} ${selectedShip.column + 1},${selectedShip.row + 1}`
+            : '';
+
+        label.textContent = `${selectedShip.nome} | HP ${selectedShip.hp}/${selectedShip.maxHp} | Cargas ${selectedShip.cargasDisponiveis}/${selectedShip.capacidadeMaximaDeCargas}${position}${status}`;
+    }
+
+    static updateSelectionLabel() {
+        this.updateSelectedShipPanel();
     }
 
     static updateActionButtons() {
@@ -200,7 +209,10 @@ class TurnManager {
     static processReloads() {
         if (!GameState.match) return [];
 
-        return GameState.match.processarTodasAsRecargas();
+        const reloads = GameState.match.processarTodasAsRecargas();
+        this.updateSelectedShipPanel();
+
+        return reloads;
     }
 
     static nextTurn() {
@@ -209,7 +221,7 @@ class TurnManager {
         GameState.match.nextTurn();
         this.resetActionsForTurn();
         this.updateHud();
-        this.updateSelectionLabel();
+        this.updateSelectedShipPanel();
         RadarManager.scanRadar();
 
         const isHumanTurn = GameState.isHumanTurn();
@@ -244,6 +256,18 @@ class TurnManager {
     }
 }
 
+function updateSelectedShipPanel() {
+    return TurnManager.updateSelectedShipPanel();
+}
+
+function renderSelectedShipInfo() {
+    return TurnManager.updateSelectedShipPanel();
+}
+
+function atualizarPainelNavioSelecionado() {
+    return TurnManager.updateSelectedShipPanel();
+}
+
 function randomizeFirstPlayer() {
     return TurnManager.randomizeFirstPlayer();
 }
@@ -257,6 +281,9 @@ function processReloads() {
 }
 
 globalThis.TurnManager = TurnManager;
+globalThis.updateSelectedShipPanel = updateSelectedShipPanel;
+globalThis.renderSelectedShipInfo = renderSelectedShipInfo;
+globalThis.atualizarPainelNavioSelecionado = atualizarPainelNavioSelecionado;
 globalThis.randomizeFirstPlayer = randomizeFirstPlayer;
 globalThis.nextTurn = nextTurn;
 globalThis.processReloads = processReloads;

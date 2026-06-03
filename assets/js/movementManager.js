@@ -155,10 +155,12 @@ class MovementManager {
 
         this.occupyShipCells(ship, ship.ownerId === 'player');
         RadarManager.scanRadar();
+        TurnManager.updateSelectedShipPanel();
 
         if (isHumanAction) {
             GameState.battle.mainActionAvailable = false;
             TurnManager.setBattleMessage(`${ship.nome} movido.`, 'success');
+            TurnManager.updateSelectedShipPanel();
             TurnManager.finishTurnIfNoActions();
         }
 
