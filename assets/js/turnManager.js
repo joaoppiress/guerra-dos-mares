@@ -190,6 +190,11 @@ class TurnManager {
     static resetActionsForTurn() {
         GameState.battle.mainActionAvailable = true;
         GameState.battle.analysisAvailable = true;
+
+        const player = GameState.getHumanPlayer();
+        if (player && GameState.isHumanTurn()) {
+            player.analiseDisponivel = true;
+        }
     }
 
     static processReloads() {

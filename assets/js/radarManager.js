@@ -41,6 +41,16 @@ class RadarManager {
         return [...GameState.battle.unknownObjects.values()];
     }
 
+    static getRevealedTarget(key, target) {
+        const revealedByPosition = GameState.battle.revealedObjects.get(key);
+
+        if (revealedByPosition) return revealedByPosition;
+
+        return [...GameState.battle.revealedObjects.values()].find((revealed) =>
+            revealed.item === target.item
+        ) || null;
+    }
+
     static isDetectedByAnyShip(position, ships) {
         return ships.some((ship) =>
             ship.positions.some((shipPosition) => {
@@ -56,7 +66,7 @@ class RadarManager {
 
     static showUnknownObject(position, target) {
         const key = this.getPositionKey(position);
-        const revealed = GameState.battle.revealedObjects.get(key);
+        const revealed = this.getRevealedTarget(key, target);
         const cell = GridView.getCell(position.zoneId, position.row, position.column);
 
         GameState.battle.unknownObjects.set(key, {

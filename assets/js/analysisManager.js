@@ -18,12 +18,74 @@ class AnalysisManager {
 
     static getQuestionForCurrentDifficulty() {
         const difficulty = this.normalizeDifficulty(GameState.difficulty);
-        const questions = GameState.questions.filter((question) => question.dificuldade === difficulty);
-        const pool = questions.length > 0 ? questions : GameState.questions;
+        const pool = GameState.questions.filter((question) => question.dificuldade === difficulty);
 
         if (pool.length === 0) return null;
 
         return pool[Math.floor(Math.random() * pool.length)];
+    }
+
+    static getAnalysisAvailable() {
+        const player = GameState.getHumanPlayer();
+
+        return Boolean(GameState.battle.analysisAvailable && (!player || player.analiseDisponivel));
+    }
+
+    static setAnalysisAvailable(isAvailable) {
+        const player = GameState.getHumanPlayer();
+
+        GameState.battle.analysisAvailable = isAvailable;
+
+        if (player) {
+            player.analiseDisponivel = isAvailable;
+        }
+    }
+
+    static isTargetAlive(target) {
+        if (!target) return false;
+
+        if (target.type === 'trap') {
+            return target.item?.isActive !== false;
+        }
+
+        return Boolean(target.item && !target.item.isDestroyed && target.item.hp > 0);
+    }
+
+    static isTargetRevealed(key, target) {
+        if (GameState.battle.revealedObjects.has(key)) return true;
+
+        return [...GameState.battle.revealedObjects.values()].some((revealed) =>
+            revealed.item === target.item
+        );
+    }
+
+    static isPositionDetected(position) {
+        const playerShips = GameState.match.players.player.inventario.navios
+            .filter((ship) => !ship.isDestroyed);
+
+        return RadarManager.isDetectedByAnyShip(position, playerShips);
+    }
+
+    static getAnalyzableUnknown(position) {
+        const key = MovementManager.getCellKey(position);
+        const knownUnknown = GameState.battle.unknownObjects.get(key);
+        const target = knownUnknown || CombatManager.getTargetAt(position, 'player');
+
+        if (!target) return null;
+        if (!this.isTargetAlive(target)) return null;
+        if (this.isTargetRevealed(key, target)) return null;
+        if (!this.isPositionDetected(position)) return null;
+
+        if (!knownUnknown) {
+            RadarManager.showUnknownObject(position, target);
+        }
+
+        return {
+            key,
+            position,
+            type: target.type,
+            item: target.item
+        };
     }
 
     static analyzeUnknownObject(position) {
@@ -34,13 +96,12 @@ class AnalysisManager {
             return false;
         }
 
-        if (!GameState.battle.analysisAvailable) {
+        if (!this.getAnalysisAvailable()) {
             TurnManager.setBattleMessage('Voce ja usou a analise desta rodada.', 'warning');
             return false;
         }
 
-        const key = MovementManager.getCellKey(position);
-        const unknown = GameState.battle.unknownObjects.get(key);
+        const unknown = this.getAnalyzableUnknown(position);
 
         if (!unknown) {
             TurnManager.setBattleMessage('Nao ha objeto desconhecido nessa posicao.', 'warning');
@@ -54,7 +115,7 @@ class AnalysisManager {
             return false;
         }
 
-        this.currentAnalysis = { key, unknown, question };
+        this.currentAnalysis = { key: unknown.key, unknown, question };
         this.openModal(question);
         return true;
     }
@@ -107,18 +168,18 @@ class AnalysisManager {
         if (!this.currentAnalysis) return;
 
         const { key, unknown, question } = this.currentAnalysis;
-        const isCorrect = answer === Boolean(question.resposta);
+        const acertou = answer === question.resposta;
         const modal = this.ensureModal();
         const feedback = modal.querySelector('#analysis-feedback');
 
-        GameState.battle.analysisAvailable = false;
+        this.setAnalysisAvailable(false);
 
-        if (isCorrect) {
+        if (acertou) {
             GameState.battle.revealedObjects.set(key, {
                 type: unknown.type,
                 item: unknown.item
             });
-            feedback.textContent = `Correto. O objeto e ${unknown.type === 'trap' ? 'uma armadilha' : 'um navio'}. ${question.explicacao}`;
+            feedback.textContent = `Correto. O objeto e ${unknown.type === 'trap' ? 'uma armadilha' : 'uma embarcacao inimiga'}. ${question.explicacao}`;
             TurnManager.setBattleMessage('Objeto revelado pela analise.', 'success');
         } else {
             feedback.textContent = `Resposta incorreta. ${question.explicacao}`;

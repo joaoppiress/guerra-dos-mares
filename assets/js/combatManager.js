@@ -114,9 +114,14 @@ class CombatManager {
 
         if (target.item.isDestroyed) {
             this.markShipDestroyed(target.item);
-            TurnManager.setBattleMessage(`${target.item.nome} foi destruido.`, 'success');
+            TurnManager.setBattleMessage(isUnknownTarget ? 'Embarcacao inimiga desconhecida destruida.' : `${target.item.nome} foi destruido.`, 'success');
         } else {
-            TurnManager.setBattleMessage(`${target.item.nome} recebeu ${ship.dano} de dano.`, 'success');
+            TurnManager.setBattleMessage(
+                isUnknownTarget
+                    ? 'Embarcacao inimiga desconhecida recebeu dano e continua sem identificacao.'
+                    : `${target.item.nome} recebeu ${ship.dano} de dano.`,
+                'success'
+            );
         }
 
         RadarManager.scanRadar();

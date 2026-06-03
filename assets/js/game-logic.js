@@ -151,6 +151,7 @@ class Player {
             navios: [],
             armadilhas: []
         };
+        this.analiseDisponivel = true;
     }
 
     /**

@@ -60,6 +60,10 @@ const GameState = {
         this.battle.traps = [];
         this.battle.messages = [];
 
+        if (this.match.players.player) {
+            this.match.players.player.analiseDisponivel = true;
+        }
+
         return true;
     },
 
