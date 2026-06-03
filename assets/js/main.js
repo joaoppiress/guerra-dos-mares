@@ -25,7 +25,32 @@ function startGame() {
     GridView.renderBoards();
     ShopView.refreshHud();
     PlacementController.init();
+    createBattleStartButton();
     SpriteAnimator.start();
+}
+
+function createBattleStartButton() {
+    const panel = document.querySelector('.fleet-panel');
+
+    if (!panel || document.getElementById('start-battle-button')) return;
+
+    const button = document.createElement('button');
+    button.id = 'start-battle-button';
+    button.className = 'primary-action start-battle-action';
+    button.type = 'button';
+    button.disabled = true;
+    button.textContent = 'Iniciar batalha';
+    button.addEventListener('click', () => {
+        const shopList = document.getElementById('ship-shop-list');
+        const keyboardHelp = document.querySelector('.keyboard-help');
+
+        if (shopList) shopList.classList.add('is-hidden');
+        if (keyboardHelp) keyboardHelp.classList.add('is-hidden');
+
+        TurnManager.startBattle();
+    });
+
+    panel.appendChild(button);
 }
 
 function bindSetupActions() {

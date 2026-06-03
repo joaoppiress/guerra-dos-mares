@@ -180,13 +180,22 @@ const PlacementController = {
             return false;
         }
 
-        if (!GameState.spendCoins(ship.price)) {
-            this.setMessage(`Moedas insuficientes para posicionar ${ship.name}.`, 'warning');
+        const instanceId = `${ship.id}-${Date.now()}-${GameState.placedShips.length}`;
+        let purchasedShip = null;
+
+        try {
+            purchasedShip = GameState.buyShip({
+                ...ship,
+                instanceId
+            });
+        } catch (error) {
+            this.setMessage(error?.message || `Moedas insuficientes para posicionar ${ship.name}.`, 'warning');
             return false;
         }
 
         const placedShip = {
-            instanceId: `${ship.id}-${Date.now()}-${GameState.placedShips.length}`,
+            instanceId,
+            logicShipId: purchasedShip.id,
             shipId: ship.id,
             name: ship.name,
             zoneId: 'ally',
@@ -202,8 +211,20 @@ const PlacementController = {
             positions
         };
 
+        purchasedShip.atualizarPosicao({
+            zoneId: 'ally',
+            row,
+            column,
+            orientation: this.orientation,
+            positions: positions.map((position) => ({
+                zoneId: 'ally',
+                row: position.row,
+                column: position.column
+            }))
+        });
+
         positions.forEach((position) => {
-            GameState.boards.ally[position.row][position.column].shipInstanceId = placedShip.instanceId;
+            GameState.boards.ally[position.row][position.column].shipInstanceId = purchasedShip.id;
             GameState.boards.ally[position.row][position.column].state = 'ship';
         });
 
@@ -213,8 +234,17 @@ const PlacementController = {
         GameState.selectedShipId = null;
         GameState.keyboardPlacement = null;
         ShopView.refreshHud();
+        this.updateBattleStartAvailability();
         this.setMessage(`${ship.name} posicionado na coluna ${column + 1}, linha ${row + 1}.`, 'success');
         return true;
+    },
+
+    updateBattleStartAvailability() {
+        const button = document.getElementById('start-battle-button');
+
+        if (!button) return;
+
+        button.disabled = GameState.placedShips.length === 0;
     },
 
     moveKeyboardPreview(key) {
