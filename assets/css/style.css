@@ -1,20 +1,38 @@
+@import url('https://fonts.googleapis.com/css2?family=Fredoka+One&family=Nunito:wght@400;600;700;800;900&display=swap');
+
 :root {
-    --bg: #eef3f7;
+    /* ── Paleta das prints ── */
+    --bg: #2B7DE9;
+    --bg-deep: #1a5fc7;
     --surface: #ffffff;
-    --surface-2: #f7fafc;
-    --line: #d7e1ea;
-    --line-strong: #9fb4c6;
-    --text: #172433;
-    --muted: #637487;
-    --accent: #176b87;
-    --accent-2: #0f4f66;
-    --ally: #8fc7df;
-    --neutral: #a9d7dd;
-    --enemy: #d9b2aa;
-    --valid: #57b781;
-    --invalid: #d86a6a;
-    --ship: #2e5368;
-    --focus: #e0ad2f;
+    --surface-2: rgba(255, 255, 255, 0.18);
+    --line: rgba(255, 255, 255, 0.35);
+    --line-strong: rgba(255, 255, 255, 0.6);
+    --text: #1a2e5c;
+    --text-light: #ffffff;
+    --muted: rgba(255, 255, 255, 0.72);
+    --accent: #F5C518;
+    --accent-2: #e0ad0a;
+    --accent-dark: #1a2e5c;
+
+    /* Zonas do oceano */
+    --ally: #5bb8f5;
+    --neutral: #4da8e8;
+    --enemy: #7b9fd4;
+
+    /* Estados */
+    --valid: #4CAF50;
+    --invalid: #F44336;
+    --ship: #1a3a6c;
+    --focus: #F5C518;
+
+    /* Modal / desafio */
+    --modal-bg: rgba(30, 20, 60, 0.82);
+    --badge-easy: #4CAF50;
+    --badge-medium: #FF9800;
+    --badge-hard: #7B5CF6;
+    --btn-true: #4CAF50;
+    --btn-false: #F44336;
 }
 
 * {
@@ -28,9 +46,13 @@ body {
 
 body {
     margin: 0;
-    color: var(--text);
+    color: var(--text-light);
     background: var(--bg);
-    font-family: "Segoe UI", Arial, Helvetica, sans-serif;
+    background-image:
+        radial-gradient(ellipse at 30% 20%, #4a9eff 0%, transparent 50%),
+        radial-gradient(ellipse at 75% 80%, #1a5fc7 0%, transparent 45%),
+        radial-gradient(ellipse at 90% 10%, #5baeff 0%, transparent 30%);
+    font-family: 'Nunito', 'Segoe UI', Arial, Helvetica, sans-serif;
     font-size: 15px;
     line-height: 1.35;
 }
@@ -54,8 +76,9 @@ dd {
 }
 
 :focus-visible {
-    outline: 3px solid var(--focus);
-    outline-offset: 2px;
+    outline: 4px solid var(--focus);
+    outline-offset: 3px;
+    border-radius: 6px;
 }
 
 .is-hidden {
@@ -68,10 +91,10 @@ dd {
     top: 8px;
     z-index: 10;
     padding: 8px 10px;
-    color: var(--text);
-    background: #ffe08a;
-    border-radius: 4px;
-    font-weight: 700;
+    color: var(--accent-dark);
+    background: var(--focus);
+    border-radius: 12px;
+    font-weight: 900;
     transform: translateY(-150%);
 }
 
@@ -79,29 +102,39 @@ dd {
     transform: translateY(0);
 }
 
+/* ── HEADER ── */
 .game-header {
     display: flex;
     align-items: center;
     justify-content: space-between;
     gap: 16px;
     width: min(1480px, calc(100% - 24px));
-    margin: 10px auto 0;
-    padding: 10px 12px;
-    background: var(--surface);
-    border: 1px solid var(--line);
-    border-radius: 8px;
+    margin: 14px auto 0;
+    padding: 14px 20px;
+    background: rgba(255, 255, 255, 0.14);
+    backdrop-filter: blur(12px);
+    -webkit-backdrop-filter: blur(12px);
+    border: 2px solid rgba(255, 255, 255, 0.32);
+    border-radius: 24px;
+    box-shadow: 0 4px 0 rgba(0,0,0,0.12), 0 8px 32px rgba(0,0,0,0.1);
 }
 
 .brand-block h1 {
-    color: var(--text);
-    font-size: clamp(1.25rem, 2vw, 1.7rem);
-    font-weight: 750;
-    letter-spacing: 0;
+    color: var(--text-light);
+    font-family: 'Fredoka One', cursive;
+    font-size: clamp(1.4rem, 2.4vw, 2rem);
+    font-weight: 400;
+    letter-spacing: 0.05em;
+    text-transform: uppercase;
+    text-shadow: 0 2px 8px rgba(0,0,0,0.25);
 }
 
 .game-subtitle {
     color: var(--muted);
-    font-size: 0.9rem;
+    font-size: 0.82rem;
+    font-weight: 700;
+    letter-spacing: 0.1em;
+    text-transform: uppercase;
 }
 
 .game-status {
@@ -115,124 +148,155 @@ dd {
     display: flex;
     align-items: center;
     min-width: 116px;
-    padding: 7px 9px;
-    color: var(--muted);
-    background: var(--surface-2);
-    border: 1px solid var(--line);
-    border-radius: 6px;
-    font-size: 0.76rem;
-    font-weight: 700;
+    padding: 8px 14px;
+    color: rgba(255, 255, 255, 0.8);
+    background: rgba(255, 255, 255, 0.16);
+    border: 2px solid rgba(255, 255, 255, 0.3);
+    border-radius: 16px;
+    font-size: 0.72rem;
+    font-weight: 900;
     text-transform: uppercase;
+    letter-spacing: 0.06em;
+    box-shadow: 0 2px 0 rgba(0,0,0,0.1);
+    backdrop-filter: blur(8px);
+    -webkit-backdrop-filter: blur(8px);
 }
 
 .status-chip strong {
     display: block;
-    color: var(--text);
-    font-size: 1rem;
+    color: var(--accent);
+    font-family: 'Fredoka One', cursive;
+    font-size: 1.1rem;
     line-height: 1.1;
     text-transform: none;
+    text-shadow: 0 1px 4px rgba(0,0,0,0.2);
 }
 
+/* ── SHELL ── */
 .game-shell {
     width: min(1480px, 100%);
     margin: 0 auto;
-    padding: 10px 12px 18px;
+    padding: 12px 12px 20px;
 }
 
 .setup-screen,
 .game-area {
-    background: var(--surface);
-    border: 1px solid var(--line);
-    border-radius: 8px;
+    background: rgba(255, 255, 255, 0.14);
+    backdrop-filter: blur(14px);
+    -webkit-backdrop-filter: blur(14px);
+    border: 2px solid rgba(255, 255, 255, 0.32);
+    border-radius: 28px;
+    box-shadow: 0 4px 0 rgba(0,0,0,0.1), 0 16px 48px rgba(0,0,0,0.12);
 }
 
 .setup-screen {
-    padding: 14px;
+    padding: 20px;
 }
 
+/* ── SECTION TITLE ── */
 .section-title {
     display: grid;
     gap: 2px;
-    margin-bottom: 12px;
+    margin-bottom: 16px;
 }
 
 .section-title p {
-    color: var(--muted);
-    font-size: 0.72rem;
-    font-weight: 800;
-    letter-spacing: 0.06em;
+    color: var(--accent);
+    font-size: 0.7rem;
+    font-weight: 900;
+    letter-spacing: 0.14em;
     text-transform: uppercase;
 }
 
 .section-title h2 {
-    color: var(--text);
-    font-size: 1.15rem;
-    font-weight: 750;
+    color: var(--text-light);
+    font-family: 'Fredoka One', cursive;
+    font-size: 1.4rem;
+    font-weight: 400;
+    text-shadow: 0 2px 6px rgba(0,0,0,0.2);
 }
 
 .section-title.compact {
-    margin-bottom: 8px;
+    margin-bottom: 10px;
 }
 
+/* ── SETUP LAYOUT ── */
 .setup-layout {
     display: grid;
     grid-template-columns: minmax(240px, 320px) minmax(0, 1fr);
-    gap: 12px;
+    gap: 14px;
 }
 
 .difficulty-panel,
 .ship-reference-panel,
 .fleet-panel {
-    background: var(--surface-2);
-    border: 1px solid var(--line);
-    border-radius: 8px;
-    padding: 10px;
+    background: rgba(255, 255, 255, 0.18);
+    backdrop-filter: blur(10px);
+    -webkit-backdrop-filter: blur(10px);
+    border: 2px solid rgba(255, 255, 255, 0.3);
+    border-radius: 20px;
+    padding: 14px;
+    box-shadow: 0 2px 0 rgba(0,0,0,0.08), inset 0 1px 0 rgba(255,255,255,0.25);
 }
 
 .difficulty-panel h3,
 .ship-reference-panel h3 {
-    margin-bottom: 8px;
-    color: var(--text);
-    font-size: 0.95rem;
-    font-weight: 750;
+    margin-bottom: 10px;
+    color: var(--text-light);
+    font-family: 'Fredoka One', cursive;
+    font-size: 1.1rem;
+    font-weight: 400;
+    text-shadow: 0 1px 4px rgba(0,0,0,0.2);
 }
 
 .difficulty-options {
     display: grid;
-    gap: 6px;
+    gap: 8px;
 }
 
 .difficulty-option {
     display: grid;
-    gap: 2px;
+    gap: 3px;
     width: 100%;
-    padding: 9px;
-    color: var(--text);
-    background: var(--surface);
-    border: 1px solid var(--line);
-    border-radius: 6px;
+    padding: 12px 14px;
+    color: var(--text-light);
+    background: rgba(255, 255, 255, 0.12);
+    border: 2px solid rgba(255, 255, 255, 0.22);
+    border-radius: 16px;
     text-align: left;
     cursor: pointer;
+    transition: transform 0.12s, border-color 0.15s, box-shadow 0.15s, background 0.15s;
+    box-shadow: 0 2px 0 rgba(0,0,0,0.1);
 }
 
-.difficulty-option:hover,
+.difficulty-option:hover {
+    border-color: rgba(255, 255, 255, 0.6);
+    background: rgba(255, 255, 255, 0.22);
+    transform: translateY(-2px);
+    box-shadow: 0 5px 0 rgba(0,0,0,0.12);
+}
+
 .difficulty-option.is-selected {
     border-color: var(--accent);
+    background: rgba(245, 197, 24, 0.2);
+    box-shadow: 0 3px 0 rgba(0,0,0,0.12);
 }
 
 .difficulty-option strong {
     font-size: 0.95rem;
+    font-weight: 800;
+    color: var(--text-light);
 }
 
 .difficulty-option span {
-    color: var(--muted);
+    color: rgba(255, 255, 255, 0.7);
     font-size: 0.82rem;
 }
 
 .difficulty-option em {
-    color: var(--accent-2);
+    color: var(--accent);
     font-style: normal;
-    font-weight: 800;
+    font-weight: 900;
 }
 
 .balance-preview {
@@ -240,34 +304,56 @@ dd {
     align-items: center;
     justify-content: space-between;
     gap: 8px;
-    margin: 10px 0;
-    padding: 9px;
-    background: #edf6f8;
-    border: 1px solid #cfe2e8;
-    border-radius: 6px;
+    margin: 12px 0;
+    padding: 10px 14px;
+    background: rgba(255, 255, 255, 0.12);
+    border: 2px solid rgba(255, 255, 255, 0.22);
+    border-radius: 14px;
     font-weight: 800;
 }
 
 .balance-preview span {
-    color: var(--muted);
-    font-size: 0.75rem;
+    color: rgba(255, 255, 255, 0.72);
+    font-size: 0.72rem;
+    font-weight: 900;
     text-transform: uppercase;
+    letter-spacing: 0.08em;
+}
+
+.balance-preview strong {
+    color: var(--accent);
+    font-family: 'Fredoka One', cursive;
+    font-size: 1rem;
 }
 
 .primary-action {
     width: 100%;
-    padding: 10px 12px;
-    color: #ffffff;
+    padding: 13px 16px;
+    color: var(--accent-dark);
     background: var(--accent);
-    border-radius: 6px;
+    border-radius: 14px;
     cursor: pointer;
-    font-weight: 800;
+    font-family: 'Fredoka One', cursive;
+    font-size: 1.1rem;
+    font-weight: 400;
+    letter-spacing: 0.06em;
+    text-transform: uppercase;
+    box-shadow: 0 4px 0 var(--accent-2), 0 8px 20px rgba(245, 197, 24, 0.3);
+    transition: transform 0.1s, box-shadow 0.1s;
 }
 
 .primary-action:hover {
-    background: var(--accent-2);
+    background: #ffd130;
+    transform: translateY(-2px);
+    box-shadow: 0 6px 0 var(--accent-2), 0 12px 24px rgba(245, 197, 24, 0.35);
 }
 
+.primary-action:active {
+    transform: translateY(2px);
+    box-shadow: 0 1px 0 var(--accent-2);
+}
+
+/* ── SHIP CARDS ── */
 .setup-ship-list,
 .ship-shop-list {
     display: grid;
@@ -283,42 +369,55 @@ dd {
     display: grid;
     gap: 8px;
     min-width: 0;
-    padding: 9px;
-    color: var(--text);
-    background: var(--surface);
-    border: 1px solid var(--line);
-    border-radius: 6px;
+    padding: 10px 12px;
+    color: var(--text-light);
+    background: rgba(255, 255, 255, 0.12);
+    border: 2px solid rgba(255, 255, 255, 0.22);
+    border-radius: 16px;
+    box-shadow: 0 2px 0 rgba(0,0,0,0.1);
 }
 
 .ship-card-action {
     cursor: grab;
+    transition: transform 0.12s, box-shadow 0.12s, border-color 0.12s;
 }
 
-.ship-card-action:hover,
+.ship-card-action:hover {
+    border-color: rgba(255, 255, 255, 0.55);
+    background: rgba(255, 255, 255, 0.2);
+    transform: translateY(-3px) rotate(-0.5deg);
+    box-shadow: 0 6px 0 rgba(0,0,0,0.12);
+}
+
 .ship-card-action.is-selected {
     border-color: var(--accent);
+    background: rgba(245, 197, 24, 0.18);
+    box-shadow: 0 4px 0 rgba(0,0,0,0.12);
 }
 
 .ship-card-action:active {
     cursor: grabbing;
+    transform: scale(0.97);
 }
 
 .ship-card.is-unavailable {
     cursor: not-allowed;
-    opacity: 0.5;
+    opacity: 0.4;
 }
 
 .ship-card-main {
     display: grid;
-    gap: 1px;
+    gap: 2px;
 }
 
 .ship-card-main strong {
-    font-size: 0.95rem;
+    font-size: 0.9rem;
+    font-weight: 800;
+    color: var(--text-light);
 }
 
 .ship-card-main span {
-    color: var(--muted);
+    color: rgba(255, 255, 255, 0.65);
     font-size: 0.78rem;
 }
 
@@ -333,28 +432,31 @@ dd {
     gap: 1px;
     min-width: 0;
     padding: 5px 4px;
-    background: var(--surface-2);
-    border-radius: 4px;
+    background: rgba(0, 0, 0, 0.18);
+    border-radius: 8px;
     text-align: center;
 }
 
 .ship-stats dt {
-    color: var(--muted);
-    font-size: 0.62rem;
-    font-weight: 800;
+    color: rgba(255, 255, 255, 0.6);
+    font-size: 0.6rem;
+    font-weight: 900;
     text-transform: uppercase;
+    letter-spacing: 0.04em;
 }
 
 .ship-stats dd {
-    font-size: 0.76rem;
-    font-weight: 800;
+    font-size: 0.78rem;
+    font-weight: 900;
+    color: var(--accent);
 }
 
+/* ── GAME AREA ── */
 .game-area {
     display: grid;
     grid-template-columns: 280px minmax(0, 1fr);
-    gap: 10px;
-    padding: 10px;
+    gap: 12px;
+    padding: 14px;
 }
 
 .fleet-panel {
@@ -362,25 +464,27 @@ dd {
 }
 
 .placement-message {
-    min-height: 42px;
+    min-height: 44px;
     margin-bottom: 10px;
-    padding: 8px 9px;
-    color: var(--text);
-    background: var(--surface);
-    border: 1px solid var(--line);
-    border-radius: 6px;
+    padding: 10px 14px;
+    color: var(--text-light);
+    background: rgba(255, 255, 255, 0.12);
+    border: 2px solid rgba(255, 255, 255, 0.22);
+    border-radius: 14px;
     font-size: 0.86rem;
-    font-weight: 650;
+    font-weight: 700;
 }
 
 .placement-message[data-type="warning"] {
-    color: #8c2b2b;
-    border-color: #e0a0a0;
+    color: #fff0f0;
+    background: rgba(244, 67, 54, 0.22);
+    border-color: rgba(244, 67, 54, 0.55);
 }
 
 .placement-message[data-type="success"] {
-    color: #24633f;
-    border-color: #97d0ae;
+    color: #f0fff4;
+    background: rgba(76, 175, 80, 0.22);
+    border-color: rgba(76, 175, 80, 0.55);
 }
 
 .keyboard-help {
@@ -391,13 +495,14 @@ dd {
 }
 
 .keyboard-help span {
-    padding: 4px 6px;
-    color: var(--muted);
-    background: var(--surface);
-    border: 1px solid var(--line);
-    border-radius: 4px;
+    padding: 5px 8px;
+    color: rgba(255, 255, 255, 0.75);
+    background: rgba(255, 255, 255, 0.12);
+    border: 2px solid rgba(255, 255, 255, 0.2);
+    border-radius: 10px;
     font-size: 0.72rem;
-    font-weight: 750;
+    font-weight: 800;
+    box-shadow: 0 2px 0 rgba(0,0,0,0.1);
 }
 
 .start-battle-action {
@@ -407,7 +512,7 @@ dd {
 .start-battle-action:disabled,
 .battle-actions button:disabled {
     cursor: not-allowed;
-    opacity: 0.55;
+    opacity: 0.4;
 }
 
 .battle-controls {
@@ -417,13 +522,13 @@ dd {
 }
 
 .battle-selection {
-    min-height: 36px;
-    padding: 8px 9px;
-    color: var(--text);
-    background: var(--surface);
-    border: 1px solid var(--line);
-    border-radius: 6px;
-    font-size: 0.82rem;
+    min-height: 38px;
+    padding: 9px 14px;
+    color: var(--text-light);
+    background: rgba(255, 255, 255, 0.12);
+    border: 2px solid rgba(255, 255, 255, 0.22);
+    border-radius: 14px;
+    font-size: 0.84rem;
     font-weight: 750;
 }
 
@@ -434,28 +539,38 @@ dd {
 }
 
 .battle-actions button {
-    min-height: 36px;
-    padding: 7px 8px;
-    color: var(--text);
-    background: var(--surface);
-    border: 1px solid var(--line);
-    border-radius: 6px;
+    min-height: 38px;
+    padding: 8px 10px;
+    color: var(--text-light);
+    background: rgba(255, 255, 255, 0.12);
+    border: 2px solid rgba(255, 255, 255, 0.22);
+    border-radius: 14px;
     cursor: pointer;
     font-size: 0.8rem;
     font-weight: 800;
+    box-shadow: 0 2px 0 rgba(0,0,0,0.1);
+    transition: transform 0.1s, box-shadow 0.1s, background 0.12s;
 }
 
 .battle-actions button:hover,
 .battle-actions button.is-selected {
-    border-color: var(--accent);
-    background: #edf6f8;
+    border-color: rgba(255, 255, 255, 0.55);
+    background: rgba(255, 255, 255, 0.24);
+    transform: translateY(-2px);
+    box-shadow: 0 4px 0 rgba(0,0,0,0.12);
+}
+
+.battle-actions button:active {
+    transform: translateY(1px);
+    box-shadow: 0 1px 0 rgba(0,0,0,0.1);
 }
 
 .game-area.is-locked .board-map {
     pointer-events: none;
-    opacity: 0.72;
+    opacity: 0.65;
 }
 
+/* ── TURN OVERLAY ── */
 .turn-overlay {
     position: fixed;
     inset: 0;
@@ -463,30 +578,35 @@ dd {
     display: grid;
     place-items: center;
     color: #ffffff;
-    background: rgba(23, 36, 51, 0.28);
-    font-size: clamp(1.8rem, 5vw, 4rem);
-    font-weight: 850;
+    background: rgba(10, 20, 60, 0.55);
+    backdrop-filter: blur(4px);
+    font-family: 'Fredoka One', cursive;
+    font-size: clamp(2rem, 6vw, 5rem);
+    font-weight: 400;
     text-align: center;
+    text-shadow: 0 4px 16px rgba(0,0,0,0.4);
     pointer-events: none;
+    letter-spacing: 0.04em;
 }
 
+/* ── BOARDS ── */
 .board-map {
     min-width: 0;
 }
 
 .boards-layout {
     display: grid;
-    gap: 6px;
+    gap: 8px;
     min-width: 0;
 }
 
 .zone-strip {
     display: grid;
     grid-template-columns: repeat(3, minmax(0, 1fr));
-    color: var(--muted);
+    color: rgba(255, 255, 255, 0.75);
     font-size: 0.76rem;
-    font-weight: 800;
-    letter-spacing: 0.06em;
+    font-weight: 900;
+    letter-spacing: 0.1em;
     text-align: center;
     text-transform: uppercase;
 }
@@ -506,9 +626,9 @@ dd {
 
 .mega-column-labels,
 .mega-row-labels {
-    color: var(--muted);
+    color: rgba(255, 255, 255, 0.75);
     font-size: clamp(0.5rem, 0.7vw, 0.68rem);
-    font-weight: 800;
+    font-weight: 900;
 }
 
 .mega-column-labels {
@@ -543,11 +663,13 @@ dd {
     aspect-ratio: 3 / 1;
     min-width: 0;
     overflow: hidden;
-    background: var(--line);
-    border: 1px solid var(--line-strong);
-    border-radius: 5px;
+    background: rgba(255, 255, 255, 0.12);
+    border: 3px solid rgba(255, 255, 255, 0.35);
+    border-radius: 16px;
+    box-shadow: 0 4px 0 rgba(0,0,0,0.14), inset 0 1px 0 rgba(255,255,255,0.2);
 }
 
+/* ── OCEAN CELLS ── */
 .ocean-cell {
     --tile-color: var(--neutral);
     position: relative;
@@ -564,10 +686,11 @@ dd {
     background-repeat: no-repeat;
     background-size: var(--sprite-fit, cover);
     border: 0;
-    border-right: 1px solid rgba(255, 255, 255, 0.16);
-    border-bottom: 1px solid rgba(255, 255, 255, 0.16);
+    border-right: 1px solid rgba(255, 255, 255, 0.18);
+    border-bottom: 1px solid rgba(255, 255, 255, 0.18);
     border-radius: 0;
     cursor: pointer;
+    transition: filter 0.1s, transform 0.08s;
 }
 
 .ocean-cell.zone-ally {
@@ -583,11 +706,13 @@ dd {
 }
 
 .ocean-cell.zone-divider {
-    box-shadow: inset 2px 0 0 rgba(23, 36, 51, 0.22);
+    box-shadow: inset 3px 0 0 rgba(10, 20, 60, 0.3);
 }
 
 .ocean-cell:hover {
-    filter: brightness(1.04);
+    filter: brightness(1.12) saturate(1.15);
+    transform: scale(1.05);
+    z-index: 1;
 }
 
 .ocean-cell.is-preview-valid {
@@ -605,7 +730,7 @@ dd {
 
 .ocean-cell.has-ship::after {
     position: absolute;
-    inset: 35% 18%;
+    inset: 30% 15%;
     content: "";
     background: rgba(255, 255, 255, 0.5);
     border-radius: 99px;
@@ -616,15 +741,16 @@ dd {
 }
 
 .ocean-cell.is-unknown {
-    background: #111820;
+    background: #050d1e;
 }
 
 .ocean-cell.is-unknown::after {
     position: absolute;
     inset: 20%;
     content: "";
-    background: #05070a;
-    border: 2px solid rgba(255, 255, 255, 0.18);
+    background: #020710;
+    border: 2px solid rgba(80, 160, 255, 0.2);
+    border-radius: 4px;
 }
 
 .ocean-cell.is-revealed {
@@ -632,23 +758,26 @@ dd {
 }
 
 .ocean-cell.is-trap {
-    background: #5b1f2a;
+    background: #5a1525;
 }
 
 .ocean-cell.is-destroyed,
 .ocean-cell.is-trap-triggered {
-    background: #2b2f34;
+    background: #1e2228;
 }
 
 .ocean-cell.is-destroyed::after,
 .ocean-cell.is-trap-triggered::after {
     position: absolute;
-    inset: 28%;
+    inset: 22%;
     content: "";
-    background: #e0ad2f;
+    background: #F5C518;
     clip-path: polygon(50% 0, 61% 34%, 98% 35%, 68% 56%, 79% 91%, 50% 70%, 21% 91%, 32% 56%, 2% 35%, 39% 34%);
+    filter: drop-shadow(0 0 4px rgba(245, 197, 24, 0.8));
 }
 
+/* ── ANALYSIS MODAL ── */
+/* Espelha a print 1: fundo escuro/roxo, card branco, badge coloridos */
 .analysis-modal {
     position: fixed;
     inset: 0;
@@ -656,51 +785,119 @@ dd {
     display: grid;
     place-items: center;
     padding: 16px;
-    background: rgba(23, 36, 51, 0.45);
+    background: var(--modal-bg);
+    backdrop-filter: blur(6px);
+    -webkit-backdrop-filter: blur(6px);
 }
 
 .analysis-dialog {
     display: grid;
-    gap: 10px;
+    gap: 14px;
     width: min(460px, 100%);
-    padding: 14px;
-    background: var(--surface);
-    border: 1px solid var(--line);
-    border-radius: 8px;
-    box-shadow: 0 18px 48px rgba(23, 36, 51, 0.24);
+    padding: 22px 20px 20px;
+    background: #ffffff;
+    border: 3px solid rgba(123, 92, 246, 0.25);
+    border-radius: 28px;
+    box-shadow: 0 8px 0 rgba(0,0,0,0.2), 0 24px 60px rgba(0,0,0,0.3);
 }
 
 .analysis-dialog h2 {
-    font-size: 1.05rem;
+    font-family: 'Fredoka One', cursive;
+    font-size: 1.25rem;
+    font-weight: 400;
+    color: #7B5CF6;
+    text-transform: uppercase;
+    letter-spacing: 0.04em;
+    text-align: center;
 }
 
 .analysis-actions {
     display: grid;
     grid-template-columns: repeat(2, minmax(0, 1fr));
-    gap: 8px;
+    gap: 10px;
 }
 
-.analysis-actions button,
-.analysis-close {
-    min-height: 38px;
-    padding: 8px 10px;
+/* Botão VERDADE — verde */
+.analysis-actions button:first-child {
+    min-height: 44px;
+    padding: 10px 14px;
     color: #ffffff;
-    background: var(--accent);
-    border-radius: 6px;
+    background: var(--btn-true);
+    border-radius: 14px;
     cursor: pointer;
-    font-weight: 800;
+    font-family: 'Fredoka One', cursive;
+    font-size: 1.05rem;
+    font-weight: 400;
+    letter-spacing: 0.06em;
+    text-transform: uppercase;
+    box-shadow: 0 4px 0 #388E3C;
+    transition: transform 0.1s, box-shadow 0.1s;
+}
+
+.analysis-actions button:first-child:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 6px 0 #388E3C;
+}
+
+/* Botão FALSO — vermelho */
+.analysis-actions button:last-child,
+.analysis-close {
+    min-height: 44px;
+    padding: 10px 14px;
+    color: #ffffff;
+    background: var(--btn-false);
+    border-radius: 14px;
+    cursor: pointer;
+    font-family: 'Fredoka One', cursive;
+    font-size: 1.05rem;
+    font-weight: 400;
+    letter-spacing: 0.06em;
+    text-transform: uppercase;
+    box-shadow: 0 4px 0 #c62828;
+    transition: transform 0.1s, box-shadow 0.1s;
+}
+
+/* Fallback geral para todos os botões do modal */
+.analysis-actions button {
+    min-height: 44px;
+    padding: 10px 14px;
+    color: #ffffff;
+    border-radius: 14px;
+    cursor: pointer;
+    font-family: 'Fredoka One', cursive;
+    font-size: 1.05rem;
+    font-weight: 400;
+    letter-spacing: 0.06em;
+    text-transform: uppercase;
+    transition: transform 0.1s, box-shadow 0.1s;
+}
+
+.analysis-actions button:hover,
+.analysis-close:hover {
+    transform: translateY(-2px);
+}
+
+.analysis-actions button:active,
+.analysis-close:active {
+    transform: translateY(1px);
 }
 
 .analysis-actions button:disabled {
     cursor: not-allowed;
-    opacity: 0.5;
+    opacity: 0.4;
+    transform: none;
+    box-shadow: 0 2px 0 #999;
+    background: #b0c4d8;
 }
 
 .analysis-feedback {
-    color: var(--muted);
-    font-weight: 650;
+    color: #5a85ab;
+    font-weight: 700;
+    font-size: 0.9rem;
+    text-align: center;
 }
 
+/* ── RESPONSIVE ── */
 @media (max-width: 1120px) {
     .game-area,
     .setup-layout {
@@ -745,7 +942,7 @@ dd {
 
     .setup-screen,
     .game-area {
-        padding: 8px;
+        padding: 10px;
     }
 
     .setup-ship-list,

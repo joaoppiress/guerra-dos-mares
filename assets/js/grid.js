@@ -57,6 +57,7 @@ const GridView = {
 
         if (!gridElement) return;
 
+        gridElement.tabIndex = -1;
         const fragment = document.createDocumentFragment();
 
         for (let row = 0; row < GameConfig.grid.rows; row += 1) {
@@ -74,6 +75,7 @@ const GridView = {
                 cell.dataset.coordinate = coordinate;
                 cell.setAttribute('role', 'gridcell');
                 cell.setAttribute('aria-label', `Coluna ${globalColumn + 1}, linha ${row + 1}, ${this.getZoneTitle(zone.zoneId)}`);
+                cell.tabIndex = -1;
 
                 if (globalColumn === GameConfig.grid.zoneWidth || globalColumn === GameConfig.grid.zoneWidth * 2) {
                     cell.classList.add('zone-divider');
@@ -111,6 +113,7 @@ const GridView = {
     clearPreview() {
         this.previewCells.forEach((cell) => {
             cell.classList.remove('is-preview-valid', 'is-preview-invalid');
+            cell.removeAttribute('aria-selected');
             SpriteAnimator.unregisterEffect(cell);
         });
         this.previewCells.clear();
@@ -125,6 +128,7 @@ const GridView = {
             if (!cell) return;
 
             cell.classList.add(isValid ? 'is-preview-valid' : 'is-preview-invalid');
+            cell.setAttribute('aria-selected', 'true');
             SpriteAnimator.registerEffect(cell, isValid ? 'effect:valid' : 'effect:invalid', { fit: 'cover' });
             this.previewCells.add(cell);
         });

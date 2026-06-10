@@ -89,6 +89,7 @@ const ShopView = {
             card.addEventListener('keydown', (event) => {
                 if (event.key === 'Enter' || event.key === ' ') {
                     event.preventDefault();
+                    event.stopPropagation();
                     PlacementController.selectShip(ship.id);
                 }
             });

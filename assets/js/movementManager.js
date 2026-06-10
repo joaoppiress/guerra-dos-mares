@@ -22,6 +22,14 @@ class MovementManager {
         };
     }
 
+    static getOriginGlobalColumn(ship) {
+        return this.getGlobalColumn({
+            zoneId: ship.zoneId,
+            row: ship.row,
+            column: ship.column
+        });
+    }
+
     static getShipById(shipId) {
         const players = GameState.match?.players;
         if (!players) return null;
@@ -73,6 +81,51 @@ class MovementManager {
         const positions = this.getPositions(zoneId, row, column, ship.size, ship.orientation);
 
         return this.isInsideBoard(positions) && !this.isOccupied(positions, ship.id);
+    }
+
+    static isSingleStepOriginMove(ship, newPosition) {
+        const rowDelta = newPosition.row - ship.row;
+        const columnDelta = this.getGlobalColumn(newPosition) - this.getOriginGlobalColumn(ship);
+
+        return Math.abs(rowDelta) + Math.abs(columnDelta) === 1;
+    }
+
+    static resolveSingleStepMove(ship, targetPosition) {
+        if (!ship || !Array.isArray(ship.positions) || ship.positions.length === 0) return null;
+
+        const targetGlobalColumn = this.getGlobalColumn(targetPosition);
+        const shipRows = ship.positions.map((position) => position.row);
+        const shipColumns = ship.positions.map((position) => this.getGlobalColumn(position));
+        const minRow = Math.min(...shipRows);
+        const maxRow = Math.max(...shipRows);
+        const minColumn = Math.min(...shipColumns);
+        const maxColumn = Math.max(...shipColumns);
+        const isAlignedWithShipRow = targetPosition.row >= minRow && targetPosition.row <= maxRow;
+        const isAlignedWithShipColumn = targetGlobalColumn >= minColumn && targetGlobalColumn <= maxColumn;
+
+        let rowDelta = 0;
+        let columnDelta = 0;
+
+        if (targetPosition.row === minRow - 1 && isAlignedWithShipColumn) {
+            rowDelta = -1;
+        } else if (targetPosition.row === maxRow + 1 && isAlignedWithShipColumn) {
+            rowDelta = 1;
+        } else if (targetGlobalColumn === minColumn - 1 && isAlignedWithShipRow) {
+            columnDelta = -1;
+        } else if (targetGlobalColumn === maxColumn + 1 && isAlignedWithShipRow) {
+            columnDelta = 1;
+        } else {
+            return null;
+        }
+
+        const newGlobalColumn = this.getOriginGlobalColumn(ship) + columnDelta;
+        const zone = this.getZoneFromGlobalColumn(newGlobalColumn);
+
+        return {
+            zoneId: zone.zoneId,
+            row: ship.row + rowDelta,
+            column: zone.column
+        };
     }
 
     static clearShipCells(ship) {
@@ -127,6 +180,11 @@ class MovementManager {
 
         if (isHumanAction && !GameState.battle.mainActionAvailable) {
             TurnManager.setBattleMessage('A acao principal deste turno ja foi usada.', 'warning');
+            return false;
+        }
+
+        if (!this.isSingleStepOriginMove(ship, newPosition)) {
+            TurnManager.setBattleMessage('Movimento permitido apenas uma celula por vez.', 'warning');
             return false;
         }
 

@@ -1,6 +1,7 @@
 const PlacementController = {
     orientation: 'horizontal',
     previewOrigin: { row: 0, column: 0 },
+    previewValidation: null,
     isBound: false,
 
     init() {
@@ -62,11 +63,10 @@ const PlacementController = {
 
             if (cell.dataset.zone !== 'ally') {
                 this.setMessage('Posicionamento permitido somente no Oceano Aliado.', 'warning');
-                GridView.clearPreview();
                 return;
             }
 
-            this.showPreviewFromCell(GameState.selectedShipId, cell);
+            this.showPreviewFromCell(GameState.selectedShipId, cell, { announce: true });
         });
     },
 
@@ -109,16 +109,12 @@ const PlacementController = {
             return;
         }
 
+        const origin = this.getInitialPreviewOrigin(ship);
         GameState.selectedShipId = shipId;
-        GameState.keyboardPlacement = {
-            shipId,
-            row: this.previewOrigin.row,
-            column: this.previewOrigin.column,
-            orientation: this.orientation
-        };
 
         ShopView.updateSelectedShip();
-        this.showPreview(shipId, this.previewOrigin.row, this.previewOrigin.column);
+        this.showPreview(shipId, origin.row, origin.column);
+        this.focusPlacementSurface();
         this.setMessage(`${ship.name} selecionado. Use WASD, R, Enter e Esc ou arraste para o aliado.`, 'info');
     },
 
@@ -144,26 +140,36 @@ const PlacementController = {
         GridView.clearPreview();
     },
 
-    showPreviewFromCell(shipId, cell) {
-        this.showPreview(shipId, Number(cell.dataset.row), Number(cell.dataset.column));
+    showPreviewFromCell(shipId, cell, options = {}) {
+        this.showPreview(shipId, Number(cell.dataset.row), Number(cell.dataset.column), options);
     },
 
-    showPreview(shipId, row, column) {
+    showPreview(shipId, row, column, options = {}) {
         const ship = getShipConfig(shipId);
 
-        if (!ship) return;
+        if (!ship) return null;
 
-        const positions = GridView.getCellsForPlacement('ally', row, column, ship.size, this.orientation);
+        const nextRow = clamp(row, 0, GameConfig.grid.rows - 1);
+        const nextColumn = clamp(column, 0, GameConfig.grid.columns - 1);
+
+        const positions = GridView.getCellsForPlacement('ally', nextRow, nextColumn, ship.size, this.orientation);
         const validation = validatePlacement(ship, positions);
 
         GridView.paintPreview('ally', positions, validation.isValid);
-        this.previewOrigin = { row, column };
+        this.previewOrigin = { row: nextRow, column: nextColumn };
+        this.previewValidation = validation;
         GameState.keyboardPlacement = {
             shipId,
-            row,
-            column,
+            row: nextRow,
+            column: nextColumn,
             orientation: this.orientation
         };
+
+        if (options.announce) {
+            this.setMessage(validation.message, validation.isValid ? 'success' : 'warning');
+        }
+
+        return validation;
     },
 
     placeShip(shipId, row, column) {
@@ -233,6 +239,7 @@ const PlacementController = {
         GridView.clearPreview();
         GameState.selectedShipId = null;
         GameState.keyboardPlacement = null;
+        this.previewValidation = null;
         ShopView.refreshHud();
         this.updateBattleStartAvailability();
         this.setMessage(`${ship.name} posicionado na coluna ${column + 1}, linha ${row + 1}.`, 'success');
@@ -248,6 +255,10 @@ const PlacementController = {
     },
 
     moveKeyboardPreview(key) {
+        const placement = GameState.keyboardPlacement;
+        const origin = placement && placement.shipId === GameState.selectedShipId
+            ? { row: placement.row, column: placement.column }
+            : this.previewOrigin;
         const movement = {
             w: [-1, 0],
             a: [0, -1],
@@ -257,16 +268,18 @@ const PlacementController = {
 
         if (!movement) return;
 
-        const row = clamp(this.previewOrigin.row + movement[0], 0, GameConfig.grid.rows - 1);
-        const column = clamp(this.previewOrigin.column + movement[1], 0, GameConfig.grid.columns - 1);
+        const row = clamp(origin.row + movement[0], 0, GameConfig.grid.rows - 1);
+        const column = clamp(origin.column + movement[1], 0, GameConfig.grid.columns - 1);
 
-        this.showPreview(GameState.selectedShipId, row, column);
+        this.showPreview(GameState.selectedShipId, row, column, { announce: true });
     },
 
     rotateSelectedShip() {
         this.orientation = this.orientation === 'horizontal' ? 'vertical' : 'horizontal';
-        this.showPreview(GameState.selectedShipId, this.previewOrigin.row, this.previewOrigin.column);
-        this.setMessage(`Orientacao: ${this.orientation === 'horizontal' ? 'horizontal' : 'vertical'}.`, 'info');
+        const validation = this.showPreview(GameState.selectedShipId, this.previewOrigin.row, this.previewOrigin.column);
+        const orientationLabel = this.orientation === 'horizontal' ? 'horizontal' : 'vertical';
+        const suffix = validation?.isValid ? 'Posicao valida.' : validation?.message;
+        this.setMessage(`Orientacao: ${orientationLabel}. ${suffix}`, validation?.isValid ? 'info' : 'warning');
     },
 
     cancelKeyboardPlacement() {
@@ -274,9 +287,46 @@ const PlacementController = {
 
         GameState.selectedShipId = null;
         GameState.keyboardPlacement = null;
+        this.previewValidation = null;
         GridView.clearPreview();
         ShopView.updateSelectedShip();
         this.setMessage(selectedShip ? `${selectedShip.name} cancelado.` : 'Posicionamento cancelado.', 'info');
+    },
+
+    getInitialPreviewOrigin(ship) {
+        const candidates = [
+            this.previewOrigin,
+            { row: 0, column: 0 }
+        ];
+
+        for (const candidate of candidates) {
+            if (this.canPreviewAt(ship, candidate.row, candidate.column)) {
+                return candidate;
+            }
+        }
+
+        for (let row = 0; row < GameConfig.grid.rows; row += 1) {
+            for (let column = 0; column < GameConfig.grid.columns; column += 1) {
+                if (this.canPreviewAt(ship, row, column)) {
+                    return { row, column };
+                }
+            }
+        }
+
+        return { row: 0, column: 0 };
+    },
+
+    canPreviewAt(ship, row, column) {
+        const positions = GridView.getCellsForPlacement('ally', row, column, ship.size, this.orientation);
+        return validatePlacement(ship, positions).isValid;
+    },
+
+    focusPlacementSurface() {
+        const grid = document.getElementById('mega-grid');
+
+        if (grid) {
+            grid.focus({ preventScroll: true });
+        }
     },
 
     setMessage(message, type = 'info') {

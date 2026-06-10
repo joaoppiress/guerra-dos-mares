@@ -117,7 +117,14 @@ class TurnManager {
             }
 
             if (mode === 'move') {
-                MovementManager.moveShip(selectedShip, position);
+                const movePosition = MovementManager.resolveSingleStepMove(selectedShip, position);
+
+                if (!movePosition) {
+                    this.setBattleMessage('Clique em uma celula adjacente ao navio para mover 1 casa.', 'warning');
+                    return;
+                }
+
+                MovementManager.moveShip(selectedShip, movePosition);
                 return;
             }
 
