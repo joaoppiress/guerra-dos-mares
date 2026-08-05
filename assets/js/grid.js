@@ -44,7 +44,7 @@ const GridView = {
 
         for (let row = 1; row <= GameConfig.grid.rows; row += 1) {
             const item = document.createElement('span');
-            item.textContent = String(row);
+            item.textContent = this.getRowLetter(row);
             rowFragment.appendChild(item);
         }
 
@@ -74,7 +74,7 @@ const GridView = {
                 cell.dataset.globalColumn = String(globalColumn);
                 cell.dataset.coordinate = coordinate;
                 cell.setAttribute('role', 'gridcell');
-                cell.setAttribute('aria-label', `Coluna ${globalColumn + 1}, linha ${row + 1}, ${this.getZoneTitle(zone.zoneId)}`);
+                cell.setAttribute('aria-label', `Coluna ${globalColumn + 1}, linha ${this.getRowLetter(row + 1)}, ${this.getZoneTitle(zone.zoneId)}`);
                 cell.tabIndex = -1;
 
                 if (globalColumn === GameConfig.grid.zoneWidth || globalColumn === GameConfig.grid.zoneWidth * 2) {
@@ -88,6 +88,20 @@ const GridView = {
         }
 
         gridElement.appendChild(fragment);
+    },
+
+    getRowLetter(rowNumber) {
+        // Converte um numero de linha (1-based) para letra estilo Excel: 1 -> A, 26 -> Z, 27 -> AA, 28 -> AB...
+        let letters = '';
+        let value = rowNumber;
+
+        while (value > 0) {
+            const remainder = (value - 1) % 26;
+            letters = String.fromCharCode(65 + remainder) + letters;
+            value = Math.floor((value - 1) / 26);
+        }
+
+        return letters;
     },
 
     getCell(zoneId, row, column) {

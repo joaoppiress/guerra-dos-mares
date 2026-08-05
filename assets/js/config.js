@@ -24,7 +24,7 @@ const GameConfig = {
         {
             id: 'enemy',
             title: 'Oceano Inimigo',
-            subtitle: 'Area rival',
+            subtitle: 'Área rival',
             className: 'zone-enemy'
         }
     ],
@@ -32,19 +32,19 @@ const GameConfig = {
     difficulties: {
         facil: {
             id: 'facil',
-            label: 'Facil',
-            description: 'Mais moedas para testar formacoes com calma.',
+            label: 'Fácil',
+            description: 'Mais moedas para testar formações com calma.',
             coins: 5000
         },
         normal: {
             id: 'normal',
             label: 'Normal',
-            description: 'Saldo equilibrado para uma partida padrao.',
+            description: 'Saldo equilibrado para uma partida padrão.',
             coins: 3600
         },
         dificil: {
             id: 'dificil',
-            label: 'Dificil',
+            label: 'Difícil',
             description: 'Menos moedas e escolhas mais importantes.',
             coins: 2700
         }
@@ -53,7 +53,7 @@ const GameConfig = {
     ships: [
         {
             id: 'trap-layer',
-            name: 'Lanca-Armadilhas',
+            name: 'Lança-Armadilhas',
             shortName: 'Armadilhas',
             price: 1200,
             hp: 2000,
@@ -65,13 +65,13 @@ const GameConfig = {
         },
         {
             id: 'battleship',
-            name: 'Encouracado',
-            shortName: 'Encouracado',
+            name: 'Encouraçado',
+            shortName: 'Encouraçado',
             price: 900,
             hp: 1500,
             size: 4,
-            chargeLabel: '1 missil forte',
-            chargeType: 'missil',
+            chargeLabel: '1 míssil forte',
+            chargeType: 'míssil',
             charges: 1,
             damage: 900
         },
@@ -82,20 +82,20 @@ const GameConfig = {
             price: 600,
             hp: 900,
             size: 3,
-            chargeLabel: '2 misseis medios',
-            chargeType: 'missil',
+            chargeLabel: '2 mísseis médios',
+            chargeType: 'míssil',
             charges: 2,
             damage: 300
         },
         {
             id: 'destroyer',
-            name: 'Destroier',
-            shortName: 'Destroier',
+            name: 'Destróier',
+            shortName: 'Destróier',
             price: 300,
             hp: 600,
             size: 2,
-            chargeLabel: '3 misseis leves',
-            chargeType: 'missil',
+            chargeLabel: '3 mísseis leves',
+            chargeType: 'míssil',
             charges: 3,
             damage: 170
         }
@@ -127,7 +127,7 @@ const SPRITE_CONFIG = {
         valid: 'effects/valid',
         invalid: 'effects/invalid',
         hit: 'effects/hit',
-        miss: 'effects/miss',
+        míss: 'effects/míss',
         explosion: 'effects/explosion'
     }
 };

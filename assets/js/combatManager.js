@@ -78,7 +78,7 @@ class CombatManager {
         }
 
         if (!this.canShipAttack(ship)) {
-            TurnManager.setBattleMessage(`${ship.nome} nao possui carga disponivel.`, 'warning');
+            TurnManager.setBattleMessage(`${ship.nome} não possui carga disponivel.`, 'warning');
             return false;
         }
 
@@ -87,7 +87,7 @@ class CombatManager {
             !GameState.battle.revealedObjects.has(targetKey);
 
         if (isHumanAction && isUnknownTarget && !options.skipUnknownConfirmation) {
-            const confirmed = window.confirm('Este alvo e desconhecido. Pode ser um navio inimigo ou uma armadilha. Deseja atacar mesmo assim?');
+            const confirmed = window.confirm('Este alvo é desconhecido. Pode ser um navio inimigo ou uma armadilha. Deseja atacar mesmo assim?');
 
             if (!confirmed) return false;
         }
@@ -97,7 +97,7 @@ class CombatManager {
         const target = this.getTargetAt(targetPosition, ship.ownerId);
 
         if (!target) {
-            TurnManager.setBattleMessage('Ataque na agua. Nenhum alvo atingido.', 'info');
+            TurnManager.setBattleMessage('Ataque na água. Nenhum alvo atingido.', 'info');
             TurnManager.updateSelectedShipPanel();
             TurnManager.finishTurnIfNoActions();
             return true;
@@ -107,7 +107,7 @@ class CombatManager {
             this.removeTrap(target.item);
             ship.destruir();
             this.markShipDestroyed(ship);
-            TurnManager.setBattleMessage(`${ship.nome} atacou uma armadilha e foi destruido.`, 'warning');
+            TurnManager.setBattleMessage(`${ship.nome} atacou uma armadilha e foi destruído.`, 'warning');
             TurnManager.updateSelectedShipPanel();
             TurnManager.finishTurnIfNoActions();
             return true;
@@ -118,11 +118,11 @@ class CombatManager {
 
         if (target.item.isDestroyed) {
             this.markShipDestroyed(target.item);
-            TurnManager.setBattleMessage(isUnknownTarget ? 'Embarcacao inimiga desconhecida destruida.' : `${target.item.nome} foi destruido.`, 'success');
+            TurnManager.setBattleMessage(isUnknownTarget ? 'Embarcação inimiga desconhecida destruida.' : `${target.item.nome} foi destruido.`, 'success');
         } else {
             TurnManager.setBattleMessage(
                 isUnknownTarget
-                    ? 'Embarcacao inimiga desconhecida recebeu dano e continua sem identificacao.'
+                    ? 'Embarcação inimiga desconhecida recebeu dano e continua sem identificação.'
                     : `${target.item.nome} recebeu ${ship.dano} de dano.`,
                 'success'
             );
@@ -140,32 +140,32 @@ class CombatManager {
         const isHumanAction = ship.ownerId === 'player';
 
         if (isHumanAction && !GameState.isHumanTurn()) {
-            TurnManager.showMessage('Vez da Maquina');
+            TurnManager.showMessage('Vez da Máquina');
             return false;
         }
 
         if (ship.chargeType !== 'armadilha') {
-            TurnManager.setBattleMessage('Apenas o Lanca-Armadilhas pode lancar armadilhas.', 'warning');
+            TurnManager.setBattleMessage('Apenas o Lança-Armadilhas pode lançar armadilhas.', 'warning');
             return false;
         }
 
         if (!this.canShipAttack(ship)) {
-            TurnManager.setBattleMessage(`${ship.nome} nao possui armadilha disponivel.`, 'warning');
+            TurnManager.setBattleMessage(`${ship.nome} não possui armadilha disponivel.`, 'warning');
             return false;
         }
 
         if (isHumanAction && !GameState.battle.mainActionAvailable) {
-            TurnManager.setBattleMessage('A acao principal deste turno ja foi usada.', 'warning');
+            TurnManager.setBattleMessage('A ação principal deste turno já foi usada.', 'warning');
             return false;
         }
 
         if (!this.isWithinTrapRange(ship, position)) {
-            TurnManager.setBattleMessage('A posicao esta fora do raio de lancamento.', 'warning');
+            TurnManager.setBattleMessage('A posição está fora do raio de lancamento.', 'warning');
             return false;
         }
 
         if (this.findShipAt(position) || this.findTrapAt(position)) {
-            TurnManager.setBattleMessage('Essa posicao ja esta ocupada.', 'warning');
+            TurnManager.setBattleMessage('Essa posição já está ocupada.', 'warning');
             return false;
         }
 
@@ -184,7 +184,7 @@ class CombatManager {
         GameState.battle.traps.push(trap);
         GameState.battle.mainActionAvailable = false;
         RadarManager.scanRadar();
-        TurnManager.setBattleMessage('Armadilha lancada.', 'success');
+        TurnManager.setBattleMessage('Armadilha lançada.', 'success');
         TurnManager.updateSelectedShipPanel();
         TurnManager.finishTurnIfNoActions();
         return true;
