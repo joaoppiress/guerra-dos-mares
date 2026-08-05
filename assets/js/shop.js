@@ -129,7 +129,7 @@ function createShipInfoCard(ship, compact) {
             <span>${ship.chargeLabel}</span>
         </div>
         <dl class="ship-stats">
-            <div><dt>Preco</dt><dd>${formatCoins(ship.price)}</dd></div>
+            <div><dt>Preço</dt><dd>${formatCoins(ship.price)}</dd></div>
             <div><dt>HP</dt><dd>${ship.hp}</dd></div>
             <div><dt>Tam.</dt><dd>${ship.size}</dd></div>
             <div><dt>Cargas</dt><dd>${ship.charges}</dd></div>
