@@ -52,7 +52,7 @@ class AnalysisManager {
     }
 
     static isTargetRevealed(key, target) {
-        if (GameState.battle.revealedObjects.has(key)) return true;
+        if (GameState.battle.revealedObjects.get(key)?.item === target.item) return true;
 
         return [...GameState.battle.revealedObjects.values()].some((revealed) =>
             revealed.item === target.item

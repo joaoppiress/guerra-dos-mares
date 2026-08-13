@@ -757,6 +757,10 @@ dd {
     box-shadow: inset 0 0 0 3px var(--focus);
 }
 
+.ocean-cell.is-revealed-ship {
+    background-color: var(--ship);
+}
+
 .ocean-cell.is-trap {
     background: #5a1525;
 }

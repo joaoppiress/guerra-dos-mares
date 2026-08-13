@@ -8,6 +8,11 @@ const GameConfig = {
         labels: 'ABCDEFGHIJ'.split('')
     },
 
+    radar: {
+        detectionRadius: 3,
+        distance: 'chebyshev'
+    },
+
     zones: [
         {
             id: 'ally',

@@ -1,14 +1,34 @@
 class RadarManager {
-    static detectionRadius = 3;
+    static visibleObjectKeys = new Set();
 
     static getPositionKey(position) {
         return MovementManager.getCellKey(position);
     }
 
+    static getDetectionRadius(ship) {
+        return ship?.metadata?.detectionRadius ?? GameConfig.radar.detectionRadius;
+    }
+
+    static clearObjectVisual(key) {
+        const [zoneId, row, column] = key.split(':');
+        const cell = GridView.getCell(zoneId, Number(row), Number(column));
+
+        if (!cell) return;
+
+        cell.classList.remove('is-unknown', 'is-revealed', 'is-trap', 'is-revealed-ship');
+        cell.setAttribute(
+            'aria-label',
+            `Coluna ${MovementManager.getGlobalColumn({ zoneId, column: Number(column) }) + 1}, linha ${Number(row) + 1}, ${GridView.getZoneTitle(zoneId)}`
+        );
+
+        if (!cell.classList.contains('is-destroyed') && !cell.classList.contains('is-trap-triggered')) {
+            SpriteAnimator.registerCell(cell, `tile:${zoneId}`, { fit: 'cover' });
+        }
+    }
+
     static clearUnknownVisuals() {
-        document.querySelectorAll('.ocean-cell.is-unknown, .ocean-cell.is-revealed, .ocean-cell.is-trap').forEach((cell) => {
-            cell.classList.remove('is-unknown', 'is-revealed', 'is-trap');
-        });
+        this.visibleObjectKeys.forEach((key) => this.clearObjectVisual(key));
+        this.visibleObjectKeys.clear();
     }
 
     static scanRadar() {
@@ -23,7 +43,6 @@ class RadarManager {
             .filter((ship) => !ship.isDestroyed);
         const enemyTraps = GameState.battle.traps
             .filter((trap) => trap.isActive && trap.ownerId === 'maquina');
-
         enemyShips.forEach((ship) => {
             ship.positions.forEach((position) => {
                 if (this.isDetectedByAnyShip(position, playerShips)) {
@@ -44,7 +63,7 @@ class RadarManager {
     static getRevealedTarget(key, target) {
         const revealedByPosition = GameState.battle.revealedObjects.get(key);
 
-        if (revealedByPosition) return revealedByPosition;
+        if (revealedByPosition?.item === target.item) return revealedByPosition;
 
         return [...GameState.battle.revealedObjects.values()].find((revealed) =>
             revealed.item === target.item
@@ -59,7 +78,7 @@ class RadarManager {
                     MovementManager.getGlobalColumn(shipPosition) - MovementManager.getGlobalColumn(position)
                 );
 
-                return Math.max(rowDistance, columnDistance) <= this.detectionRadius;
+                return Math.max(rowDistance, columnDistance) <= this.getDetectionRadius(ship);
             })
         );
     }
@@ -75,12 +94,20 @@ class RadarManager {
             type: target.type,
             item: target.item
         });
+        this.visibleObjectKeys.add(key);
 
         if (!cell) return;
 
         if (revealed) {
             cell.classList.add('is-revealed');
             cell.classList.toggle('is-trap', revealed.type === 'trap');
+            cell.classList.toggle('is-revealed-ship', revealed.type === 'ship');
+
+            if (revealed.type === 'ship') {
+                const shipId = revealed.item.metadata?.id || revealed.item.id;
+                SpriteAnimator.registerCell(cell, `ship:${shipId}:${revealed.item.orientation}`, { fit: 'contain' });
+            }
+
             cell.setAttribute('aria-label', `${position.zoneId}, linha ${position.row + 1}, coluna ${position.column + 1}, ${revealed.type === 'trap' ? 'armadilha revelada' : 'navio revelado'}`);
             return;
         }
