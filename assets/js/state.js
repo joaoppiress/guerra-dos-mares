@@ -18,6 +18,7 @@ const GameState = {
         unknownObjects: new Map(),
         revealedObjects: new Map(),
         traps: [],
+        nextTrapId: 1,
         messages: []
     },
 
@@ -58,6 +59,7 @@ const GameState = {
         this.battle.unknownObjects = new Map();
         this.battle.revealedObjects = new Map();
         this.battle.traps = [];
+        this.battle.nextTrapId = 1;
         this.battle.messages = [];
 
         if (this.match.players.player) {

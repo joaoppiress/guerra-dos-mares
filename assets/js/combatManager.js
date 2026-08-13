@@ -57,14 +57,23 @@ class CombatManager {
     }
 
     static removeTrap(trap) {
+        if (!trap || !trap.isActive || trap.wasTriggered) return false;
+
         trap.isActive = false;
+        trap.wasTriggered = true;
+        GameState.battle.unknownObjects.delete(this.getPositionKey(trap.position));
+        GameState.battle.revealedObjects.forEach((revealed, key) => {
+            if (revealed.item === trap) GameState.battle.revealedObjects.delete(key);
+        });
 
         const cell = GridView.getCell(trap.position.zoneId, trap.position.row, trap.position.column);
         if (cell) {
-            cell.classList.remove('is-unknown', 'is-trap', 'is-revealed');
+            cell.classList.remove('is-unknown', 'is-trap', 'is-revealed', 'is-owned-trap');
             cell.classList.add('is-trap-triggered');
             SpriteAnimator.registerEffect(cell, 'effect:explosion', { fit: 'cover' });
         }
+
+        return true;
     }
 
     static attackTarget(ship, targetPosition, options = {}) {
@@ -83,8 +92,9 @@ class CombatManager {
         }
 
         const targetKey = this.getPositionKey(targetPosition);
+        const target = this.getTargetAt(targetPosition, ship.ownerId);
         const isUnknownTarget = GameState.battle.unknownObjects.has(targetKey) &&
-            !GameState.battle.revealedObjects.has(targetKey);
+            target && !AnalysisManager.isTargetRevealed(targetKey, target);
 
         if (isHumanAction && isUnknownTarget && !options.skipUnknownConfirmation) {
             const confirmed = window.confirm('Este alvo e desconhecido. Pode ser um navio inimigo ou uma armadilha. Deseja atacar mesmo assim?');
@@ -94,7 +104,6 @@ class CombatManager {
 
         ship.atacar(targetPosition, GameState.match.turnoAtual);
         TurnManager.updateSelectedShipPanel();
-        const target = this.getTargetAt(targetPosition, ship.ownerId);
 
         if (!target) {
             TurnManager.setBattleMessage('Ataque na agua. Nenhum alvo atingido.', 'info');
@@ -104,10 +113,16 @@ class CombatManager {
         }
 
         if (target.type === 'trap') {
-            this.removeTrap(target.item);
-            ship.destruir();
-            this.markShipDestroyed(ship);
-            TurnManager.setBattleMessage(`${ship.nome} atacou uma armadilha e foi destruido.`, 'warning');
+            if (!this.removeTrap(target.item)) return false;
+
+            ship.receberDano(GameConfig.traps.damage);
+            if (ship.isDestroyed) this.markShipDestroyed(ship);
+
+            TurnManager.setBattleMessage(
+                `${ship.nome} ativou uma armadilha e sofreu ${GameConfig.traps.damage} de dano${ship.isDestroyed ? ', sendo destruido' : ''}.`,
+                'warning'
+            );
+            RadarManager.scanRadar();
             TurnManager.updateSelectedShipPanel();
             TurnManager.finishTurnIfNoActions();
             return true;
@@ -149,23 +164,40 @@ class CombatManager {
             return false;
         }
 
+        if (ship.isDestroyed || !Array.isArray(ship.positions) || ship.positions.length === 0) {
+            TurnManager.setBattleMessage('O Lanca-Armadilhas precisa estar vivo e posicionado.', 'warning');
+            return false;
+        }
+
         if (!this.canShipAttack(ship)) {
             TurnManager.setBattleMessage(`${ship.nome} nao possui armadilha disponivel.`, 'warning');
             return false;
         }
 
-        if (isHumanAction && !GameState.battle.mainActionAvailable) {
+        if (!GameState.battle.mainActionAvailable) {
             TurnManager.setBattleMessage('A acao principal deste turno ja foi usada.', 'warning');
+            return false;
+        }
+
+        if (!this.isValidBoardPosition(position)) {
+            TurnManager.setBattleMessage('A posicao esta fora dos limites da grid.', 'warning');
+            return false;
+        }
+
+        if (!this.canOwnerPlaceTrapInZone(ship.ownerId, position.zoneId)) {
+            TurnManager.setBattleMessage('Nao e permitido lancar armadilhas nessa area.', 'warning');
             return false;
         }
 
         if (!this.isWithinTrapRange(ship, position)) {
             TurnManager.setBattleMessage('A posicao esta fora do raio de lancamento.', 'warning');
+            GridView.paintPreview(position.zoneId, [position], false);
             return false;
         }
 
         if (this.findShipAt(position) || this.findTrapAt(position)) {
             TurnManager.setBattleMessage('Essa posicao ja esta ocupada.', 'warning');
+            GridView.paintPreview(position.zoneId, [position], false);
             return false;
         }
 
@@ -173,16 +205,19 @@ class CombatManager {
         TurnManager.updateSelectedShipPanel();
 
         const trap = new Trap({
-            id: `trap-${Date.now()}-${GameState.battle.traps.length}`,
+            id: `trap-${GameState.battle.nextTrapId}`,
             nome: 'Armadilha naval',
             custo: 0,
-            dano: 99999,
+            dano: GameConfig.traps.damage,
             ownerId: ship.ownerId,
-            position
+            position: { ...position },
+            sourceShipId: ship.id
         });
 
+        GameState.battle.nextTrapId += 1;
         GameState.battle.traps.push(trap);
         GameState.battle.mainActionAvailable = false;
+        GridView.clearPreview();
         RadarManager.scanRadar();
         TurnManager.setBattleMessage('Armadilha lancada.', 'success');
         TurnManager.updateSelectedShipPanel();
@@ -191,7 +226,7 @@ class CombatManager {
     }
 
     static isWithinTrapRange(ship, position) {
-        const maxDistance = 2;
+        if (!ship || !position) return false;
 
         return ship.positions.some((shipPosition) => {
             const rowDistance = Math.abs(shipPosition.row - position.row);
@@ -199,8 +234,40 @@ class CombatManager {
                 MovementManager.getGlobalColumn(shipPosition) - MovementManager.getGlobalColumn(position)
             );
 
-            return Math.max(rowDistance, columnDistance) <= maxDistance;
+            return Math.max(rowDistance, columnDistance) <= GameConfig.traps.launchRadius;
         });
+    }
+
+    static isValidBoardPosition(position) {
+        return Boolean(
+            position &&
+            GameConfig.zones.some((zone) => zone.id === position.zoneId) &&
+            Number.isInteger(position.row) &&
+            Number.isInteger(position.column) &&
+            position.row >= 0 &&
+            position.row < GameConfig.grid.rows &&
+            position.column >= 0 &&
+            position.column < GameConfig.grid.columns
+        );
+    }
+
+    static canOwnerPlaceTrapInZone(ownerId, zoneId) {
+        return (GameConfig.traps.allowedZonesByOwner[ownerId] || []).includes(zoneId);
+    }
+
+    static canPlaceTrapAt(ship, position) {
+        return Boolean(
+            ship &&
+            !ship.isDestroyed &&
+            ship.chargeType === 'armadilha' &&
+            this.canShipAttack(ship) &&
+            GameState.battle.mainActionAvailable &&
+            this.isValidBoardPosition(position) &&
+            this.canOwnerPlaceTrapInZone(ship.ownerId, position.zoneId) &&
+            this.isWithinTrapRange(ship, position) &&
+            !this.findShipAt(position) &&
+            !this.findTrapAt(position)
+        );
     }
 }
 

@@ -13,6 +13,16 @@ const GameConfig = {
         distance: 'chebyshev'
     },
 
+    traps: {
+        launchRadius: 7,
+        damage: 1500,
+        distance: 'chebyshev',
+        allowedZonesByOwner: {
+            player: ['ally', 'neutral'],
+            maquina: ['enemy', 'neutral']
+        }
+    },
+
     zones: [
         {
             id: 'ally',

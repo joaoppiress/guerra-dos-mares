@@ -67,11 +67,17 @@ class MovementManager {
     static isOccupied(positions, movingShipId = null) {
         const positionKeys = new Set(positions.map((position) => this.getCellKey(position)));
 
-        return this.getShips().some((ship) => {
+        const overlapsShip = this.getShips().some((ship) => {
             if (ship.id === movingShipId || ship.isDestroyed) return false;
 
             return ship.positions.some((position) => positionKeys.has(this.getCellKey(position)));
         });
+
+        if (overlapsShip) return true;
+
+        return GameState.battle.traps.some((trap) =>
+            trap.isActive && positionKeys.has(this.getCellKey(trap.position))
+        );
     }
 
     static canMoveShip(ship, zoneId, row, column) {
@@ -224,6 +230,7 @@ class MovementManager {
 
         return true;
     }
+
 }
 
 function moveShip(ship, newPosition) {

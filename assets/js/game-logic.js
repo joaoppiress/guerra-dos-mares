@@ -4,7 +4,7 @@
  * com efeitos, area de ativacao, duracao ou dano.
  */
 class Trap {
-    constructor({ id, nome, custo, dano = 0, efeito = null, ownerId = null, position = null }) {
+    constructor({ id, nome, custo, dano = 0, efeito = null, ownerId = null, position = null, sourceShipId = null }) {
         this.id = id;
         this.nome = nome;
         this.custo = custo;
@@ -12,7 +12,9 @@ class Trap {
         this.efeito = efeito;
         this.ownerId = ownerId;
         this.position = position;
+        this.sourceShipId = sourceShipId;
         this.isActive = true;
+        this.wasTriggered = false;
     }
 }
 

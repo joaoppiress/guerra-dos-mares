@@ -43,6 +43,11 @@ class RadarManager {
             .filter((ship) => !ship.isDestroyed);
         const enemyTraps = GameState.battle.traps
             .filter((trap) => trap.isActive && trap.ownerId === 'maquina');
+        const playerTraps = GameState.battle.traps
+            .filter((trap) => trap.isActive && trap.ownerId === 'player');
+
+        playerTraps.forEach((trap) => this.showOwnedTrap(trap));
+
         enemyShips.forEach((ship) => {
             ship.positions.forEach((position) => {
                 if (this.isDetectedByAnyShip(position, playerShips)) {
@@ -58,6 +63,16 @@ class RadarManager {
         });
 
         return [...GameState.battle.unknownObjects.values()];
+    }
+
+    static showOwnedTrap(trap) {
+        const { position } = trap;
+        const cell = GridView.getCell(position.zoneId, position.row, position.column);
+
+        if (!cell) return;
+
+        cell.classList.add('is-owned-trap');
+        cell.setAttribute('aria-label', `${position.zoneId}, linha ${position.row + 1}, coluna ${position.column + 1}, sua armadilha`);
     }
 
     static getRevealedTarget(key, target) {

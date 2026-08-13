@@ -61,6 +61,7 @@ class TurnManager {
         controls.querySelectorAll('[data-mode]').forEach((button) => {
             button.addEventListener('click', () => {
                 GameState.battle.actionMode = button.dataset.mode;
+                GridView.clearPreview();
                 this.updateActionButtons();
                 this.setBattleMessage(`Modo: ${button.textContent}.`, 'info');
             });
@@ -136,6 +137,23 @@ class TurnManager {
             CombatManager.attackTarget(selectedShip, position);
             this.updateHud();
         });
+
+        grid.addEventListener('pointerover', (event) => {
+            if (GameState.phase !== 'battle' || GameState.battle.actionMode !== 'trap') return;
+
+            const cell = event.target.closest('.ocean-cell');
+            const ship = MovementManager.getShipById(GameState.battle.selectedShipId);
+            if (!cell || !ship || ship.ownerId !== 'player') return;
+
+            const position = {
+                zoneId: cell.dataset.zone,
+                row: Number(cell.dataset.row),
+                column: Number(cell.dataset.column)
+            };
+            GridView.paintPreview(position.zoneId, [position], CombatManager.canPlaceTrapAt(ship, position));
+        });
+
+        grid.addEventListener('pointerleave', () => GridView.clearPreview());
     }
 
     static selectShip(ship) {

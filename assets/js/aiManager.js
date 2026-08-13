@@ -101,14 +101,7 @@ class AIManager {
             { zoneId: 'neutral', row: ship.row, column: 8 }
         ];
 
-        return candidates.find((position) =>
-            position.row >= 0 &&
-            position.row < GameConfig.grid.rows &&
-            position.column >= 0 &&
-            position.column < GameConfig.grid.columns &&
-            !CombatManager.findShipAt(position) &&
-            !CombatManager.findTrapAt(position)
-        ) || null;
+        return candidates.find((position) => CombatManager.canPlaceTrapAt(ship, position)) || null;
     }
 
     static findMovePosition(ship) {

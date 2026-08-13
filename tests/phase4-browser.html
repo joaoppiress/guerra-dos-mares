@@ -1,0 +1,76 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head><meta charset="UTF-8"><title>Teste funcional da Fase 4</title></head>
+<body>
+    <aside class="fleet-panel"><div id="placement-message"></div></aside>
+    <div id="boards-layout"></div>
+    <pre id="result">RUNNING</pre>
+
+    <script src="../assets/js/config.js"></script>
+    <script src="../assets/js/game-logic.js"></script>
+    <script src="../assets/js/state.js"></script>
+    <script src="../assets/js/ui.js"></script>
+    <script src="../assets/js/sprites.js"></script>
+    <script src="../assets/js/grid.js"></script>
+    <script src="../assets/js/movementManager.js"></script>
+    <script src="../assets/js/combatManager.js"></script>
+    <script src="../assets/js/radarManager.js"></script>
+    <script src="../assets/js/analysisManager.js"></script>
+    <script src="../assets/js/turnManager.js"></script>
+    <script>
+        (() => {
+            const checks = [];
+            const check = (condition, message) => {
+                if (!condition) throw new Error(message);
+                checks.push(message);
+            };
+            const createShip = (config, ownerId, zoneId, row, column, orientation = 'horizontal') => {
+                const ship = Game.criarNavioPorConfig({ ...config, ownerId });
+                const positions = MovementManager.getPositions(zoneId, row, column, ship.size, orientation);
+                ship.atualizarPosicao({ zoneId, row, column, orientation, positions });
+                GameState.match.players[ownerId].inventario.navios.push(ship);
+                MovementManager.occupyShipCells(ship, ownerId === 'player');
+                return ship;
+            };
+
+            try {
+                GridView.renderBoards();
+                GameState.resetBoards();
+                GameState.match = new Game({ moedasIniciais: 10000, random: () => 0 });
+                GameState.match.jogadorAtivoId = 'player';
+                GameState.phase = 'battle';
+
+                const detector = createShip({ id: 'destroyer', name: 'Detector', hp: 600, size: 2, charges: 3, damage: 170 }, 'player', 'neutral', 4, 7);
+                createShip({ id: 'cruiser', name: 'Alvo', hp: 900, size: 1, charges: 2, damage: 300 }, 'maquina', 'enemy', 4, 0);
+                const detected = RadarManager.scanRadar();
+                check(detected.length === 1, 'radar detecta apenas o objeto dentro do raio');
+                check(GridView.getCell('enemy', 4, 0).classList.contains('is-unknown'), 'objeto desconhecido usa bloco preto');
+
+                const layer = createShip({ id: 'trap-layer', name: 'Lanca-Armadilhas', hp: 2000, size: 5, charges: 1, damage: 1500, chargeType: 'armadilha' }, 'player', 'ally', 1, 5);
+                const trapPosition = { zoneId: 'neutral', row: 7, column: 6 };
+                check(CombatManager.placeTrap(layer, trapPosition), 'armadilha e posicionada no alcance 7');
+                check(GridView.getCell('neutral', 7, 6).classList.contains('is-owned-trap'), 'armadilha propria recebe representacao visual');
+                check(layer.cargasDisponiveis === 0, 'lancamento consome a carga');
+                check(GameState.battle.mainActionAvailable === false, 'lancamento consome a acao principal');
+
+                const enemyTrap = new Trap({ id: 'enemy-trap', nome: 'Armadilha', custo: 0, dano: 1500, ownerId: 'maquina', position: { zoneId: 'neutral', row: 3, column: 8 } });
+                GameState.battle.traps.push(enemyTrap);
+                RadarManager.scanRadar();
+                check(GridView.getCell('neutral', 3, 8).classList.contains('is-unknown'), 'armadilha inimiga detectada permanece desconhecida');
+
+                GameState.battle.mainActionAvailable = true;
+                detector.cargasDisponiveis = 3;
+                check(CombatManager.attackTarget(detector, enemyTrap.position, { skipUnknownConfirmation: true }), 'ataque ativa a armadilha');
+                check(detector.hp === 0, 'dano 1500 e aplicado ao atacante de 600 HP');
+                check(enemyTrap.wasTriggered && !enemyTrap.isActive, 'armadilha ativada nao pode causar dano novamente');
+
+                document.getElementById('result').dataset.status = 'passed';
+                document.getElementById('result').textContent = `PASS: ${checks.length} verificacoes`;
+            } catch (error) {
+                document.getElementById('result').dataset.status = 'failed';
+                document.getElementById('result').textContent = `FAIL: ${error.message}`;
+            }
+        })();
+    </script>
+</body>
+</html>
