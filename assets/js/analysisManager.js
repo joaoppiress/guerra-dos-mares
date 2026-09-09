@@ -162,8 +162,11 @@ class AnalysisManager {
         const modal = this.ensureModal();
 
         modal.classList.remove('is-hidden');
+        modal.querySelector('#analysis-title').textContent =
+            `Análise de objeto • Nível ${question.nivel} • ${question.habilidade}`;
         modal.querySelector('#analysis-question').textContent = question.pergunta;
         modal.querySelector('#analysis-feedback').textContent = '';
+        modal.querySelector('#analysis-feedback').classList.remove('is-correct', 'is-incorrect');
         modal.querySelector('#analysis-close').classList.add('is-hidden');
         modal.querySelectorAll('[data-answer]').forEach((button) => {
             button.disabled = false;
@@ -177,18 +180,20 @@ class AnalysisManager {
         const acertou = answer === question.resposta;
         const modal = this.ensureModal();
         const feedback = modal.querySelector('#analysis-feedback');
+        const expectedAnswer = question.gabarito || (question.resposta ? 'Verdadeiro' : 'Falso');
 
         this.setAnalysisAvailable(false);
+        feedback.classList.add(acertou ? 'is-correct' : 'is-incorrect');
 
         if (acertou) {
             GameState.battle.revealedObjects.set(key, {
                 type: unknown.type,
                 item: unknown.item
             });
-            feedback.textContent = `Correto. O objeto e ${unknown.type === 'trap' ? 'uma armadilha' : 'uma embarcacao inimiga'}. ${question.explicacao}`;
+            feedback.textContent = `Correto. Gabarito: ${expectedAnswer}. O contato é ${unknown.type === 'trap' ? 'uma armadilha' : 'uma embarcação inimiga'}. ${question.explicacao}`;
             TurnManager.setBattleMessage('Objeto revelado pela analise.', 'success');
         } else {
-            feedback.textContent = `Resposta incorreta. ${question.explicacao}`;
+            feedback.textContent = `Resposta incorreta. Gabarito: ${expectedAnswer}. ${question.explicacao}`;
             TurnManager.setBattleMessage('Analise consumida sem revelar o objeto.', 'warning');
         }
 

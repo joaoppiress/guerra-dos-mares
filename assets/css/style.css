@@ -914,6 +914,14 @@ dd {
     text-align: center;
 }
 
+.analysis-feedback.is-correct {
+    color: #237a3b;
+}
+
+.analysis-feedback.is-incorrect {
+    color: #b02a37;
+}
+
 /* ── RESPONSIVE ── */
 @media (max-width: 1120px) {
     .game-area,
