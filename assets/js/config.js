@@ -47,19 +47,22 @@ const GameConfig = {
     difficulties: {
         facil: {
             id: 'facil',
-            label: 'Facil',
+            level: 2,
+            label: 'Fácil',
             description: 'Mais moedas para testar formacoes com calma.',
             coins: 5000
         },
-        normal: {
-            id: 'normal',
-            label: 'Normal',
+        medio: {
+            id: 'medio',
+            level: 3,
+            label: 'Médio',
             description: 'Saldo equilibrado para uma partida padrao.',
             coins: 3600
         },
         dificil: {
             id: 'dificil',
-            label: 'Dificil',
+            level: 4,
+            label: 'Difícil',
             description: 'Menos moedas e escolhas mais importantes.',
             coins: 2700
         }

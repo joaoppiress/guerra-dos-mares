@@ -17,6 +17,7 @@ async function loadQuestions() {
 
 function validateQuestionBank(questions) {
     const expectedDifficulties = ['facil', 'medio', 'dificil'];
+    const expectedLevels = { facil: 2, medio: 3, dificil: 4 };
 
     if (!Array.isArray(questions) || questions.length !== 60) {
         throw new Error('O banco deve conter exatamente 60 perguntas.');
@@ -27,7 +28,7 @@ function validateQuestionBank(questions) {
 
     questions.forEach((question, index) => {
         const validAnswer = typeof question?.resposta === 'boolean';
-        const requiredText = ['id', 'dificuldade', 'pergunta', 'explicacao'];
+        const requiredText = ['id', 'dificuldade', 'habilidade', 'pergunta', 'gabarito', 'explicacao'];
         const hasRequiredText = requiredText.every((field) =>
             question?.[field] !== undefined && String(question[field]).trim().length > 0
         );
@@ -38,6 +39,15 @@ function validateQuestionBank(questions) {
 
         if (!Object.hasOwn(totals, question.dificuldade)) {
             throw new Error(`Dificuldade invalida na pergunta ${question.id}.`);
+        }
+
+        if (question.nivel !== expectedLevels[question.dificuldade]) {
+            throw new Error(`Nivel incoerente na pergunta ${question.id}.`);
+        }
+
+        const expectedAnswer = question.resposta ? 'Verdadeiro' : 'Falso';
+        if (question.gabarito !== expectedAnswer) {
+            throw new Error(`Gabarito incoerente na pergunta ${question.id}.`);
         }
 
         if (ids.has(question.id)) {
