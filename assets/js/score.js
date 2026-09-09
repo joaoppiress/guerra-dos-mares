@@ -1,16 +1,28 @@
 let scoreSent = false;
 
 function sendFinalScore({ score, difficulty } = {}) {
-    if (scoreSent) return;
+    if (scoreSent) return false;
+
+    const normalizedScore = Math.max(0, Math.min(100, Math.round(Number(score) || 0)));
+
     try {
         window.parent.postMessage({
             type: 'C4A_GAME_SCORE',
-            payload: { score, difficulty }
+            payload: {
+                score: normalizedScore,
+                difficulty
+            }
         }, '*');
         scoreSent = true;
+        return true;
     } catch (error) {
         console.log('Falha ao enviar score:', error?.message || error);
+        return false;
     }
+}
+
+function resetScoreSubmission() {
+    scoreSent = false;
 }
 
 const ScoreManager = {
@@ -75,7 +87,30 @@ const ScoreManager = {
                 : 0,
             score: this.calculateScore(ownerId)
         };
+    },
+
+    finalizeMatchIfEnded(sessionOwnerId = 'player') {
+        const playerAlive = GameState.match?.players.player?.inventario?.navios
+            .some((ship) => !ship.isDestroyed);
+        const machineAlive = GameState.match?.players.maquina?.inventario?.navios
+            .some((ship) => !ship.isDestroyed);
+
+        if (playerAlive && machineAlive) return false;
+
+        const winnerId = playerAlive ? 'player' : 'maquina';
+        const score = this.calculateScore(sessionOwnerId);
+        GameState.phase = 'ended';
+        GameState.battle.winnerId = winnerId;
+        GameState.battle.finalScore = score;
+        sendFinalScore({
+            score,
+            difficulty: AnalysisManager.normalizeDifficulty(GameState.difficulty)
+        });
+
+        return true;
     }
 };
 
 globalThis.ScoreManager = ScoreManager;
+globalThis.sendFinalScore = sendFinalScore;
+globalThis.resetScoreSubmission = resetScoreSubmission;

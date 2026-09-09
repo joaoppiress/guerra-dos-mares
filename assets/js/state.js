@@ -44,6 +44,7 @@ const GameState = {
         this.keyboardPlacement = null;
         this.draggingShipId = null;
         this.usedQuestionIds = new Set();
+        if (typeof resetScoreSubmission === 'function') resetScoreSubmission();
         this.resetBoards();
     },
 

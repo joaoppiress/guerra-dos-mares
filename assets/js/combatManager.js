@@ -128,6 +128,7 @@ class CombatManager {
             );
             RadarManager.scanRadar();
             TurnManager.updateSelectedShipPanel();
+            ScoreManager.finalizeMatchIfEnded();
             TurnManager.finishTurnIfNoActions();
             return true;
         }
@@ -155,6 +156,7 @@ class CombatManager {
 
         RadarManager.scanRadar();
         TurnManager.updateSelectedShipPanel();
+        ScoreManager.finalizeMatchIfEnded();
         TurnManager.finishTurnIfNoActions();
         return true;
     }
