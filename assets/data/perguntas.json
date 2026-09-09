@@ -1,0 +1,602 @@
+[
+  {
+    "id": 1,
+    "nivel": 2,
+    "dificuldade": "facil",
+    "habilidade": "EF03CO01",
+    "pergunta": "A afirmação “2 + 2 não é igual a 5” é verdadeira.",
+    "gabarito": "Verdadeiro",
+    "resposta": true,
+    "explicacao": "Sim. Como 2 + 2 = 4, afirmar que o resultado não é 5 está correto."
+  },
+  {
+    "id": 2,
+    "nivel": 2,
+    "dificuldade": "facil",
+    "habilidade": "EF03CO01",
+    "pergunta": "A afirmação “1 + 1 é igual a 3” é verdadeira.",
+    "gabarito": "Falso",
+    "resposta": false,
+    "explicacao": "Não. 1 + 1 = 2, portanto a afirmação é falsa."
+  },
+  {
+    "id": 3,
+    "nivel": 2,
+    "dificuldade": "facil",
+    "habilidade": "EF03CO01",
+    "pergunta": "A afirmação “3 + 2 é igual a 5” é verdadeira.",
+    "gabarito": "Verdadeiro",
+    "resposta": true,
+    "explicacao": "Sim. 3 + 2 = 5."
+  },
+  {
+    "id": 4,
+    "nivel": 2,
+    "dificuldade": "facil",
+    "habilidade": "EF03CO01",
+    "pergunta": "Não é verdade que 1 + 3 seja igual a 5.",
+    "gabarito": "Verdadeiro",
+    "resposta": true,
+    "explicacao": "Correto. 1 + 3 = 4; por isso, negar que o resultado seja 5 torna a sentença verdadeira."
+  },
+  {
+    "id": 5,
+    "nivel": 2,
+    "dificuldade": "facil",
+    "habilidade": "EF03CO01",
+    "pergunta": "A afirmação “5 + 5 não é igual a 10” é verdadeira.",
+    "gabarito": "Falso",
+    "resposta": false,
+    "explicacao": "Não. 5 + 5 = 10, então a negação apresentada é falsa."
+  },
+  {
+    "id": 6,
+    "nivel": 2,
+    "dificuldade": "facil",
+    "habilidade": "EF03CO01",
+    "pergunta": "A afirmação “2 + 3 é diferente de 5” é verdadeira.",
+    "gabarito": "Falso",
+    "resposta": false,
+    "explicacao": "Não. 2 + 3 = 5; portanto, dizer que os valores são diferentes é falso."
+  },
+  {
+    "id": 7,
+    "nivel": 2,
+    "dificuldade": "facil",
+    "habilidade": "EF03CO01",
+    "pergunta": "A afirmação “2 × 3 é igual a 6” é verdadeira.",
+    "gabarito": "Verdadeiro",
+    "resposta": true,
+    "explicacao": "Sim. Duas vezes três resulta em seis."
+  },
+  {
+    "id": 8,
+    "nivel": 2,
+    "dificuldade": "facil",
+    "habilidade": "EF04CO01",
+    "pergunta": "Em um grid com letras nas colunas e números nas linhas, A1 e A2 ficam na mesma coluna.",
+    "gabarito": "Verdadeiro",
+    "resposta": true,
+    "explicacao": "Sim. A letra A identifica a mesma coluna; apenas o número da linha muda."
+  },
+  {
+    "id": 9,
+    "nivel": 2,
+    "dificuldade": "facil",
+    "habilidade": "EF04CO01",
+    "pergunta": "Em um grid, B3 e C3 ficam na mesma linha.",
+    "gabarito": "Verdadeiro",
+    "resposta": true,
+    "explicacao": "Sim. O número 3 identifica a mesma linha, enquanto as letras indicam colunas diferentes."
+  },
+  {
+    "id": 10,
+    "nivel": 2,
+    "dificuldade": "facil",
+    "habilidade": "EF04CO01",
+    "pergunta": "Em um grid, A1 e A5 ficam na mesma linha.",
+    "gabarito": "Falso",
+    "resposta": false,
+    "explicacao": "Não. Elas ficam na mesma coluna A, mas nas linhas 1 e 5."
+  },
+  {
+    "id": 11,
+    "nivel": 2,
+    "dificuldade": "facil",
+    "habilidade": "EF04CO01",
+    "pergunta": "A1 e B2 são vizinhas diretas, isto é, estão lado a lado ou uma acima da outra.",
+    "gabarito": "Falso",
+    "resposta": false,
+    "explicacao": "Não. B2 está na diagonal em relação a A1; não é uma vizinha direta."
+  },
+  {
+    "id": 12,
+    "nivel": 2,
+    "dificuldade": "facil",
+    "habilidade": "EF04CO01",
+    "pergunta": "Um navio reto de 2 casas pode ser colocado na diagonal do tabuleiro.",
+    "gabarito": "Falso",
+    "resposta": false,
+    "explicacao": "Não. No jogo, um navio reto ocupa casas consecutivas na horizontal ou na vertical."
+  },
+  {
+    "id": 13,
+    "nivel": 2,
+    "dificuldade": "facil",
+    "habilidade": "EF04CO01",
+    "pergunta": "Um grid 10 × 10 possui 100 casas.",
+    "gabarito": "Verdadeiro",
+    "resposta": true,
+    "explicacao": "Sim. Dez linhas multiplicadas por dez colunas resultam em 100 posições."
+  },
+  {
+    "id": 14,
+    "nivel": 2,
+    "dificuldade": "facil",
+    "habilidade": "EF04CO01",
+    "pergunta": "Se um submarino está em B3 e se move uma casa para a direita, ele chega a B4.",
+    "gabarito": "Falso",
+    "resposta": false,
+    "explicacao": "Não. Mover para a direita altera a coluna: de B3, o submarino vai para C3."
+  },
+  {
+    "id": 15,
+    "nivel": 2,
+    "dificuldade": "facil",
+    "habilidade": "EF04CO08",
+    "pergunta": "Toda informação encontrada na Internet pode ser considerada confiável.",
+    "gabarito": "Falso",
+    "resposta": false,
+    "explicacao": "Não. Informações online podem estar erradas, desatualizadas ou ter sido publicadas para enganar."
+  },
+  {
+    "id": 16,
+    "nivel": 2,
+    "dificuldade": "facil",
+    "habilidade": "EF04CO08",
+    "pergunta": "Antes de acreditar em uma mensagem de uma pessoa desconhecida, é importante verificar de onde veio a informação.",
+    "gabarito": "Verdadeiro",
+    "resposta": true,
+    "explicacao": "Sim. Conferir a origem ajuda a avaliar se a informação merece confiança."
+  },
+  {
+    "id": 17,
+    "nivel": 2,
+    "dificuldade": "facil",
+    "habilidade": "EF04CO08",
+    "pergunta": "Mesmo quando uma notícia é encaminhada por um amigo, ainda é importante verificar a fonte original.",
+    "gabarito": "Verdadeiro",
+    "resposta": true,
+    "explicacao": "Sim. Uma pessoa conhecida também pode compartilhar algo falso sem perceber."
+  },
+  {
+    "id": 18,
+    "nivel": 2,
+    "dificuldade": "facil",
+    "habilidade": "EF04CO08",
+    "pergunta": "Uma notícia com muitas curtidas e compartilhamentos é automaticamente verdadeira.",
+    "gabarito": "Falso",
+    "resposta": false,
+    "explicacao": "Não. Popularidade não comprova a veracidade de uma informação."
+  },
+  {
+    "id": 19,
+    "nivel": 2,
+    "dificuldade": "facil",
+    "habilidade": "EF04CO08",
+    "pergunta": "Um endereço de site parecido com o nome de uma página oficial é suficiente para garantir que a fonte é confiável.",
+    "gabarito": "Falso",
+    "resposta": false,
+    "explicacao": "Não. Sites falsos podem imitar nomes e aparência; é preciso conferir o endereço e a origem da informação."
+  },
+  {
+    "id": 20,
+    "nivel": 2,
+    "dificuldade": "facil",
+    "habilidade": "EF04CO08",
+    "pergunta": "Comparar a mesma informação em mais de uma fonte confiável ajuda a verificar se ela é verdadeira.",
+    "gabarito": "Verdadeiro",
+    "resposta": true,
+    "explicacao": "Sim. Comparar fontes reduz o risco de aceitar uma informação falsa ou fora de contexto."
+  },
+  {
+    "id": 21,
+    "nivel": 3,
+    "dificuldade": "medio",
+    "habilidade": "EF03CO01",
+    "pergunta": "Não é verdade que 2 + 3 seja diferente de 7 − 2.",
+    "gabarito": "Verdadeiro",
+    "resposta": true,
+    "explicacao": "Correto. As duas expressões valem 5, portanto não são diferentes."
+  },
+  {
+    "id": 22,
+    "nivel": 3,
+    "dificuldade": "medio",
+    "habilidade": "EF03CO01",
+    "pergunta": "A afirmação “2 + 4 é igual a 3 + 3” é verdadeira.",
+    "gabarito": "Verdadeiro",
+    "resposta": true,
+    "explicacao": "Sim. Os dois lados resultam em 6."
+  },
+  {
+    "id": 23,
+    "nivel": 3,
+    "dificuldade": "medio",
+    "habilidade": "EF03CO01",
+    "pergunta": "A afirmação “5 + 2 não é igual a 8 − 1” é verdadeira.",
+    "gabarito": "Falso",
+    "resposta": false,
+    "explicacao": "Não. 5 + 2 = 7 e 8 − 1 = 7; portanto, os valores são iguais."
+  },
+  {
+    "id": 24,
+    "nivel": 3,
+    "dificuldade": "medio",
+    "habilidade": "EF03CO01",
+    "pergunta": "A afirmação “4 + 1 é diferente de 6 − 1” é verdadeira.",
+    "gabarito": "Falso",
+    "resposta": false,
+    "explicacao": "Não. As duas expressões resultam em 5."
+  },
+  {
+    "id": 25,
+    "nivel": 3,
+    "dificuldade": "medio",
+    "habilidade": "EF03CO01",
+    "pergunta": "Não é verdade que 3 + 1 seja igual a 2 + 3.",
+    "gabarito": "Verdadeiro",
+    "resposta": true,
+    "explicacao": "Correto. 3 + 1 = 4 e 2 + 3 = 5, então elas não são iguais."
+  },
+  {
+    "id": 26,
+    "nivel": 3,
+    "dificuldade": "medio",
+    "habilidade": "EF03CO01",
+    "pergunta": "A afirmação “3 + 2 é igual a 6 − 1” é verdadeira.",
+    "gabarito": "Verdadeiro",
+    "resposta": true,
+    "explicacao": "Sim. As duas expressões resultam em 5."
+  },
+  {
+    "id": 27,
+    "nivel": 3,
+    "dificuldade": "medio",
+    "habilidade": "EF03CO01",
+    "pergunta": "A afirmação “2 × 2 não é igual a 4 + 0” é verdadeira.",
+    "gabarito": "Falso",
+    "resposta": false,
+    "explicacao": "Não. 2 × 2 = 4 e 4 + 0 = 4; portanto, os valores são iguais."
+  },
+  {
+    "id": 28,
+    "nivel": 3,
+    "dificuldade": "medio",
+    "habilidade": "EF04CO01",
+    "pergunta": "Se um navio ocupa C1, C2 e C3, todas as suas partes estão na mesma coluna.",
+    "gabarito": "Verdadeiro",
+    "resposta": true,
+    "explicacao": "Sim. A letra C permanece igual e apenas os números das linhas mudam."
+  },
+  {
+    "id": 29,
+    "nivel": 3,
+    "dificuldade": "medio",
+    "habilidade": "EF04CO01",
+    "pergunta": "Para mover uma peça da coluna B para a coluna A, o movimento é para a esquerda.",
+    "gabarito": "Verdadeiro",
+    "resposta": true,
+    "explicacao": "Sim. A coluna A fica imediatamente à esquerda da coluna B."
+  },
+  {
+    "id": 30,
+    "nivel": 3,
+    "dificuldade": "medio",
+    "habilidade": "EF04CO01",
+    "pergunta": "Ao mover uma peça da linha 2 para a linha 4, a coluna da peça obrigatoriamente muda.",
+    "gabarito": "Falso",
+    "resposta": false,
+    "explicacao": "Não. É possível mudar apenas de linha e manter a mesma coluna."
+  },
+  {
+    "id": 31,
+    "nivel": 3,
+    "dificuldade": "medio",
+    "habilidade": "EF04CO01",
+    "pergunta": "Mover uma peça da coluna A para a coluna C corresponde a duas casas para a direita.",
+    "gabarito": "Verdadeiro",
+    "resposta": true,
+    "explicacao": "Sim. O percurso é A → B → C, totalizando dois deslocamentos."
+  },
+  {
+    "id": 32,
+    "nivel": 3,
+    "dificuldade": "medio",
+    "habilidade": "EF04CO01",
+    "pergunta": "Um navio que ocupa B1, B2, B3 e B4 está posicionado na horizontal.",
+    "gabarito": "Falso",
+    "resposta": false,
+    "explicacao": "Não. Como a coluna B permanece igual e as linhas mudam, o navio está na vertical."
+  },
+  {
+    "id": 33,
+    "nivel": 3,
+    "dificuldade": "medio",
+    "habilidade": "EF04CO01",
+    "pergunta": "Para ir da linha 5 até a linha 3, uma peça precisa subir três casas.",
+    "gabarito": "Falso",
+    "resposta": false,
+    "explicacao": "Não. O movimento é de duas casas: 5 → 4 → 3."
+  },
+  {
+    "id": 34,
+    "nivel": 3,
+    "dificuldade": "medio",
+    "habilidade": "EF04CO08",
+    "pergunta": "Receber um aviso de prêmio de um site que você nunca acessou é um motivo para desconfiar e verificar a fonte.",
+    "gabarito": "Verdadeiro",
+    "resposta": true,
+    "explicacao": "Sim. Prêmios inesperados podem ser usados para atrair pessoas a páginas enganosas."
+  },
+  {
+    "id": 35,
+    "nivel": 3,
+    "dificuldade": "medio",
+    "habilidade": "EF04CO08",
+    "pergunta": "Um site que pede sua senha para liberar moedas grátis deve ser considerado uma fonte confiável.",
+    "gabarito": "Falso",
+    "resposta": false,
+    "explicacao": "Não. Esse pedido é um forte sinal de que a página pode ser enganosa ou mal-intencionada."
+  },
+  {
+    "id": 36,
+    "nivel": 3,
+    "dificuldade": "medio",
+    "habilidade": "EF04CO08",
+    "pergunta": "Se uma página diz que você ganhou um celular sem ter participado de nenhuma promoção, isso é um sinal de alerta.",
+    "gabarito": "Verdadeiro",
+    "resposta": true,
+    "explicacao": "Sim. Uma oferta inesperada e sem origem clara deve ser verificada antes de qualquer ação."
+  },
+  {
+    "id": 37,
+    "nivel": 3,
+    "dificuldade": "medio",
+    "habilidade": "EF04CO08",
+    "pergunta": "Para confirmar uma notícia na Internet, basta consultar uma única página.",
+    "gabarito": "Falso",
+    "resposta": false,
+    "explicacao": "Não. É melhor comparar a informação com outras fontes confiáveis e independentes."
+  },
+  {
+    "id": 38,
+    "nivel": 3,
+    "dificuldade": "medio",
+    "habilidade": "EF04CO08",
+    "pergunta": "Uma publicação sem autor, data ou indicação de origem deve ser aceita como verdadeira sem verificação.",
+    "gabarito": "Falso",
+    "resposta": false,
+    "explicacao": "Não. A falta de autoria e de origem dificulta avaliar a confiabilidade da informação."
+  },
+  {
+    "id": 39,
+    "nivel": 3,
+    "dificuldade": "medio",
+    "habilidade": "EF04CO08",
+    "pergunta": "Uma postagem que não informa de onde veio a notícia deve ser verificada antes de ser usada como fonte.",
+    "gabarito": "Verdadeiro",
+    "resposta": true,
+    "explicacao": "Sim. Identificar a origem é um passo importante para avaliar a confiabilidade do conteúdo."
+  },
+  {
+    "id": 40,
+    "nivel": 3,
+    "dificuldade": "medio",
+    "habilidade": "EF04CO08",
+    "pergunta": "Um site que promete dobrar suas moedas de jogo apenas após um cadastro deve ser considerado confiável por causa da promessa.",
+    "gabarito": "Falso",
+    "resposta": false,
+    "explicacao": "Não. Promessas vantajosas não comprovam confiabilidade; é necessário verificar quem está por trás do site."
+  },
+  {
+    "id": 41,
+    "nivel": 4,
+    "dificuldade": "dificil",
+    "habilidade": "EF03CO01",
+    "pergunta": "Não é verdade que 4 + 2 seja diferente de 3 × 2.",
+    "gabarito": "Verdadeiro",
+    "resposta": true,
+    "explicacao": "Correto. 4 + 2 = 6 e 3 × 2 = 6, portanto os resultados não são diferentes."
+  },
+  {
+    "id": 42,
+    "nivel": 4,
+    "dificuldade": "dificil",
+    "habilidade": "EF03CO01",
+    "pergunta": "A afirmação “3 × 2 é igual a 8 − 3” é verdadeira.",
+    "gabarito": "Falso",
+    "resposta": false,
+    "explicacao": "Não. 3 × 2 = 6 e 8 − 3 = 5."
+  },
+  {
+    "id": 43,
+    "nivel": 4,
+    "dificuldade": "dificil",
+    "habilidade": "EF03CO01",
+    "pergunta": "Não é verdade que 2 × 2 seja diferente de 9 − 5.",
+    "gabarito": "Verdadeiro",
+    "resposta": true,
+    "explicacao": "Correto. As duas expressões resultam em 4."
+  },
+  {
+    "id": 44,
+    "nivel": 4,
+    "dificuldade": "dificil",
+    "habilidade": "EF03CO01",
+    "pergunta": "A afirmação “5 + 3 é igual a 3 × 2” é verdadeira.",
+    "gabarito": "Falso",
+    "resposta": false,
+    "explicacao": "Não. 5 + 3 = 8, enquanto 3 × 2 = 6."
+  },
+  {
+    "id": 45,
+    "nivel": 4,
+    "dificuldade": "dificil",
+    "habilidade": "EF03CO01",
+    "pergunta": "A afirmação “4 × 2 é diferente de 10 − 2” é verdadeira.",
+    "gabarito": "Falso",
+    "resposta": false,
+    "explicacao": "Não. As duas expressões resultam em 8."
+  },
+  {
+    "id": 46,
+    "nivel": 4,
+    "dificuldade": "dificil",
+    "habilidade": "EF03CO01",
+    "pergunta": "Não é verdade que 3 + 4 seja igual a 2 × 3.",
+    "gabarito": "Verdadeiro",
+    "resposta": true,
+    "explicacao": "Correto. 3 + 4 = 7 e 2 × 3 = 6, portanto elas não são iguais."
+  },
+  {
+    "id": 47,
+    "nivel": 4,
+    "dificuldade": "dificil",
+    "habilidade": "EF04CO01",
+    "pergunta": "Mover uma peça da coluna C para a coluna E corresponde a duas casas para a direita.",
+    "gabarito": "Verdadeiro",
+    "resposta": true,
+    "explicacao": "Sim. O deslocamento é C → D → E."
+  },
+  {
+    "id": 48,
+    "nivel": 4,
+    "dificuldade": "dificil",
+    "habilidade": "EF04CO01",
+    "pergunta": "Em um grid 10 × 10 com colunas de A a J e linhas de 1 a 10, J10 fica no canto inferior direito.",
+    "gabarito": "Verdadeiro",
+    "resposta": true,
+    "explicacao": "Sim. J é a última coluna e 10 é a última linha desse grid."
+  },
+  {
+    "id": 49,
+    "nivel": 4,
+    "dificuldade": "dificil",
+    "habilidade": "EF04CO01",
+    "pergunta": "Ao mover uma peça de D4 para F4, a linha da peça foi alterada.",
+    "gabarito": "Falso",
+    "resposta": false,
+    "explicacao": "Não. O número 4 permaneceu igual; apenas a coluna mudou de D para F."
+  },
+  {
+    "id": 50,
+    "nivel": 4,
+    "dificuldade": "dificil",
+    "habilidade": "EF04CO01",
+    "pergunta": "Um navio reto de 4 casas pode fazer uma curva e ocupar duas casas em uma linha e duas em outra.",
+    "gabarito": "Falso",
+    "resposta": false,
+    "explicacao": "Não. Sendo reto, o navio deve ocupar quatro casas consecutivas na mesma linha ou na mesma coluna."
+  },
+  {
+    "id": 51,
+    "nivel": 4,
+    "dificuldade": "dificil",
+    "habilidade": "EF04CO01",
+    "pergunta": "Se uma peça está em G7 e sobe três casas, ela chega a G4.",
+    "gabarito": "Verdadeiro",
+    "resposta": true,
+    "explicacao": "Sim. O percurso é G7 → G6 → G5 → G4."
+  },
+  {
+    "id": 52,
+    "nivel": 4,
+    "dificuldade": "dificil",
+    "habilidade": "EF04CO01",
+    "pergunta": "Em um grid 10 × 10, A1 representa uma posição central do tabuleiro.",
+    "gabarito": "Falso",
+    "resposta": false,
+    "explicacao": "Não. A1 fica em um dos cantos do grid."
+  },
+  {
+    "id": 53,
+    "nivel": 4,
+    "dificuldade": "dificil",
+    "habilidade": "EF04CO01",
+    "pergunta": "Em um grid 10 × 10, A1 e J10 ficam em cantos opostos.",
+    "gabarito": "Verdadeiro",
+    "resposta": true,
+    "explicacao": "Sim. Considerando A1 no canto superior esquerdo, J10 fica no canto inferior direito."
+  },
+  {
+    "id": 54,
+    "nivel": 4,
+    "dificuldade": "dificil",
+    "habilidade": "EF04CO08",
+    "pergunta": "Uma fotografia publicada na Internet, sozinha, garante que a informação apresentada é verdadeira.",
+    "gabarito": "Falso",
+    "resposta": false,
+    "explicacao": "Não. Uma imagem pode ser alterada, antiga ou usada fora de contexto."
+  },
+  {
+    "id": 55,
+    "nivel": 4,
+    "dificuldade": "dificil",
+    "habilidade": "EF04CO08",
+    "pergunta": "Uma notícia sem autor identificado e sem indicar a fonte original deve ser considerada confiável.",
+    "gabarito": "Falso",
+    "resposta": false,
+    "explicacao": "Não. A ausência de autoria e de origem é um motivo para verificar a informação com mais cuidado."
+  },
+  {
+    "id": 56,
+    "nivel": 4,
+    "dificuldade": "dificil",
+    "habilidade": "EF04CO08",
+    "pergunta": "Se muitos amigos compartilharem a mesma notícia, não é mais necessário verificar a fonte.",
+    "gabarito": "Falso",
+    "resposta": false,
+    "explicacao": "Não. Uma informação falsa também pode ser compartilhada por muitas pessoas."
+  },
+  {
+    "id": 57,
+    "nivel": 4,
+    "dificuldade": "dificil",
+    "habilidade": "EF04CO08",
+    "pergunta": "Verificar quem publicou, quando publicou e qual é a fonte original ajuda a avaliar a confiabilidade de uma notícia.",
+    "gabarito": "Verdadeiro",
+    "resposta": true,
+    "explicacao": "Sim. Autoria, data e origem são pistas importantes para analisar uma fonte."
+  },
+  {
+    "id": 58,
+    "nivel": 4,
+    "dificuldade": "dificil",
+    "habilidade": "EF04CO08",
+    "pergunta": "Comparar uma informação com outras fontes confiáveis e independentes é uma boa forma de verificar sua credibilidade.",
+    "gabarito": "Verdadeiro",
+    "resposta": true,
+    "explicacao": "Sim. A comparação ajuda a identificar erros, informações incompletas ou conteúdos enganosos."
+  },
+  {
+    "id": 59,
+    "nivel": 4,
+    "dificuldade": "dificil",
+    "habilidade": "EF04CO08",
+    "pergunta": "Um link enviado por uma pessoa desconhecida pode ser considerado confiável apenas porque usa o nome e o logotipo de um jogo conhecido.",
+    "gabarito": "Falso",
+    "resposta": false,
+    "explicacao": "Não. Nomes e logotipos podem ser copiados; é preciso verificar o endereço e a origem do link."
+  },
+  {
+    "id": 60,
+    "nivel": 4,
+    "dificuldade": "dificil",
+    "habilidade": "EF04CO08",
+    "pergunta": "Se uma mensagem encaminhada por um amigo pede dados pessoais, mas não mostra a fonte original, é correto verificar a informação por outro meio antes de agir.",
+    "gabarito": "Verdadeiro",
+    "resposta": true,
+    "explicacao": "Sim. Mesmo mensagens de conhecidos devem ser verificadas quando a origem não está clara ou quando pedem dados sensíveis."
+  }
+]

@@ -1,16 +1,71 @@
 async function loadQuestions() {
     try {
-        const response = await fetch('assets/js/perguntas.json');
+        const response = await fetch('assets/data/perguntas.json', { cache: 'no-store' });
 
         if (!response.ok) {
             throw new Error(`HTTP ${response.status}`);
         }
 
-        GameState.questions = await response.json();
+        const questions = await response.json();
+        validateQuestionBank(questions);
+        GameState.questions = shuffleQuestions(questions);
     } catch (error) {
         console.log('Falha ao carregar perguntas:', error?.message || error);
         GameState.questions = [];
     }
+}
+
+function validateQuestionBank(questions) {
+    const expectedDifficulties = ['facil', 'medio', 'dificil'];
+
+    if (!Array.isArray(questions) || questions.length !== 60) {
+        throw new Error('O banco deve conter exatamente 60 perguntas.');
+    }
+
+    const ids = new Set();
+    const totals = Object.fromEntries(expectedDifficulties.map((difficulty) => [difficulty, 0]));
+
+    questions.forEach((question, index) => {
+        const validAnswer = typeof question?.resposta === 'boolean';
+        const requiredText = ['id', 'dificuldade', 'pergunta', 'explicacao'];
+        const hasRequiredText = requiredText.every((field) =>
+            question?.[field] !== undefined && String(question[field]).trim().length > 0
+        );
+
+        if (!question || typeof question !== 'object' || !hasRequiredText || !validAnswer) {
+            throw new Error(`Pergunta invalida na posicao ${index + 1}.`);
+        }
+
+        if (!Object.hasOwn(totals, question.dificuldade)) {
+            throw new Error(`Dificuldade invalida na pergunta ${question.id}.`);
+        }
+
+        if (ids.has(question.id)) {
+            throw new Error(`ID de pergunta duplicado: ${question.id}.`);
+        }
+
+        ids.add(question.id);
+        totals[question.dificuldade] += 1;
+    });
+
+    expectedDifficulties.forEach((difficulty) => {
+        if (totals[difficulty] !== 20) {
+            throw new Error(`A dificuldade ${difficulty} deve conter 20 perguntas.`);
+        }
+    });
+
+    return true;
+}
+
+function shuffleQuestions(questions) {
+    const shuffled = [...questions];
+
+    for (let index = shuffled.length - 1; index > 0; index -= 1) {
+        const randomIndex = Math.floor(Math.random() * (index + 1));
+        [shuffled[index], shuffled[randomIndex]] = [shuffled[randomIndex], shuffled[index]];
+    }
+
+    return shuffled;
 }
 
 function startGame() {

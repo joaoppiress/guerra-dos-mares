@@ -4,6 +4,7 @@ const GameState = {
     coins: 0,
     match: null,
     questions: [],
+    usedQuestionIds: new Set(),
     boards: {},
     placedShips: [],
     selectedShipId: null,
@@ -41,6 +42,7 @@ const GameState = {
         this.selectedShipId = null;
         this.keyboardPlacement = null;
         this.draggingShipId = null;
+        this.usedQuestionIds = new Set();
         this.resetBoards();
     },
 

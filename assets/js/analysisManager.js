@@ -18,11 +18,17 @@ class AnalysisManager {
 
     static getQuestionForCurrentDifficulty() {
         const difficulty = this.normalizeDifficulty(GameState.difficulty);
-        const pool = GameState.questions.filter((question) => question.dificuldade === difficulty);
+        const pool = GameState.questions.filter((question) =>
+            question.dificuldade === difficulty &&
+            !GameState.usedQuestionIds.has(question.id)
+        );
 
         if (pool.length === 0) return null;
 
-        return pool[Math.floor(Math.random() * pool.length)];
+        const question = pool[Math.floor(Math.random() * pool.length)];
+        GameState.usedQuestionIds.add(question.id);
+
+        return question;
     }
 
     static getAnalysisAvailable() {
