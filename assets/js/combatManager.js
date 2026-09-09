@@ -103,6 +103,7 @@ class CombatManager {
         }
 
         ship.atacar(targetPosition, GameState.match.turnoAtual);
+        ScoreManager.recordAttack(ship.ownerId);
         TurnManager.updateSelectedShipPanel();
 
         if (!target) {
@@ -115,7 +116,10 @@ class CombatManager {
         if (target.type === 'trap') {
             if (!this.removeTrap(target.item)) return false;
 
+            const hpBeforeTrap = ship.hp;
             ship.receberDano(GameConfig.traps.damage);
+            ScoreManager.recordTrapTriggered(ship.ownerId);
+            ScoreManager.recordTrapDamage(target.item.ownerId, hpBeforeTrap - ship.hp);
             if (ship.isDestroyed) this.markShipDestroyed(ship);
 
             TurnManager.setBattleMessage(
@@ -128,7 +132,13 @@ class CombatManager {
             return true;
         }
 
+        const hpBeforeAttack = target.item.hp;
         target.item.receberDano(ship.dano);
+        ScoreManager.recordHit(
+            ship.ownerId,
+            hpBeforeAttack - target.item.hp,
+            target.item.isDestroyed
+        );
         TurnManager.updateSelectedShipPanel();
 
         if (target.item.isDestroyed) {

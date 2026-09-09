@@ -20,6 +20,7 @@ const GameState = {
         revealedObjects: new Map(),
         traps: [],
         nextTrapId: 1,
+        stats: createBattleStats(),
         messages: []
     },
 
@@ -62,6 +63,7 @@ const GameState = {
         this.battle.revealedObjects = new Map();
         this.battle.traps = [];
         this.battle.nextTrapId = 1;
+        this.battle.stats = createBattleStats();
         this.battle.messages = [];
 
         if (this.match.players.player) {
@@ -124,6 +126,23 @@ const GameState = {
         this.coins += amount;
     }
 };
+
+function createBattleStats() {
+    const emptyMetrics = () => ({
+        attacks: 0,
+        hits: 0,
+        verificationAttempts: 0,
+        verificationCorrect: 0,
+        damageCaused: 0,
+        shipsDestroyed: 0,
+        trapsTriggered: 0
+    });
+
+    return {
+        player: emptyMetrics(),
+        maquina: emptyMetrics()
+    };
+}
 
 function createBoard(zoneId) {
     return Array.from({ length: GameConfig.grid.rows }, (_, row) =>

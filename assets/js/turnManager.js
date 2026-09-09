@@ -275,7 +275,7 @@ class TurnManager {
         const label = GameState.match.jogadorAtivoId === 'player' ? 'Jogador' : 'Maquina';
         gameUI.setStatus({
             coins: GameState.match.players.player.moedas,
-            turn: `Rodada ${GameState.match.turnoAtual} - ${label}`
+            turn: `Rodada ${GameState.match.turnoAtual} - ${label} - Score ${ScoreManager.calculateScore('player')}/100`
         });
         this.updateActionButtons();
     }

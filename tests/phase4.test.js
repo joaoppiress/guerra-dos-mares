@@ -19,6 +19,7 @@ function load(file) {
 load('assets/js/config.js');
 load('assets/js/game-logic.js');
 load('assets/js/state.js');
+load('assets/js/score.js');
 
 vm.runInContext(`
     const testCells = new Map();

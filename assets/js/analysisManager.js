@@ -121,6 +121,7 @@ class AnalysisManager {
             return false;
         }
 
+        ScoreManager.recordVerificationAttempt(GameState.getActivePlayerId());
         this.currentAnalysis = { key: unknown.key, unknown, question };
         this.openModal(question);
         return true;
@@ -186,6 +187,7 @@ class AnalysisManager {
         feedback.classList.add(acertou ? 'is-correct' : 'is-incorrect');
 
         if (acertou) {
+            ScoreManager.recordVerificationCorrect(GameState.getActivePlayerId());
             GameState.battle.revealedObjects.set(key, {
                 type: unknown.type,
                 item: unknown.item
