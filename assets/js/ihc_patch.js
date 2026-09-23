@@ -1019,4 +1019,14 @@
   game.ensureCommandDock();
   game.syncCommandDock(true);
   game.toast('VISUAL LIMPO, PAINEL ACESSÍVEL E TOUCH ATUALIZADOS.', 2400);
+  const targetFrameMs = 1000 / 30;
+  const originalLoop = game.loop;
+  game.loop = function (t) {
+    if (t - this.lastRenderedAt >= targetFrameMs) {
+      this.lastRenderedAt = t;
+      originalLoop.call(this, t);
+    } else {
+      requestAnimationFrame(next => this.loop(next));
+    }
+  };
 })();
