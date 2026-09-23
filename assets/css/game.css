@@ -1,5 +1,35 @@
 html,body{margin:0;width:100%;height:100%;overflow:hidden;background:#06151b}
-body{touch-action:none;overscroll-behavior:none}
+body{touch-action:none;overscroll-behavior:none;font-family:Arial,Helvetica,sans-serif}
 #gameCanvas{display:block;width:100%;height:100%;outline:none;background:#06151b;image-rendering:pixelated;cursor:crosshair}
 #gameCanvas:focus-visible{outline:2px solid #f4dda0;outline-offset:-3px}
 .sr-only{position:absolute!important;width:1px!important;height:1px!important;padding:0!important;margin:-1px!important;overflow:hidden!important;clip:rect(0,0,0,0)!important;white-space:nowrap!important;border:0!important}
+#gdmCommandDock{position:fixed;right:12px;top:12px;bottom:12px;z-index:5;width:min(340px,calc(100vw - 24px));box-sizing:border-box;display:flex;flex-direction:column;gap:10px;padding:12px;border:2px solid rgba(238,205,130,.75);border-radius:18px;background:rgba(8,24,30,.92);box-shadow:0 12px 40px rgba(0,0,0,.38);color:#f6f0d6;backdrop-filter:blur(6px)}
+#gdmCommandDock *{box-sizing:border-box}
+#gdmCommandDock h2,#gdmCommandDock h3,#gdmCommandDock p{margin:0}
+.dock-title{font-size:17px;line-height:1.2;color:#ffe3a3}
+.dock-subtitle{font-size:13px;line-height:1.35;color:#cfe9e2}
+.dock-tabs{display:grid;grid-template-columns:repeat(4,1fr);gap:6px}
+.dock-tab,.dock-button{min-height:44px;border:1px solid rgba(224,198,127,.5);border-radius:999px;background:#12303a;color:#f8f2dc;font-weight:800;font-size:13px;cursor:pointer}
+.dock-tab[aria-selected="true"],.dock-button.primary{background:#f0c76e;color:#09232b;border-color:#ffe2a0}
+.dock-button:disabled{opacity:.48;cursor:not-allowed}
+.dock-tab:focus-visible,.dock-button:focus-visible{outline:3px solid #8fe8ff;outline-offset:2px}
+.dock-panel{display:none;min-height:0;overflow:auto;padding-right:2px}
+.dock-panel.is-active{display:flex;flex-direction:column;gap:10px}
+.dock-card{display:flex;flex-direction:column;gap:8px;padding:10px;border:1px solid rgba(143,232,255,.3);border-radius:14px;background:rgba(4,14,18,.55)}
+.dock-card h3{font-size:14px;color:#8fe8ff}
+.dock-card p,.dock-status{font-size:13px;line-height:1.35;color:#eef8ef}
+.dock-grid{display:grid;grid-template-columns:1fr 1fr;gap:8px}
+.dock-list{display:flex;flex-direction:column;gap:8px}
+.dock-note{font-size:12px;line-height:1.35;color:#ffe3a3}
+#gdmRotateNotice{display:none;position:fixed;inset:0;z-index:8;align-items:center;justify-content:center;padding:24px;text-align:center;color:#fff4d2;background:#06151b}
+#gdmRotateNotice strong{display:block;margin-bottom:8px;font-size:22px;color:#ffe3a3}
+@media (max-width:899px){
+  #gdmCommandDock{left:8px;right:8px;top:auto;bottom:8px;width:auto;max-height:42vh;border-radius:16px;padding:10px}
+  .dock-tabs{grid-template-columns:repeat(4,minmax(74px,1fr))}
+  .dock-panel.is-active{display:grid;grid-template-columns:1fr 1fr;gap:8px;overflow:auto}
+  .dock-card{padding:8px}
+  .dock-button{min-height:42px}
+}
+@media (orientation:portrait) and (max-width:480px){
+  #gdmRotateNotice{display:flex}
+}
