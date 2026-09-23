@@ -1,0 +1,16 @@
+GUERRA DOS MARES - CREDITOS DE ASSETS
+
+1) Sea Warfare Set (Ships and more) - Lowder2 / OpenGameArt
+Uso nesta build: Destroyer, Cruiser, Battleship e Rescue Ship (base visual do Lanca-Armadilhas).
+Licenca: CC0 / dominio publico conforme pagina do autor.
+
+2) Animated Ocean Water Tile - POKOMOKO / Jason Wild / OpenGameArt
+Uso nesta build: animacao de agua em 4 frames. Os frames foram separados e receberam apenas variacao de cor por zona, sem suavizacao.
+Licenca: CC0.
+
+3) Kenney Explosion Pack - Kenney
+Uso nesta build: 9 frames de explosao pixel art.
+Licenca: CC0.
+
+4) UI pixel art complementar
+Cursor, mina, boia, marcadores e icones de acao foram criados especificamente para esta build e podem ser usados junto com o projeto.

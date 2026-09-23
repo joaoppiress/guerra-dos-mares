@@ -1,151 +1,54 @@
-const GameConfig = {
-    grid: {
-        size: 10,
-        rows: 10,
-        columns: 10,
-        totalColumns: 30,
-        zoneWidth: 10,
-        labels: 'ABCDEFGHIJ'.split('')
-    },
+const GDM_CONFIG = Object.freeze({
+  version: 'sprite-only-hotseat-1.3.0-ui-naval',
+  grid: { rows: 10, cols: 30, zoneWidth: 10 },
+  zones: {
+    player1: { minCol: 0, maxCol: 9 },
+    neutral: { minCol: 10, maxCol: 19 },
+    player2: { minCol: 20, maxCol: 29 }
+  },
+  difficulties: {
+    facil:   { id:'facil',   label:'FÁCIL',   coins:5000 },
+    medio:   { id:'medio',   label:'MÉDIO',   coins:3600 },
+    dificil: { id:'dificil', label:'DIFÍCIL', coins:2700 }
+  },
+  ships: {
+    'trap-layer': { id:'trap-layer', name:'LANÇA-ARMADILHAS', price:1200, hp:2000, size:5, charges:1, damage:1500, chargeType:'trap', trapStock:3 },
+    battleship:   { id:'battleship', name:'ENCOURAÇADO',      price:900,  hp:1500, size:4, charges:1, damage:900,  chargeType:'missile' },
+    cruiser:      { id:'cruiser',    name:'CRUZADOR',         price:600,  hp:900,  size:3, charges:2, damage:300,  chargeType:'missile' },
+    destroyer:    { id:'destroyer',  name:'DESTROIER',        price:300,  hp:600,  size:2, charges:3, damage:170,  chargeType:'missile' }
+  },
+  radar: { radius: 3 },
+  traps: { launchRadius: 7, damage: 1500 },
+  animation: { waterFrameMs: 220, explosionFrameMs: 65, bobFrameMs: 520 },
+  input: { dragThreshold: 6 }
+});
 
-    radar: {
-        detectionRadius: 3,
-        distance: 'chebyshev'
-    },
+function normalizeDifficulty(value){
+  const raw=String(value||'').trim().toLowerCase();
+  const aliases={
+    'facil':'facil','fácil':'facil','2':'facil',
+    'medio':'medio','médio':'medio','3':'medio',
+    'dificil':'dificil','difícil':'dificil','4':'dificil'
+  };
+  return aliases[raw]||null;
+}
 
-    traps: {
-        launchRadius: 7,
-        damage: 1500,
-        distance: 'chebyshev',
-        allowedZonesByOwner: {
-            player: ['ally', 'neutral'],
-            maquina: ['enemy', 'neutral']
-        }
-    },
+function getExplicitPlatformDifficulty(){
+  try{
+    const queryValue=new URLSearchParams(window.location.search).get('difficulty');
+    const fromQuery=normalizeDifficulty(queryValue);
+    if(fromQuery) return fromQuery;
+  }catch(_error){}
+  return normalizeDifficulty(window.GDM_PLATFORM_DIFFICULTY);
+}
 
-    zones: [
-        {
-            id: 'ally',
-            title: 'Oceano Aliado',
-            subtitle: 'Base da frota',
-            className: 'zone-ally'
-        },
-        {
-            id: 'neutral',
-            title: 'Oceano Neutro',
-            subtitle: 'Mar aberto',
-            className: 'zone-neutral'
-        },
-        {
-            id: 'enemy',
-            title: 'Oceano Inimigo',
-            subtitle: 'Area rival',
-            className: 'zone-enemy'
-        }
-    ],
+function hasPlatformDifficulty(){
+  return Boolean(getExplicitPlatformDifficulty());
+}
 
-    difficulties: {
-        facil: {
-            id: 'facil',
-            level: 2,
-            label: 'Fácil',
-            description: 'Mais moedas para testar formacoes com calma.',
-            coins: 5000
-        },
-        medio: {
-            id: 'medio',
-            level: 3,
-            label: 'Médio',
-            description: 'Saldo equilibrado para uma partida padrao.',
-            coins: 3600
-        },
-        dificil: {
-            id: 'dificil',
-            level: 4,
-            label: 'Difícil',
-            description: 'Menos moedas e escolhas mais importantes.',
-            coins: 2700
-        }
-    },
-
-    ships: [
-        {
-            id: 'trap-layer',
-            name: 'Lanca-Armadilhas',
-            shortName: 'Armadilhas',
-            price: 1200,
-            hp: 2000,
-            size: 5,
-            chargeLabel: '1 armadilha',
-            chargeType: 'armadilha',
-            charges: 1,
-            damage: 1500
-        },
-        {
-            id: 'battleship',
-            name: 'Encouracado',
-            shortName: 'Encouracado',
-            price: 900,
-            hp: 1500,
-            size: 4,
-            chargeLabel: '1 missil forte',
-            chargeType: 'missil',
-            charges: 1,
-            damage: 900
-        },
-        {
-            id: 'cruiser',
-            name: 'Cruzador',
-            shortName: 'Cruzador',
-            price: 600,
-            hp: 900,
-            size: 3,
-            chargeLabel: '2 misseis medios',
-            chargeType: 'missil',
-            charges: 2,
-            damage: 300
-        },
-        {
-            id: 'destroyer',
-            name: 'Destroier',
-            shortName: 'Destroier',
-            price: 300,
-            hp: 600,
-            size: 2,
-            chargeLabel: '3 misseis leves',
-            chargeType: 'missil',
-            charges: 3,
-            damage: 170
-        }
-    ]
-};
-
-const SPRITE_CONFIG = {
-    enabled: true,
-    defaultFrameTime: 1000,
-    maxAutoFrames: 12,
-    basePath: 'assets/sprites',
-    fallback: true,
-    imageRendering: 'auto',
-    tiles: {
-        ocean: 'tiles/ocean',
-        ally: 'tiles/ally',
-        neutral: 'tiles/neutral',
-        enemy: 'tiles/enemy'
-    },
-    ships: {
-        destroyer: 'ships/destroyer',
-        cruiser: 'ships/cruiser',
-        battleship: 'ships/battleship',
-        trapLayer: 'ships/trap-layer',
-        'trap-layer': 'ships/trap-layer'
-    },
-    effects: {
-        hover: 'effects/hover',
-        valid: 'effects/valid',
-        invalid: 'effects/invalid',
-        hit: 'effects/hit',
-        miss: 'effects/miss',
-        explosion: 'effects/explosion'
-    }
-};
+function getPlatformDifficulty(){
+  const explicit=getExplicitPlatformDifficulty();
+  if(explicit) return explicit;
+  const local=normalizeDifficulty(window.GDM_GAME?.state?.difficulty);
+  return local||'medio';
+}

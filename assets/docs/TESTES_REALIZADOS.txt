@@ -1,0 +1,52 @@
+GUERRA DOS MARES — 1x1 LOCAL SPRITE-ONLY — TESTES DA BUILD 1.1.0
+
+1. Estrutura
+- Raiz validada: somente index.html, README.md e assets/.
+
+2. JavaScript
+- node --check aprovado para config.js, game.js, logic.js e score.js.
+
+3. Banco pedagógico
+- 60 questões carregadas.
+- 20 nível 2, 20 nível 3, 20 nível 4.
+- 30 Verdadeiro e 30 Falso.
+- 20 questões por habilidade EF03CO01, EF04CO01 e EF04CO08.
+- IDs únicos.
+- Pergunta, habilidade, gabarito e explicação comparados com as 60 linhas do DOCX: correspondência exata.
+- Teste de sorteio: 20 questões únicas no nível atual e retorno nulo após esgotamento, sem repetição na mesma partida.
+
+4. Coordenadas pedagógicas
+- A1 = canto superior esquerdo.
+- J10 = canto inferior direito de cada zona 10x10.
+- Colunas A-J e linhas 1-10.
+- Zonas 2 e 3 repetem o sistema A-J/1-10 e incluem o nome do oceano na descrição acessível.
+
+5. Hotseat
+- Auto-posicionamento J1.
+- Handoff para J2.
+- Auto-posicionamento J2.
+- Handoff para início da batalha.
+- Fase battle iniciada corretamente.
+
+6. Acessibilidade
+- 23 comandos semânticos acessíveis criados por JavaScript.
+- Canvas com aria-describedby para instruções, descrição visual e estado.
+- Estado acessível inclui fase, jogador, dificuldade, rodada, tempo, score, coordenada e navio selecionado.
+- F3 direciona o foco aos comandos acessíveis; o Canvas desenha indicador visual do foco.
+
+7. Pontuação e plataforma
+- Score calculado como inteiro 0-100.
+- C4A_GAME_SCORE testado.
+- sendFinalScore chamado ao finalizar.
+- Duas chamadas consecutivas de checkEnd produziram somente 1 postMessage, confirmando scoreSent.
+- difficulty retornou um dos valores facil/medio/dificil.
+
+8. Sprites
+- 51 PNGs validados via Pillow sem corrupção.
+- Hashes dos 4 navios permanecem idênticos à build anterior, sem reprocessamento dos arquivos-fonte.
+- Renderer continua usando escala uniforme para navios.
+- Água permanece com quatro frames animados.
+- Painéis usam nine-slice e os frames de seleção usam cantos do sprite, reduzindo deformação de UI.
+
+9. Navegador do ambiente
+- O Chromium corporativo do ambiente de geração bloqueia 127.0.0.1 por política da organização; por isso a validação de runtime foi feita com um ambiente DOM/Canvas simulado em Node, carregando os mesmos arquivos JS/JSON e executando o fluxo real de métodos.
