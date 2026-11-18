@@ -1,16 +1,35 @@
 GUERRA DOS MARES - CREDITOS DE ASSETS
 
-1) Sea Warfare Set (Ships and more) - Lowder2 / OpenGameArt
-Uso nesta build: Destroyer, Cruiser, Battleship e Rescue Ship (base visual do Lanca-Armadilhas).
-Licenca: CC0 / dominio publico conforme pagina do autor.
+1) Pirate Pack - Kenney (www.kenney.nl)
+Uso nesta build: casco, velas (normais e rasgadas), bandeiras, tripulacao, cesto da gavea,
+canhao, bala de canhao, navios completos (icones dos times), explosoes, fogo e tile de agua.
+Pasta: assets/img/ships, assets/img/effects, assets/img/sea/water.png, assets/img/sea/leaf.png
+Licenca: CC0 1.0 (dominio publico).
 
-2) Animated Ocean Water Tile - POKOMOKO / Jason Wild / OpenGameArt
-Uso nesta build: animacao de agua em 4 frames. Os frames foram separados e receberam apenas variacao de cor por zona, sem suavizacao.
-Licenca: CC0.
+2) Fish Pack - Kenney (www.kenney.nl)
+Uso nesta build: peixes, bolhas, algas e pedra que decoram o fundo do mar.
+Pasta: assets/img/sea
+Licenca: CC0 1.0 (dominio publico).
 
-3) Kenney Explosion Pack - Kenney
-Uso nesta build: 9 frames de explosao pixel art.
-Licenca: CC0.
+3) UI Pack - Kenney (www.kenney.nl)
+Uso nesta build: estrelas, icones de certo/errado e sons de clique.
+Pastas: assets/img/ui, assets/audio
+Licenca: CC0 1.0 (dominio publico).
 
-4) UI pixel art complementar
-Cursor, mina, boia, marcadores e icones de acao foram criados especificamente para esta build e podem ser usados junto com o projeto.
+4) Fredoka - The Fredoka Project Authors (Google Fonts)
+Uso nesta build: fonte de todo o jogo e do painel.
+Pasta: assets/fonts (licenca completa em assets/fonts/OFL.txt)
+Licenca: SIL Open Font License 1.1.
+
+5) Elementos desenhados por codigo
+Boias, minas, contatos de radar ("?"), cursor, splash, botoes e paineis sao desenhados
+diretamente no canvas/CSS pelo proprio jogo. A musica e parte dos efeitos sonoros sao
+sintetizados com WebAudio.
+
+6) Capitao (personagem guia)
+Personagem pirata criado especificamente para o Guerra dos Mares.
+Arquivo: assets/img/ui/capitao.png. Enquanto o arquivo nao existir, o jogo usa um retrato
+provisorio desenhado por codigo (SVG em assets/js/mission.js), sem uso de material de terceiros.
+
+7) Trilha sonora
+Valsa de marinheiro composta para o jogo e tocada por sintese WebAudio (assets/js/game.js).

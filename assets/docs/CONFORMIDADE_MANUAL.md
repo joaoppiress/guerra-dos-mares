@@ -3,13 +3,14 @@
 - [x] Raiz somente com `index.html`, `README.md`, `assets/`.
 - [x] `index.html` é a página principal.
 - [x] CSS/JS/imagens/áudio organizados em `assets/`.
-- [x] Fluxo direto e tutorial acessível a qualquer momento.
+- [x] Fluxo direto e tutorial acessível a qualquer momento (Primeira Missão guiada pelo Capitão + Dica do Capitão).
+- [x] Modo contra o computador com IA em 3 níveis e modo 2 jogadores.
 - [x] Interface consistente e responsiva.
 - [x] Feedback contínuo: estado, rodada, tempo e pontuação.
 - [x] Música e efeitos sonoros controlados separadamente.
 - [x] Operação completa por teclado.
 - [x] Camada semântica para leitor de tela com ARIA/live region.
-- [x] Foco visual no Canvas e foco acessível espelhado visualmente no Canvas.
+- [x] Foco visível forte em todos os controles do painel acessível; foco preservado quando o painel atualiza.
 - [x] Alto contraste e ajuste de tamanho de texto.
 - [x] Feedback auditivo e visual.
 - [x] Pontuação inteira 0–100.

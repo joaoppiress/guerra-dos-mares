@@ -1,3 +1,51 @@
+GUERRA DOS MARES — BUILD 2.0.0 (VISUAL INFANTIL + PAINEL ACESSÍVEL) — TESTES
+
+Executados no Chrome 143 (headless, controlado via DevTools Protocol) com o jogo servido em http://127.0.0.1:8765/.
+
+1. Sintaxe
+- node --check aprovado para config.js, logic.js, score.js, game.js e panel.js.
+
+2. Telas (capturas conferidas)
+- Posicionamento, prévia verde/vermelha, auto-posicionamento, troca de jogador, batalha,
+  modo ataque, modo mover (casas verdes), radar com "?", pergunta, resposta certa, guia, vitória.
+- 1440x900, 1280x720, celular deitado 844x390 e celular em pé 390x844.
+- Alto contraste e texto 150% (o Guia do Capitão reduz o texto sozinho se não couber).
+- Painel escondido: o mapa ocupa a tela e o botão "Mostrar painel" fica no canto.
+
+3. Teclado
+- Tab percorre o painel e o foco fica visível.
+- Setas com foco em um botão do painel movem o cursor do mapa.
+- Enter/Espaço em botão do painel acionam só o botão (Espaço não passa a vez por engano).
+- Espaço fora do painel passa a vez; o foco vai para "Sou o Jogador X!" na troca.
+
+3b. Celular (toque emulado no Chrome, 390x844 e 844x390, densidade 3x)
+- Em pé: casas de 29 px (antes ~11 px); deitado: 25 px (antes ~16 px).
+- Toque curto posiciona navio; arrastar move o mapa sem jogar.
+- Botões de oceano deslizam até o oceano tocado; números das linhas visíveis.
+- Ao girar o celular a câmera volta para o oceano do cursor.
+- Pergunta em tela baixa encolhe inteira e os botões continuam clicáveis.
+- No computador (1440x900) o layout continua igual (sem modo deslizante).
+
+3c. Nada sai do lugar (auditoria automática)
+- Script que mede cada texto/botão desenhado no canvas e cada elemento do painel.
+- 8 tamanhos (360x640, 390x844, 844x390, 768x1024, 1024x768, 1280x720, 1366x768, 1920x1080)
+  x texto 100/125/150% x 10 telas (posicionamento, troca, batalha, pergunta longa,
+  respostas, risco, guia, vitória, aviso longo) x 4 abas do painel: 0 problemas.
+
+3d. Menu do navio (zoom + holofote + botões voando)
+- Clique no navio abre o menu (zoom 1,45x), botões clicáveis; Atacar fecha o menu e desfaz o zoom.
+- Esc cancela a ação e reabre o menu; Esc de novo fecha; clique fora fecha; tecla 2 escolhe Mover.
+- Testado em 1366x768, 390x844, 844x390 e alto contraste; incluído na auditoria de bordas (0 problemas).
+
+4. Partida completa automatizada (?difficulty=facil)
+- Dificuldade da plataforma bloqueia a troca local.
+- Armadilha lançada, navio movido, ataques com acerto e erro, fim de jogo.
+- sendFinalScore: 1 postMessage C4A_GAME_SCORE mesmo chamando checkEnd duas vezes.
+- "Jogar de novo" reinicia no posicionamento mantendo a dificuldade.
+- Nenhum erro no console.
+
+----------------------------------------------------------------------
+
 GUERRA DOS MARES — 1x1 LOCAL SPRITE-ONLY — TESTES DA BUILD 1.1.0
 
 1. Estrutura
