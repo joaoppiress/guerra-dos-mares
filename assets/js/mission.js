@@ -255,7 +255,7 @@
           wait: ev => ev.name === 'chooseAction' && game.state.action === 'move',
           fail: ev => ev.name === 'chooseAction' && game.state.action !== 'move' ? 'Agora vamos usar MOVER. Toque em Cancelar e depois em Mover.' : null },
         { id: 'moveGo', title: 'MOVER', target: { board: true },
-          text: () => 'Toque numa casa VERDE para o navio andar até lá. Ir para a direita deixa você mais perto do pirata!',
+          text: () => 'Toque numa casa VERDE para o navio andar até lá. O navio vira para o lado em que anda! Ir para a direita deixa você mais perto do pirata.',
           wait: ev => ev.name === 'actionDone' && ev.data && ev.data.type === 'move',
           done: () => this.cheer('Vrum! Navegando!') },
         { id: 'trapInfo', title: 'O LANÇA-ARMADILHAS', mood: 'pensando', target: { dom: '#gdmTabPanel-game .ships' },
@@ -297,7 +297,7 @@
           wait: ev => ev.name === 'endTurn' },
         { id: 'watch', hidden: true, wait: ev => ev.name === 'turnStart' },
         { id: 'done', title: 'MISSÃO CUMPRIDA!', mood: 'comemorando', villain: true, villainMood: 'medo',
-          enter: () => { game.audio.play('win'); this.confetti(); this.markDone(); },
+          enter: () => { game.audio.play('win'); this.confetti(); this.markDone(); game.achieve('tutorial', 'MARUJO TREINADO!', 'Você terminou o tutorial'); },
           text: () => 'Você já sabe jogar, capitão! Olha só: o Barba-Rubra já está com medo de você! Se ficar em dúvida, olhe o quadro AGORA FAÇA ISTO ou peça uma Dica do Capitão.',
           buttons: [['BORA JOGAR!', () => this.stop(), 'primary']] }
       ];

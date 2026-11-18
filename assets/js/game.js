@@ -98,6 +98,22 @@
 
   function clamp(v, a, b) { return Math.max(a, Math.min(b, v)); }
   function now() { return performance.now(); }
+  // Álbum de conquistas (fica salvo no navegador e aparece na tela inicial).
+  const ACH_KEY = 'gdm-conquistas-v1';
+  window.GDM_ACHIEVEMENTS = [
+    { id: 'tutorial', title: 'MARUJO TREINADO', how: 'Termine o tutorial do Capitão' },
+    { id: 'firstHit', title: 'PRIMEIRO ACERTO', how: 'Acerte um navio do Barba-Rubra' },
+    { id: 'streak2', title: 'MIRA AFIADA', how: 'Acerte 2 tiros seguidos' },
+    { id: 'firstSink', title: 'NAVIO AFUNDADO', how: 'Afunde um navio inimigo' },
+    { id: 'treasure', title: 'CAÇADOR DE TESOUROS', how: 'Pegue um baú do tesouro' },
+    { id: 'trapWorked', title: 'ARMADILHA PERFEITA', how: 'Faça o pirata cair na sua mina' },
+    { id: 'curious', title: 'CAPITÃO CURIOSO', how: 'Responda 3 perguntas numa partida' },
+    { id: 'radarMaster', title: 'MESTRE DO RADAR', how: 'Acerte 3 análises numa partida' },
+    { id: 'win_facil', title: 'VITÓRIA NO FÁCIL', how: 'Vença o Barba-Rubra no Fácil' },
+    { id: 'win_medio', title: 'VITÓRIA NO MÉDIO', how: 'Vença o Barba-Rubra no Médio' },
+    { id: 'win_dificil', title: 'LENDA DOS MARES', how: 'Vença o Barba-Rubra no Difícil' }
+  ];
+  window.GDM_ACH_UNLOCKED = () => { try { return JSON.parse(localStorage.getItem(ACH_KEY) || '{}'); } catch (_e) { return {}; } };
   function rand(n) { return Math.floor(Math.random() * n); }
   function hit(r, x, y) { return x >= r.x && x <= r.x + r.w && y >= r.y && y <= r.y + r.h; }
   function ease(t) { return 1 - Math.pow(1 - clamp(t, 0, 1), 3); }
@@ -1693,7 +1709,9 @@
       if (!s || s.turnLocked) return;
       const n = Math.max(Math.abs(dr), Math.abs(dc));
       if (n > this.shipMoveSteps(s) || !GDM_LOGIC.canSlide(this.state, s, dr, dc)) { if (!this.isAiOwner(s.owner)) { this.toast('Caminho bloqueado', 'warn'); this.audio.play('error'); } return; }
-      s.row += dr; s.col += dc; GDM_LOGIC.refresh(s); s.turnLocked = true; s.movedThisTurn = true; this.state.action = null;
+      s.row += dr; s.col += dc; GDM_LOGIC.refresh(s);
+      const turned = this.turnShipToward(s, dr, dc);
+      s.turnLocked = true; s.movedThisTurn = true; this.state.action = null;
       if (this.isAiOwner(s.owner)) {
         // Movimento do computador fica escondido: o jogador só fica sabendo que algo mudou.
         this.audio.play('move'); this.computeRadar(this.state.turn);
@@ -1704,9 +1722,29 @@
       this.state.cursor = { row: s.row, col: s.col };
       this.ensureVisible(s.row, s.col);
       this.audio.play('move'); this.computeRadar(this.state.turn);
-      this.toast(n > 1 ? `Vrum! O navio andou ${n} casas` : 'O navio andou 1 casa', 'success');
+      this.toast((n > 1 ? `Vrum! O navio andou ${n} casas` : 'O navio andou 1 casa') + (turned ? ' e virou!' : ''), 'success');
       this.collectChests(s);
       this.tutorialEvent('actionDone', { type: 'move' });
+    }
+
+    // O navio vira para o lado em que andou: a proa aponta para o movimento.
+    // Andando de lado (ex.: deitado indo para cima), ele gira em volta do meio, se couber.
+    turnShipToward(s, dr, dc) {
+      const dir = dr < 0 ? 'up' : dr > 0 ? 'down' : dc < 0 ? 'left' : 'right';
+      const want = dr ? 'vertical' : 'horizontal';
+      let turned = false;
+      if (s.orientation !== want && s.size > 1) {
+        const m = s.cells[Math.floor(s.cells.length / 2)], n = s.size;
+        const row = want === 'vertical' ? (dir === 'up' ? m.row : m.row - n + 1) : m.row;
+        const col = want === 'horizontal' ? (dir === 'left' ? m.col : m.col - n + 1) : m.col;
+        const cells = GDM_LOGIC.cells(row, col, n, want);
+        const zoneOk = this.isAiOwner(s.owner) ? cells.every(c => c.col >= 10) : true;
+        if (zoneOk && GDM_LOGIC.inBounds(cells) && !GDM_LOGIC.occupied(this.state, cells, s.uid)) {
+          s.row = row; s.col = col; s.orientation = want; GDM_LOGIC.refresh(s); turned = true;
+        }
+      }
+      if (s.orientation === want) s.facing = dir;
+      return turned;
     }
 
     trapCellAllowed(row, col, s = this.selectedShip()) {
@@ -1881,6 +1919,7 @@
       if (a && b) return false;
       this.state.winner = a ? 'player1' : 'player2';
       this.state.endAt = Date.now();
+      if (this.state.winner === 'player1') { const W = { facil: ['VITÓRIA NO FÁCIL!', 'Você venceu no Fácil'], medio: ['VITÓRIA NO MÉDIO!', 'Você venceu no Médio'], dificil: ['LENDA DOS MARES!', 'Você venceu no Difícil'] }[this.state.difficulty]; if (W) this.achieve('win_' + this.state.difficulty, W[0], W[1]); }
       this.aiBusy = false;
       this.state.finalScores = { player1: this.performanceScore('player1'), player2: this.performanceScore('player2') };
       this.state.platformScore = this.state.finalScores.player1;
@@ -2095,6 +2134,8 @@
       const got = this.state.achievements || (this.state.achievements = new Set());
       if (got.has(id)) return;
       got.add(id);
+      // guarda para sempre no álbum de conquistas da tela inicial
+      try { const all = JSON.parse(localStorage.getItem(ACH_KEY) || '{}'); if (!all[id]) { all[id] = Date.now(); localStorage.setItem(ACH_KEY, JSON.stringify(all)); } } catch (_e) {}
       setTimeout(() => {
         this.audio.play('achievement');
         this.award = { title, detail, start: now() };
@@ -2619,7 +2660,10 @@
       ctx.save();
       ctx.globalAlpha = alpha;
       ctx.translate(cx, cy + bob);
-      if (horizontal) ctx.rotate(team.bow);
+      const FACE = { down: 0, right: -Math.PI / 2, left: Math.PI / 2, up: Math.PI };
+      const faceOk = ship.facing && ((horizontal && (ship.facing === 'left' || ship.facing === 'right')) || (!horizontal && (ship.facing === 'up' || ship.facing === 'down')));
+      if (faceOk) ctx.rotate(FACE[ship.facing]);
+      else if (horizontal) ctx.rotate(team.bow);
       ctx.fillStyle = 'rgba(10,50,90,.18)';
       ctx.beginPath(); ctx.ellipse(3, 4, sprite.width * scale * 0.36, sprite.height * scale * 0.48, 0, 0, Math.PI * 2); ctx.fill();
       ctx.drawImage(sprite, -sprite.width * scale / 2, -sprite.height * scale / 2, sprite.width * scale, sprite.height * scale);

@@ -1,5 +1,5 @@
 const GDM_CONFIG = Object.freeze({
-  version: '2.11.5',
+  version: '2.12.1',
   grid: { rows: 10, cols: 30, zoneWidth: 10 },
   zones: {
     player1: { minCol: 0, maxCol: 9 },

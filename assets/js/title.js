@@ -30,6 +30,7 @@
     sound: '<path d="M4 9v6h4l5 4V5L8 9z" fill="currentColor"/><path d="M16 8.5a5 5 0 0 1 0 7M18.5 6a8.5 8.5 0 0 1 0 12"/>',
     mute: '<path d="M4 9v6h4l5 4V5L8 9z" fill="currentColor"/><path d="m17 9 5 6M22 9l-5 6"/>',
     anchor: '<circle cx="12" cy="5" r="2"/><path d="M12 7v14M7 11h10M4 14a8 8 0 0 0 16 0"/>',
+    trophy: '<path d="M8 4h8v5a4 4 0 0 1-8 0z"/><path d="M8 6H5a3 3 0 0 0 3 4M16 6h3a3 3 0 0 1-3 4M12 13v4M8.5 20h7M10 17h4"/>',
     a11y: '<circle cx="12" cy="4.5" r="1.8"/><path d="M5 8.5c4 1 10 1 14 0M12 9.5v5M12 14.5l-3 6M12 14.5l3 6"/>'
   };
 
@@ -58,6 +59,7 @@
           <button type="button" class="tm-item tc-btn tc-primary tc-resume" data-go="resume" hidden>${svg(I.play)}<span>Continuar partida</span></button>
           <button type="button" class="tm-item tc-btn tc-primary" data-go="play">${svg(I.play)}<span>Jogar</span></button>
           <button type="button" class="tm-item tc-btn tc-second" data-go="tutorial">${svg(I.book)}<span>Tutorial</span></button>
+          <button type="button" class="tm-item tc-btn tc-ghost tc-ach" data-go="achievements">${svg(I.trophy)}<span>Conquistas</span></button>
           <button type="button" class="tm-item tc-btn tc-ghost" data-go="options">${svg(I.gear)}<span>Opções</span></button>
         </nav>
       </div>
@@ -70,6 +72,12 @@
         <button type="button" class="tm-back" data-go="main">Voltar</button>
       </section>
       <div class="title-board">
+      <section class="title-menu title-ach" data-view="achievements" aria-labelledby="gdmAchHeading" hidden>
+        <h2 id="gdmAchHeading" class="tm-heading">Minhas conquistas</h2>
+        <p class="tc-read ach-count" id="gdmAchCount" tabindex="0"></p>
+        <ul class="ach-grid" id="gdmAchList"></ul>
+        <button type="button" class="tm-item tm-back" data-go="main">Voltar</button>
+      </section>
       <section class="title-menu title-options" data-view="options" aria-labelledby="gdmOptHeading" hidden>
         <h2 id="gdmOptHeading" class="tm-heading">Opções</h2>
         ${OPTIONS.map(o => `<button type="button" class="tm-row${o.vol ? ' tm-vol' : ''}" data-opt="${o.key}" ${o.vol ? `data-vol="${o.vol}" role="slider" aria-valuemin="0" aria-valuemax="10"` : o.key === 'fontScale' ? '' : 'role="switch" aria-checked="false"'}>
@@ -81,7 +89,16 @@
 `;
   document.body.appendChild(el);
 
-  const views = { main: el.querySelector('[data-view="main"]'), options: el.querySelector('[data-view="options"]'), difficulty: el.querySelector('[data-view="difficulty"]') };
+  const views = { main: el.querySelector('[data-view="main"]'), options: el.querySelector('[data-view="options"]'), difficulty: el.querySelector('[data-view="difficulty"]'), achievements: el.querySelector('[data-view="achievements"]') };
+
+  // Álbum de conquistas: as que a criança já ganhou ficam douradas, as outras dizem como ganhar.
+  const renderAch = () => {
+    const list = window.GDM_ACHIEVEMENTS || [], got = (window.GDM_ACH_UNLOCKED && window.GDM_ACH_UNLOCKED()) || {};
+    const n = list.filter(a => got[a.id]).length;
+    el.querySelector('#gdmAchCount').textContent = n ? `Você já tem ${n} de ${list.length} conquistas!` : `Você ainda não tem conquistas. São ${list.length} para ganhar jogando!`;
+    el.querySelector('#gdmAchList').innerHTML = list.map(a => { const on = !!got[a.id]; const when = on ? new Date(got[a.id]).toLocaleDateString('pt-BR') : '';
+      return `<li class="ach tc-read${on ? ' is-on' : ''}" tabindex="0" aria-label="${a.title}. ${on ? 'Conquistada em ' + when : 'Ainda bloqueada. Como ganhar: ' + a.how}"><img src="assets/img/ui/${on ? 'star' : 'star_grey'}.png" alt=""><span><b>${a.title}</b><small>${on ? 'Conquistada em ' + when : a.how}</small></span></li>`; }).join('');
+  };
   let afterStart = null;   // 'tutorial' | 'a11y' | null
   const hasSave = () => !!game.savedMatch();
   let view = 'main';
@@ -179,8 +196,9 @@
       if (!!st.sfx !== on) game.toggleSfx();
       sync(); return;
     }
+    if (b.dataset.go === 'achievements') { renderAch(); return show('achievements'); }
     if (b.dataset.go === 'options') return show('options');
-    if (b.dataset.go === 'main') return show('main', view === 'options' ? 'options' : 'play');
+    if (b.dataset.go === 'main') return show('main', view === 'options' ? 'options' : view === 'achievements' ? 'achievements' : 'play');
     if (b.dataset.vol) {
       const k = b.dataset.opt, cur = game.state.settings[k] ?? (k === 'musicVol' ? 6 : 8);
       const stepEl = e.target.closest && e.target.closest('.tm-step');
@@ -207,7 +225,7 @@
       else r.click();
       return;
     }
-    if (e.key === 'Escape' && view !== 'main') { e.preventDefault(); e.stopPropagation(); show('main', view === 'options' ? 'options' : 'play'); return; }
+    if (e.key === 'Escape' && view !== 'main') { e.preventDefault(); e.stopPropagation(); show('main', view === 'options' ? 'options' : view === 'achievements' ? 'achievements' : 'play'); return; }
     e.stopPropagation();
   }, true);
 
