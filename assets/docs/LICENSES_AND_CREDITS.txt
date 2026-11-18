@@ -33,3 +33,7 @@ provisorio desenhado por codigo (SVG em assets/js/mission.js), sem uso de materi
 
 7) Trilha sonora
 Valsa de marinheiro composta para o jogo e tocada por sintese WebAudio (assets/js/game.js).
+
+
+Navios: desenhados em código (vetor, Canvas 2D) pela equipe, sem sprites de terceiros.
+Logo: arte enviada pela equipe do projeto.

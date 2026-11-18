@@ -43,7 +43,7 @@ O elemento certo fica aberto no véu, com contorno dourado pulsando e uma seta. 
 
 ## IA do computador
 
-A IA (`assets/js/ai.js`) usa **as mesmas ações e regras do jogador** (cargas N+2, alcance 7 das armadilhas, radar de Chebyshev raio 3, movimento de 1 casa) e **não espia** a frota do jogador: só sabe o que os próprios tiros, o radar e as análises revelaram.
+A IA (`assets/js/ai.js`) usa **as mesmas ações e regras do jogador** (cargas N+2, alcance de ataque de cada navio, alcance 7 das armadilhas, radar de Chebyshev raio 3, movimento em linha reta de 1 a 3 casas) e **não espia** a frota do jogador: só sabe o que os próprios tiros, o radar e as análises revelaram.
 
 | Dificuldade | Comportamento |
 |---|---|
@@ -151,7 +151,9 @@ O jogo é jogado com o **celular deitado**. Em pé (telas de até 600 px de larg
 - Cruzador: tamanho 3, 900 HP, 2 mísseis de 300;
 - Destroier: tamanho 2, 600 HP, 3 mísseis de 170;
 - cargas usadas na rodada N retornam na rodada N+2;
-- movimento de batalha em passo único de uma casa;
+- **MOVER** em linha reta: Destroier anda até 3 casas, Cruzador e Encouraçado até 2, Lança-Armadilhas 1 (casas verdes mostram onde dá para ir);
+- **alcance de ataque** por navio (Chebyshev): Encouraçado 9, Cruzador 7, Destroier 6 — as casas clarinhas mostram o alcance;
+- **alcance do radar para ANALISAR**: 5 casas a partir do navio escolhido;
 - armadilhas podem ser lançadas no oceano próprio ou no Neutro.
 
 ## Pontuação 0–100 e plataforma
@@ -229,3 +231,11 @@ Nenhuma biblioteca ou framework externo. HTML, CSS, JavaScript, Canvas 2D e WebA
 ## Créditos dos assets
 
 Todos os sprites e sons vêm de pacotes gratuitos CC0 da Kenney (kenney.nl): Pirate Pack, Fish Pack e UI Pack. O Capitão é um personagem criado para o jogo. Música e a maior parte dos efeitos são sintetizados por código. A fonte Fredoka é licenciada pela SIL Open Font License. Detalhes em `assets/docs/LICENSES_AND_CREDITS.txt`.
+
+## Partida salva
+
+Durante a batalha o jogo salva sozinho (no navegador) sempre que é a vez do jogador. Se a página for fechada no meio da partida, a tela inicial mostra **Continuar partida**. Escolher **Novo jogo** apaga o jogo salvo.
+
+## Escolha da dificuldade
+
+Ao apertar **Jogar** o jogo pergunta a dificuldade (Fácil, Médio ou Difícil). Se a plataforma já mandou a dificuldade (`?difficulty=`), essa pergunta é pulada.
