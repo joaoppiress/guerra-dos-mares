@@ -152,7 +152,7 @@ O jogo é jogado com o **celular deitado**. Em pé (telas de até 600 px de larg
 - Destroier: tamanho 2, 600 HP, 3 mísseis de 170;
 - cargas usadas na rodada N retornam na rodada N+2;
 - **MOVER** em linha reta: Destroier anda até 3 casas, Cruzador e Encouraçado até 2, Lança-Armadilhas 1 (casas verdes mostram onde dá para ir);
-- **alcance de ataque** por navio (Chebyshev): Encouraçado 9, Cruzador 7, Destroier 6 — as casas clarinhas mostram o alcance;
+- **alcance de ataque** por navio (Chebyshev): Encouraçado 11, Cruzador 9, Destroier 8 — as casas clarinhas mostram o alcance;
 - **alcance do radar para ANALISAR**: 5 casas a partir do navio escolhido;
 - armadilhas podem ser lançadas no oceano próprio ou no Neutro.
 
@@ -239,3 +239,10 @@ Durante a batalha o jogo salva sozinho (no navegador) sempre que é a vez do jog
 ## Escolha da dificuldade
 
 Ao apertar **Jogar** o jogo pergunta a dificuldade (Fácil, Médio ou Difícil). Se a plataforma já mandou a dificuldade (`?difficulty=`), essa pergunta é pulada.
+
+## Diversão extra
+
+- **Baús do tesouro:** 4 baús aparecem no Oceano Neutro no começo da batalha. O navio que passar por cima ganha um prêmio surpresa: balas recarregadas, conserto (+40% de vida) ou uma luneta que revela um navio inimigo. O computador também pode pegar baús.
+- **Pergunta certa vale bala:** acertar a pergunta do radar dá +1 bala para o navio que analisou.
+- **Barba-Rubra fala:** o pirata comenta os próprios tiros e reclama quando leva um tiro ou perde um baú.
+- **Vitória com confete.**
