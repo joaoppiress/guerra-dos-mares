@@ -4,7 +4,7 @@
   // IA do adversário (Jogador 2 no modo "Contra o computador").
   // Ela usa exatamente as mesmas ações do jogador (attack, moveSelected, placeTrap),
   // então respeita as regras de cargas (N+2), alcance de armadilha (7), radar (Chebyshev 3)
-  // e movimento de 1 casa. A IA não espia a frota do jogador: só sabe o que o radar,
+  // e movimento/alcance de cada navio. A IA não espia a frota do jogador: só sabe o que o radar,
   // os tiros anteriores e as análises revelaram.
 
   const game = window.GDM_GAME;
@@ -12,7 +12,7 @@
 
   const PROFILES = {
     // actions: quantas ações a IA faz por vez; think: pausa de "pensamento" (ms, no máximo 5 s)
-    facil:   { actions: 2, think: [1200, 1900], step: [900, 1300], analyzeChance: 0.3, analyzeSkill: 0.5, riskyShot: 0.5, trapChance: 0.2, moveChance: 0.15 },
+    facil:   { actions: 2, think: [1200, 1900], step: [900, 1300], analyzeChance: 0.2, analyzeSkill: 0.4, riskyShot: 0.2, trapChance: 0.1, moveChance: 0.15 },
     medio:   { actions: 3, think: [1300, 2300], step: [850, 1200], analyzeChance: 0.7, analyzeSkill: 0.7, riskyShot: 0.25, trapChance: 0.35, moveChance: 0.35 },
     dificil: { actions: 5, think: [1500, 2600], step: [800, 1100], analyzeChance: 1, analyzeSkill: 0.85, riskyShot: 0, trapChance: 0.6, moveChance: 0.5 }
   };
@@ -122,51 +122,60 @@
       return cells;
     }
 
-    searchCell(parity) {
+    searchCell(parity, shooters) {
       const options = [];
+      const reach = (r, c) => shooters.some(s => this.g.inAttackRange(s, r, c));
       for (let r = 0; r < 10; r++) for (let c = 0; c < 20; c++) {
-        if (!this.targetable(r, c) || this.fired(r, c)) continue;
+        if (!this.targetable(r, c) || this.fired(r, c) || !reach(r, c)) continue;
         if (parity && (r + c) % 2) continue;
         const weight = c <= 9 ? 4 : 1; // a frota do jogador começa no oceano dele
         for (let i = 0; i < weight; i++) options.push({ row: r, col: c });
       }
-      if (!options.length && parity) return this.searchCell(false);
-      if (!options.length) {
-        // tudo já foi atingido: atira em qualquer casa válida
-        for (let r = 0; r < 10; r++) for (let c = 0; c < 20; c++) if (this.targetable(r, c)) options.push({ row: r, col: c });
-      }
+      if (!options.length && parity) return this.searchCell(false, shooters);
       return options.length ? pick(options) : null;
     }
 
     /* ---------- decidir ---------- */
 
+    // Casas que algum navio meu consegue alcançar agora (alcance de cada navio).
+    shooterFor(cell, shooters) {
+      const ok = shooters.filter(s => this.g.inAttackRange(s, cell.row, cell.col));
+      if (!ok.length) return null;
+      return this.st.difficulty === 'facil' ? pick(ok) : ok.sort((a, b) => b.damage - a.damage)[0];
+    }
+
     plan() {
-      const st = this.st, prof = this.profile(), diff = st.difficulty;
+      const st = this.st, g = this.g, prof = this.profile(), diff = st.difficulty;
       const ships = this.myShips();
-      const shooters = ships.filter(s => s.chargeType === 'missile' && s.availableCharges > 0);
+      const shooters = ships.filter(s => s.chargeType === 'missile' && s.availableCharges > 0 && !s.turnLocked);
       const layer = ships.find(s => s.typeId === 'trap-layer' && s.availableCharges > 0 && s.trapStock > 0 && !s.turnLocked);
       const info = this.contacts();
 
-      // 1) Analisar um contato desconhecido (pergunta do radar).
+      // 1) Analisar um contato desconhecido que esteja perto de algum navio meu.
       if (st.analysisAvailable[ME] && info.unknown.length && Math.random() < prof.analyzeChance) {
-        return { type: 'analyze', target: pick(info.unknown) };
+        const reachable = info.unknown.filter(u => ships.some(s => u.cells.some(c => g.inScanRange(s, c.row, c.col))));
+        if (reachable.length) return { type: 'analyze', target: pick(reachable) };
       }
 
-      // 2) Atirar.
+      // 2) Atirar em algo dentro do alcance.
       if (shooters.length) {
-        const shooter = diff === 'facil' ? pick(shooters) : shooters.slice().sort((a, b) => b.damage - a.damage)[0];
-        let cell = null;
+        const wanted = [];
         if (diff !== 'facil' && info.revealedShips.length) {
           const prey = diff === 'dificil'
-            ? info.revealedShips.slice().sort((a, b) => (b.size - a.size) || (a.hp - b.hp))[0]
-            : pick(info.revealedShips);
-          cell = pick(prey.cells);
+            ? info.revealedShips.slice().sort((a, b) => (b.size - a.size) || (a.hp - b.hp))
+            : info.revealedShips;
+          for (const p of prey) wanted.push(...p.cells);
         }
-        if (!cell && diff !== 'facil') { const hunt = this.huntCells(); if (hunt.length) cell = pick(hunt); }
-        if (!cell && info.unknown.length && Math.random() < prof.riskyShot) cell = pick(pick(info.unknown).cells);
-        if (!cell && diff === 'facil' && info.revealedShips.length && Math.random() < 0.5) cell = pick(pick(info.revealedShips).cells);
-        if (!cell) cell = this.searchCell(diff === 'dificil');
-        if (cell && Math.random() > 0.15 || !layer) return cell ? { type: 'attack', ship: shooter, row: cell.row, col: cell.col } : null;
+        if (diff !== 'facil') wanted.push(...this.huntCells());
+        if (info.unknown.length && Math.random() < prof.riskyShot) wanted.push(...pick(info.unknown).cells);
+        if (diff === 'facil' && info.revealedShips.length && Math.random() < 0.3) wanted.push(...pick(info.revealedShips).cells);
+        for (const cell of wanted) {
+          if (!this.targetable(cell.row, cell.col)) continue;
+          const shooter = this.shooterFor(cell, shooters);
+          if (shooter) return { type: 'attack', ship: shooter, row: cell.row, col: cell.col };
+        }
+        const cell = this.searchCell(diff === 'dificil', shooters);
+        if (cell && (Math.random() > 0.15 || !layer)) return { type: 'attack', ship: this.shooterFor(cell, shooters), row: cell.row, col: cell.col };
       }
 
       // 3) Esconder uma armadilha.
@@ -175,19 +184,23 @@
         if (cell) return { type: 'trap', ship: layer, row: cell.row, col: cell.col };
       }
 
-      // 4) Mover um navio que não pode atirar, para o radar alcançar mais longe.
-      const idle = ships.filter(s => !s.turnLocked && (s.chargeType !== 'missile' || s.availableCharges === 0));
-      if (idle.length && Math.random() < prof.moveChance) {
-        const s = pick(idle);
-        const dirs = [[0, -1], [-1, 0], [1, 0], [0, 1]].filter(([dr, dc]) => {
-          if (!GDM_LOGIC.canMove(st, s, dr, dc)) return false;
-          const minCol = Math.min(...s.cells.map(c => c.col)) + dc;
-          return minCol >= 14; // não avança demais para o meio do mar
-        });
-        if (dirs.length) {
-          const forward = dirs.find(([, dc]) => dc === -1);
-          const [dr, dc] = diff !== 'facil' && forward ? forward : pick(dirs);
-          return { type: 'move', ship: s, dr, dc };
+      // 4) Aproximar navios para o alcance chegar ao oceano do jogador.
+      const movers = ships.filter(s => !s.turnLocked);
+      if (movers.length) {
+        const front = s => Math.min(...s.cells.map(c => c.col));
+        // prioridade: quem tem canhão e ainda está longe
+        const far = movers.filter(s => s.chargeType === 'missile' && front(s) - g.shipRange(s) > 6);
+        const pool = far.length ? far : (Math.random() < prof.moveChance ? movers : []);
+        if (pool.length) {
+          const s = pick(pool), steps = g.shipMoveSteps(s);
+          const opts = GDM_LOGIC.moveTargets(st, s, steps)
+            .filter((m, i, arr) => arr.findIndex(x => x.dr === m.dr && x.dc === m.dc) === i)
+            .filter(m => front(s) + m.dc >= 10); // não entra no oceano do jogador
+          if (opts.length) {
+            const forward = opts.filter(m => m.dc < 0).sort((a, b) => a.dc - b.dc);
+            const m = forward.length && (diff !== 'facil' || Math.random() < 0.7) ? forward[0] : pick(opts);
+            return { type: 'move', ship: s, dr: m.dr, dc: m.dc };
+          }
         }
       }
       return null;
