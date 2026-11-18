@@ -1011,7 +1011,7 @@ details.card > summary:focus-visible { outline: 3px solid var(--focus); outline-
 :focus-visible { outline: 3px solid var(--focus); outline-offset: 3px; }
 
 /* ---------- Primeira Missão: detalhes do novo tutorial ---------- */
-.m-shade { background: rgba(8, 22, 40, .6); -webkit-backdrop-filter: blur(2px); backdrop-filter: blur(2px); }
+.m-shade { background: rgba(8, 22, 40, .66); }
 .m-ring { border-radius: 14px; box-shadow: 0 0 0 3px var(--brass), 0 0 0 9px rgba(226, 179, 61, .25); }
 @keyframes m-pulse { 50% { box-shadow: 0 0 0 3px var(--brass), 0 0 0 15px rgba(226, 179, 61, .06); } }
 .m-arrow, .m-guide { position: fixed; display: none; pointer-events: none; z-index: 2; }
@@ -1255,7 +1255,8 @@ details.card > summary:focus-visible { outline: 3px solid var(--focus); outline-
   .tc-head { grid-column: 1 / -1; margin: 0 100px 8px; }
   .title-menu[data-view="main"] { display: contents; }
   .tc-hello { grid-column: 1; margin: 0; align-self: start; }
-  .tc-buttons { grid-column: 2; grid-row: 2 / span 2; gap: 8px; }
+  .tc-buttons { grid-column: 1 / -1; grid-row: auto; gap: 8px; width: min(440px, 100%); justify-self: center; }
+  .tc-card { width: min(560px, 100%); }
   .tc-seas { grid-column: 1; grid-row: 2 / span 2; margin-top: 0; align-self: center; }
   .tc-seas h2 { margin-bottom: 4px; }
   .tc-sea { width: 42px; height: 42px; }
@@ -1577,3 +1578,35 @@ details.card > summary:focus-visible { outline: 3px solid var(--focus); outline-
 .hc .pause-desc, .hc .pause-note { color: #fff; }
 .mission.is-villain-talk .m-bubble { border: 3px solid #e5433a; }
 .mission.is-villain-talk .m-name-tag { color: #b02d25; }
+
+/* Humor dos capitães: funciona até sem as imagens de expressão */
+.m-hero, .m-villain { transform-origin: 50% 100%; }
+.m-hero[data-mood="medo"], .m-villain[data-mood="medo"] { animation: mood-shiver .18s linear infinite; }
+.m-hero[data-mood="bravo"], .m-villain[data-mood="bravo"] { animation: mood-stomp .5s ease-in-out 3; }
+.m-hero[data-mood="comemorando"], .m-hero[data-mood="feliz"], .m-villain[data-mood="rindo"] { animation: mood-hop .6s ease-in-out 3; }
+.m-hero[data-mood="surpreso"], .m-villain[data-mood="surpreso"] { animation: mood-pop .35s ease-out 1; }
+.m-villain[data-mood="chorando"] { animation: mood-sob 1s ease-in-out infinite; }
+@keyframes mood-shiver { 0%,100% { translate: 0 0; } 25% { translate: -2px 0; } 75% { translate: 2px 0; } }
+@keyframes mood-stomp { 0%,100% { rotate: 0deg; } 30% { rotate: -3deg; } 60% { rotate: 3deg; } }
+@keyframes mood-hop { 0%,100% { translate: 0 0; } 40% { translate: 0 -12px; } }
+@keyframes mood-pop { 0% { scale: .92; } 60% { scale: 1.06; } 100% { scale: 1; } }
+@keyframes mood-sob { 0%,100% { translate: 0 0; } 50% { translate: 0 4px; } }
+:root.still .m-hero, :root.still .m-villain { animation: none !important; }
+.mission.villain-speaks .m-name-tag { background: #c0392b; color: #fff; }
+
+/* Menu de cenários (debug para apresentação) */
+#gdmDebug { position: fixed; top: 12px; left: 50%; translate: -50% 0; z-index: 99999; display: flex; flex-wrap: wrap; gap: 8px; max-width: 760px; padding: 12px; background: #13294b; border: 3px solid #ffc93c; border-radius: 16px; box-shadow: 0 10px 30px rgba(0,0,0,.4); }
+#gdmDebug[hidden] { display: none; }
+#gdmDebug .dbg-title { width: 100%; margin: 0 0 2px; color: #ffc93c; font: 700 16px var(--font, sans-serif); }
+#gdmDebug .dbg-title small { color: #cfe0f5; font-weight: 600; margin-left: 6px; }
+#gdmDebug button { padding: 8px 12px; border: 0; border-radius: 10px; background: #fff; color: #13294b; font: 700 14px var(--font, sans-serif); cursor: pointer; }
+#gdmDebug button:hover, #gdmDebug button:focus-visible { background: #ffc93c; outline: none; }
+#gdmDebug .dbg-close { background: #c0392b; color: #fff; }
+#gdmDebugFab { position: fixed; left: 10px; bottom: 10px; z-index: 99998; padding: 6px 10px; border: 0; border-radius: 10px; background: #13294b; color: #ffc93c; font: 700 13px var(--font, sans-serif); opacity: .7; cursor: pointer; }
+
+/* Botão de menu/configurações dentro do jogo */
+#gdmGear { position: fixed; left: 12px; bottom: 12px; z-index: 40; width: 52px; height: 52px; display: grid; place-items: center; border: 3px solid #13294b; border-radius: 50%; background: #ffc93c; color: #13294b; box-shadow: 0 4px 0 #13294b; cursor: pointer; }
+#gdmGear svg { width: 26px; height: 26px; }
+#gdmGear:focus-visible { outline: 3px solid #fff; outline-offset: 3px; }
+#gdmGear[hidden] { display: none; }
+.hc #gdmGear { background: #000; color: #ffd400; border-color: #ffd400; box-shadow: none; }
