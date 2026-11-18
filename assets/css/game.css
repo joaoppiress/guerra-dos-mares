@@ -1436,3 +1436,106 @@ details.card > summary:focus-visible { outline: 3px solid var(--focus); outline-
 .faq-q > summary { font-size: .95em; }
 .hc .faq-group[open] > summary { color: #ffd400; }
 .m-bubble { max-height: calc(100vh - 16px); overflow-y: auto; overscroll-behavior: contain; }
+
+/* =====================================================================
+   TELA INICIAL — versão infantil (combina com a logo: contorno escuro,
+   amarelo, vermelho e azul do mar)
+   ===================================================================== */
+.title-screen {
+  --t-ink: #1d2b4f; --t-line: #1d2b4f;
+  background:
+    radial-gradient(circle at 82% 14%, #fff6c9 0 46px, transparent 47px),
+    linear-gradient(180deg, #7fd3ff 0%, #b8ecff 52%, #3aa6e6 52.2%, #1f7fc8 100%);
+}
+.title-screen::before {
+  content: ''; position: absolute; left: 0; right: 0; bottom: 0; height: 30vh; pointer-events: none;
+  background:
+    radial-gradient(60px 22px at 30px 0, transparent 21px, rgba(255,255,255,.35) 22px 25px, transparent 26px) 0 12px / 120px 40px repeat-x,
+    radial-gradient(60px 22px at 90px 0, transparent 21px, rgba(255,255,255,.22) 22px 25px, transparent 26px) 0 64px / 140px 40px repeat-x;
+}
+.tc-card { border: 4px solid var(--t-line); border-radius: 26px; box-shadow: 0 8px 0 rgba(29, 43, 79, .35); padding-top: 14px; }
+.tc-head { margin: 0 96px 10px; }
+.tc-title { line-height: 0; text-shadow: none; }
+.tc-logo { width: min(420px, 100%); height: auto; }
+.tc-sub { color: #b4471f; }
+.tc-hello { background: #fff7dd; border: 3px solid #f2c14e; }
+.tc-btn { border: 3px solid var(--t-line); box-shadow: 0 5px 0 var(--t-line); }
+.tc-primary { background: #ffc93c; color: #3a2400; box-shadow: 0 5px 0 var(--t-line); text-shadow: none; }
+.tc-second { background: #e8483a; color: #fff; box-shadow: 0 5px 0 var(--t-line); }
+.tc-ghost { background: #fff; color: var(--t-ink); border-color: var(--t-line); box-shadow: 0 5px 0 var(--t-line); }
+.tc-a11y { font-size: calc(.95em * var(--fs)); min-height: 46px; }
+.tc-round { border: 3px solid var(--t-line); box-shadow: 0 3px 0 var(--t-line); }
+.tc-round.tc-gear { background: #ffc93c; border-color: var(--t-line); box-shadow: 0 3px 0 var(--t-line); }
+.tc-seas h2 { color: #b4471f; }
+.tm-row { border: 3px solid #cfe0ef; }
+.tm-row[aria-checked="true"] .tm-value, .tm-row:not([role]) .tm-value { background: #1f7fc8; }
+.tm-back { border: 3px solid var(--t-line); box-shadow: 0 4px 0 var(--t-line); }
+/* escolha da dificuldade */
+.tc-diff { gap: 12px; }
+.tc-diff[hidden] { display: none; }
+.tc-diff-sub { margin: -4px 0 4px; text-align: center; color: #5d738c; font-weight: 600; }
+.tc-level {
+  display: flex; align-items: center; gap: 16px; width: 100%; min-height: 76px; padding: 10px 18px; cursor: pointer;
+  border: 3px solid var(--t-line); border-radius: 18px; box-shadow: 0 5px 0 var(--t-line); text-align: left;
+  font: inherit; color: var(--t-ink); transition-property: transform, box-shadow, filter; transition-duration: .1s;
+}
+.tc-level:hover { filter: brightness(1.04); }
+.tc-level:active { transform: translateY(5px); box-shadow: none; }
+.tc-level:focus-visible { outline: 4px solid var(--t-ink); outline-offset: 3px; }
+.tc-easy { background: #c9f2c7; } .tc-mid { background: #ffe7a3; } .tc-hard { background: #ffc6bf; }
+.tc-stars { display: inline-flex; gap: 2px; flex: none; }
+.tc-stars img { width: 26px; height: 26px; }
+.tc-level-text { display: flex; flex-direction: column; }
+.tc-level-text b { font-size: calc(1.35em * var(--fs)); line-height: 1.1; }
+.tc-level-text small { font-size: calc(.92em * var(--fs)); font-weight: 600; color: #3d4f6e; }
+.title-screen.is-options .tc-head { margin-bottom: 8px; }
+.title-screen.is-options .tc-logo { width: min(260px, 70%); }
+@media (max-height: 480px) {
+  .tc-logo { width: min(300px, 100%); }
+  .title-screen.is-options .tc-logo { display: none; }
+  .title-screen.is-options .tc-sub { display: none; }
+  .tc-level { min-height: 54px; padding: 6px 12px; }
+  .tc-stars img { width: 20px; height: 20px; }
+  .tc-diff { gap: 7px; }
+  .tc-a11y { min-height: 40px; }
+  .title-screen.is-options .tc-card { display: block; }
+}
+.hc .title-screen::before { display: none; }
+.hc .tc-level { background: #000; color: #fff; border-color: #fff; box-shadow: none; }
+.hc .tc-level-text small, .hc .tc-diff-sub { color: #fff; }
+.hc .tc-level:focus-visible { outline-color: #ffd400; }
+.tc-btn[hidden] { display: none !important; }
+.tc-logo { width: min(360px, 100%); }
+.tc-buttons { gap: 10px; }
+.tc-btn { min-height: 48px; }
+.tc-primary { min-height: 54px; }
+.tc-seas { margin-top: 12px; }
+.tc-sea { width: 48px; height: 48px; }
+.tc-foot { margin-top: 8px; }
+@media (max-height: 700px) { .tc-foot { display: none; } .tc-seas h2 { display: none; } }
+@media (max-height: 480px) {
+  .tc-logo { width: min(210px, 100%); }
+  .tc-sub { display: none; }
+  .tc-seas { display: none; }
+  .tc-head { margin-bottom: 4px; }
+  .tc-btn { min-height: 38px; padding-block: 4px; }
+  .tc-primary { min-height: 42px; }
+  .tc-buttons { gap: 6px; }
+  .tc-hello { padding: 8px 10px; }
+}
+@media (max-height: 480px) {
+  .title-menu[data-view="main"][hidden] { display: none; }
+  .tc-diff-sub { display: none; }
+  .tc-diff .tm-heading { margin-bottom: 2px; }
+  .tc-diff .tm-back { min-height: 40px; }
+}
+.dg-path { position: absolute; left: calc(4px + 3 * var(--u)); top: calc(6px + 1 * var(--u)); width: calc(3 * var(--u)); height: var(--u); background: rgba(46, 160, 90, .35); opacity: 0; }
+.m-demo-stage.show-path .dg-path { opacity: 1; }
+/* "Voltar para o mapa": só aparece quando recebe foco pelo teclado */
+.back-map { position: absolute; width: 1px; height: 1px; overflow: hidden; clip-path: inset(50%); white-space: nowrap; }
+.back-map:focus-visible, .back-map:focus { position: static; width: 100%; height: auto; min-height: 44px; clip-path: none; margin-bottom: 8px;
+  border: 3px solid var(--ink); border-radius: 12px; background: #ffc93c; color: #1d2b4f; font: 700 1em var(--font); cursor: pointer; }
+.hc .back-map:focus { background: #ffd400; color: #000; border-color: #fff; }
+/* textos que recebem foco para o leitor de tela */
+.tc-read:focus-visible, .m-read:focus-visible { outline: 3px solid var(--t-ink, #1d2b4f); outline-offset: 4px; border-radius: 6px; }
+.hc .tc-read:focus-visible, .hc .m-read:focus-visible { outline-color: #ffd400; }
