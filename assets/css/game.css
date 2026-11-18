@@ -1626,3 +1626,33 @@ details.card > summary:focus-visible { outline: 3px solid var(--focus); outline-
   .tm-bar { min-width: 44px; }
   .tm-step { width: 28px; height: 28px; }
 }
+
+/* Álbum de conquistas na tela inicial */
+.ach-count { margin: 0 0 10px; text-align: center; font-weight: 700; color: var(--t-ink); }
+.ach-grid { list-style: none; margin: 0 0 10px; padding: 0; display: grid; grid-template-columns: repeat(auto-fill, minmax(200px, 1fr)); gap: 8px; }
+.ach { display: flex; align-items: center; gap: 10px; padding: 8px 10px; border: 2px solid var(--t-line); border-radius: 14px; background: #f3f6f9; color: var(--t-soft); }
+.ach img { width: 30px; height: 30px; flex: none; opacity: .6; }
+.ach span { display: flex; flex-direction: column; line-height: 1.2; }
+.ach b { font-size: .92em; color: inherit; }
+.ach small { font-size: .78em; }
+.ach.is-on { background: #fff6d6; border-color: #f2c14e; color: var(--t-ink); }
+.ach.is-on img { opacity: 1; }
+.ach:focus-visible { outline: 3px solid var(--t-ink); outline-offset: 2px; }
+.hc .ach { background: #000; color: #fff; border-color: #fff; }
+.hc .ach.is-on { border-color: #ffd400; }
+
+/* Ajustes no celular: volume com o nome numa linha e os botões embaixo; janelas cabem na tela */
+.opt-vol { flex-wrap: wrap; row-gap: 6px; }
+.opt-vol .switch-label { flex: 1 1 100%; min-width: 0; }
+.opt-vol .opt-stepper { margin-left: auto; }
+.pause-card { max-height: calc(100dvh - 16px); }
+@media (max-height: 480px) {
+  .pause-card { padding: 12px 14px; border-radius: 18px; }
+  .pause-desc { margin-bottom: 8px; }
+  .pause-view { gap: 6px; }
+  .pause-view .tm-row { min-height: 40px; padding: 4px 12px; }
+}
+.opt-secs { grid-template-columns: repeat(4, minmax(0, 1fr)); }
+.opt-secs .btn { padding: 4px 2px !important; font-size: clamp(.72em, 2.4vw, .86em) !important; }
+.opt-secs .btn { min-height: 38px !important; height: auto !important; white-space: nowrap; overflow: visible; }
+.opt-secs .btn .btn-label { display: inline !important; }
