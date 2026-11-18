@@ -79,7 +79,7 @@ Scripts (na ordem de carregamento):
 - `score.js` — `sendFinalScore()` e bloqueio `scoreSent`;
 - `game.js` — estado da partida, modos de jogo, entrada, áudio e desenho no canvas;
 - `ai.js` — IA do computador (3 dificuldades);
-- `panel.js` — painel lateral acessível (abas Jogar, Radar, Ajuda e Ajustes);
+- `panel.js` — painel lateral acessível (abas Jogar, Radar e Ajuda);
 - `mission.js` — Primeira Missão e Dica do Capitão.
 
 ## Banco pedagógico oficial
@@ -179,7 +179,7 @@ O canvas mostra o jogo; todos os comandos também existem no **painel lateral em
 
 Painel lateral:
 
-- abas **Jogar**, **Radar**, **Ajuda** e **Ajustes** no padrão ARIA de abas (setas ←/→, Home e End trocam de aba; só a aba ativa entra no Tab);
+- abas **Jogar**, **Radar** e **Ajuda** (as opções ficam no menu da engrenagem / Esc) no padrão ARIA de abas (setas ←/→, Home e End trocam de aba; só a aba ativa entra no Tab);
 - o painel pode ser escondido ou mostrado pelo botão do cabeçalho (`aria-expanded`), e o mapa cresce para ocupar o espaço;
 - sem armadilha de foco: Tab percorre o painel e sai normalmente;
 - quando o conteúdo muda, o foco volta para o mesmo botão (ou para o próximo botão útil), em vez de se perder;
