@@ -4,6 +4,10 @@ function sendFinalScore({
   difficulty
 } = {}) {
   if (scoreSent) return;
+  // Garante o contrato da plataforma: inteiro de 0 a 100 e dificuldade válida.
+  const n = Math.round(Number(score));
+  score = Number.isFinite(n) ? Math.max(0, Math.min(100, n)) : 0;
+  difficulty = (typeof normalizeDifficulty === 'function' && normalizeDifficulty(difficulty)) || 'medio';
   try {
     window.parent.postMessage({
       type: 'C4A_GAME_SCORE',

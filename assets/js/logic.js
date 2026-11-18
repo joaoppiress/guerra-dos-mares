@@ -2,9 +2,9 @@ const GDM_LOGIC = {
   other(owner){ return owner === 'player1' ? 'player2' : 'player1'; },
   home(owner){ return GDM_CONFIG.zones[owner]; },
   coord(row,col){ return `${String.fromCharCode(65 + (col % GDM_CONFIG.grid.zoneWidth))}${row + 1}`; },
+  zoneNames:{player1:'Oceano do Jogador 1',neutral:'Oceano Neutro',player2:'Oceano do Jogador 2'},
   coordWithZone(row,col){
-    const names={player1:'Oceano do Jogador 1',neutral:'Oceano Neutro',player2:'Oceano do Jogador 2'};
-    return `${names[this.zone(col)]} ${this.coord(row,col)}`;
+    return `${this.zoneNames[this.zone(col)]} ${this.coord(row,col)}`;
   },
   zone(col){ return col < 10 ? 'player1' : col < 20 ? 'neutral' : 'player2'; },
   cells(row,col,size,orientation){

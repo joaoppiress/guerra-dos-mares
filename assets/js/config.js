@@ -1,5 +1,5 @@
 const GDM_CONFIG = Object.freeze({
-  version: 'sprite-only-hotseat-1.3.0-ui-naval',
+  version: '2.8.0',
   grid: { rows: 10, cols: 30, zoneWidth: 10 },
   zones: {
     player1: { minCol: 0, maxCol: 9 },
