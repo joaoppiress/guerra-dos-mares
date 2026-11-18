@@ -206,7 +206,7 @@
       if (tab) this.setTab(tab);
       if (focus) {
         const panel = this.panels[this.tab];
-        const first = panel.querySelector('button:not([disabled])');
+        const first = panel.querySelector('button:not([disabled]):not(.back-map)');
         (first || this.tabs.find(t => t.dataset.tab === this.tab)).focus();
       }
     }
@@ -281,7 +281,7 @@
       if (m.type === 'question') return card(m.practice ? 'Treino do radar' : 'Sinal misterioso no radar', `<p>Decifre o sinal: a frase é verdadeira ou falsa?</p><p class="question" id="gdmQText">${esc(m.question.pergunta)}</p>`,
         btn('m-true', 'Verdadeiro', { cls: 'btn-green', kbd: 'V', attrs: 'data-primary="true" aria-describedby="gdmQText"' }) + btn('m-false', 'Falso', { cls: 'btn-red', kbd: 'F', attrs: 'aria-describedby="gdmQText"' }), 'tone-purple');
       if (m.type === 'feedback') return card(m.correct ? 'EXCELENTE!' : 'QUASE!',
-        `<p>${m.correct ? (m.found ? `Você acertou e o radar identificou o contato: ${esc(m.found)}!` : 'Você acertou e decifrou o sinal!') : `Essa era difícil! A resposta correta é ${m.question.resposta ? 'VERDADEIRO' : 'FALSO'}.`}</p><p>${esc(m.question.explicacao)}${m.correct ? '' : ' Agora você já sabe para a próxima!'}</p>`,
+        `<p>${m.correct ? (m.found ? `Você acertou e o radar identificou o contato: ${esc(m.found)}! ${esc(m.bonus || '')}` : 'Você acertou e decifrou o sinal!') : `Essa era difícil! A resposta correta é ${m.question.resposta ? 'VERDADEIRO' : 'FALSO'}.`}</p><p>${esc(m.question.explicacao)}${m.correct ? '' : ' Agora você já sabe para a próxima!'}</p>`,
         btn('m-continue', 'Continuar', { cls: 'btn-primary', kbd: 'Enter', attrs: 'data-primary="true"' }), m.correct ? 'tone-green' : 'tone-orange');
       if (m.type === 'risk') return card('Esse ponto é um mistério!', '<p>Pode ser um navio ou uma armadilha. Quer atirar mesmo assim?</p>',
         btn('m-continue', 'Atirar', { cls: 'btn-red', kbd: 'Enter' }) + btn('m-cancel', 'Cancelar', { cls: 'btn-soft', kbd: 'Esc', attrs: 'data-primary="true"' }), 'tone-orange');
@@ -501,7 +501,7 @@
     }
 
     renderHelp() {
-      const keys = [['Q', 'Onde estou? Explica onde você está e quais teclas usar'], ['I', 'Ouvir a situação da partida'], ['C', 'Ouvir a casa atual'], ['T', 'Ouvir a dica do Capitão'], ['G', 'Ir para a casa (digitar, ex.: C7)'], ['N', 'Ir para o mapa acessível'], ['Tab / Shift+Tab', 'Andar pelos botões'], ['Setas ou WASD', 'Mover no mapa'], ['Enter', 'Confirmar'], ['R', 'Girar navio'], ['P', 'Posicionar automático'], ['1 2 3 4', 'Atacar, Mover, Armadilha, Analisar'], ['Espaço', 'Passar a vez'], ['Esc', 'Cancelar / fechar'], ['V / F', 'Verdadeiro / Falso'], ['M', 'Música'], ['F1', 'Guia do Capitão'], ['F2', 'Ajustes'], ['+ / −', 'Zoom']];
+      const keys = [['Q', 'Onde estou? Explica onde você está e quais teclas usar'], ['I', 'Ouvir a situação da partida'], ['C', 'Ouvir a casa atual'], ['T', 'Ouvir a dica do Capitão'], ['G', 'Ir para a casa (digitar, ex.: C7)'], ['N', 'Ir para o mapa acessível'], ['Tab / Shift+Tab', 'Andar pelos botões'], ['Setas ou WASD', 'Mover no mapa'], ['Enter', 'Confirmar'], ['R', 'Girar navio'], ['P', 'Posicionar automático'], ['1 2 3 4', 'Atacar, Mover, Armadilha, Analisar'], ['Espaço', 'Passar a vez'], ['Esc', 'Cancelar ou fechar. Sem nada para cancelar, abre o menu de pausa'], ['V / F', 'Verdadeiro / Falso'], ['M', 'Música'], ['F1', 'Guia do Capitão'], ['F2', 'Ajustes'], ['+ / −', 'Zoom']];
       const m = game.mission, face = m ? m.avatar() : '';
       return `<div class="card card-captain">
           <div class="now-row">${face ? `<img src="${esc(face)}" alt="" class="captain-face">` : ''}

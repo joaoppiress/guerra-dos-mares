@@ -248,7 +248,7 @@
           text: () => 'R gira o navio e P posiciona tudo sozinho. Na batalha: 1 Atacar, 2 Mover, 3 Armadilha, 4 Analisar. Espaço passa a vez. Nas perguntas: V é Verdadeiro e F é Falso.',
           buttons: [['PRÓXIMO', () => this.next(), 'primary']] },
         { id: 'ax-settings', title: 'AJUSTES E AJUDA',
-          text: () => 'F2 abre os Ajustes: alto contraste, tamanho e tipo de letra, menos movimento e volume. F1 abre o Guia do Capitão. Na aba Ajuda tem as Dúvidas frequentes.',
+          text: () => 'Esc abre o menu de pausa e F2 abre os Ajustes: alto contraste, tamanho e tipo de letra, menos movimento e volume. F1 abre o Guia do Capitão. Na aba Ajuda tem as Dúvidas frequentes.',
           buttons: [['PRÓXIMO', () => this.next(), 'primary']] },
         { id: 'ax-done', title: 'PRONTO!',
           text: () => thenTutorial || !this.completed() ? 'Agora vamos aprender a jogar, passo a passo.' : 'Agora é com você, capitão!',
@@ -514,17 +514,33 @@
     }
 
     // Falas rápidas do Capitão durante a partida (sem bloquear).
-    quip(title, text, ms = 2200) {
+    quip(title, text, ms = 2200, speaker = null) {
       if (this.active && (this.mode === 'mission' || this.mode === 'tip')) return;
       if (game.state.settings.screenReader) return;
       this.mode = 'quip'; this.active = true; this.index = 0;
-      this.list = [{ id: 'quip', title, light: true, small: true, text: () => text, buttons: [] }];
+      this.list = [{ id: 'quip', title, light: true, small: true, speaker, text: () => text, buttons: [] }];
       this.render(true);
       clearTimeout(this.quipTimer);
       this.quipTimer = setTimeout(() => { if (this.mode === 'quip') this.hideTip(); }, ms);
     }
 
+    // Falas do Barba-Rubra: dão personalidade ao adversário (curtas e rápidas).
+    villainSays(kind) {
+      const L = {
+        aiHit: ['Arrr! Acertei em cheio!', 'Ha! Achei um navio seu!', 'Bem no alvo, marujo!'],
+        aiMiss: ['Bolas! Só água...', 'Errei? Isso nunca acontece!', 'Splash... da próxima eu acerto!'],
+        aiSink: ['Ha ha ha! Mais um pro fundo do mar!', 'Glub, glub! Seu navio afundou!'],
+        playerHit: ['Ai! Meu navio!', 'Ei! Isso doeu!', 'Sorte de principiante!'],
+        playerSink: ['Nãããão! Meu navio!', 'Arrr... você é bom nisso!'],
+        chest: ['Ei! Esse tesouro era meu!', 'Devolve o meu baú!']
+      }[kind];
+      if (!L || window.innerHeight < 500) return;
+      if (kind === 'playerHit' && Math.random() < 0.5) return;
+      this.quip('BARBA-RUBRA', L[Math.floor(Math.random() * L.length)], 1900, 'villain');
+    }
+
     reactQuip(name, data) {
+      if (name === 'villain') { this.villainSays(data && data.kind); return; }
       if (game.isAiTurn()) return;
       // Tiros já têm a palavra grande no mapa e o aviso no topo; o Capitão só aparece em momentos especiais.
       if (window.innerHeight < 500) return;
@@ -658,7 +674,11 @@
       const title = typeof st.title === 'function' ? st.title() : (st.title || '');
       this.titleEl.textContent = title;
       this.titleEl.hidden = !title;
-      this.nameTag.textContent = 'Capitão Maré';
+      const villainTalks = st.speaker === 'villain';
+      this.nameTag.textContent = villainTalks ? 'Barba-Rubra' : 'Capitão Maré';
+      this.el.classList.toggle('is-villain-talk', villainTalks);
+      const want = villainTalks ? VILLAIN_PNG : HERO_PNG;
+      if (!this.hero.src.endsWith(want)) this.hero.src = want;
       this.count.textContent = n ? `${n}/${missionSteps.length}` : '';
       this.progress.hidden = !n;
       if (n) this.progress.innerHTML = missionSteps.map((_, i) => `<i class="${i < n ? 'on' : ''}"></i>`).join('');

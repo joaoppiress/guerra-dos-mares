@@ -187,7 +187,7 @@
   });
   // Atalho G: vai para o campo "Ir para a casa".
   window.addEventListener('keydown', e => {
-    if (game.titleOpen || e.ctrlKey || e.altKey || e.metaKey) return;
+    if (game.titleOpen || game.pauseOpen || e.ctrlKey || e.altKey || e.metaKey) return;
     if (e.target instanceof HTMLInputElement || e.target instanceof HTMLSelectElement) return;
     if (e.key.toLowerCase() === 'g' && !game.state.modal) { e.preventDefault(); e.stopPropagation(); jump.focus(); }
     if (e.key.toLowerCase() === 'n' && !game.state.modal) { e.preventDefault(); e.stopPropagation(); focusCursor(); }
@@ -226,7 +226,7 @@
   }
   game.whereAmI = () => explain(regionOf(document.activeElement), document.activeElement);
   window.addEventListener('keydown', e => {
-    if (e.ctrlKey || e.altKey || e.metaKey) return;
+    if (e.ctrlKey || e.altKey || e.metaKey || game.pauseOpen) return;
     if (e.target instanceof HTMLInputElement || e.target instanceof HTMLSelectElement || e.target instanceof HTMLTextAreaElement) return;
     if (e.key.toLowerCase() === 'q') { e.preventDefault(); e.stopPropagation(); game.announce(game.whereAmI(), true); }
   }, true);
