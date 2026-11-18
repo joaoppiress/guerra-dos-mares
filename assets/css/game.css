@@ -1231,6 +1231,15 @@ details.card > summary:focus-visible { outline: 3px solid var(--focus); outline-
   font-size: .8em; font-weight: 700; background: #e3ebf3; color: var(--t-soft);
 }
 .tm-row[aria-checked="true"] .tm-value, .tm-row:not([role]) .tm-value { background: var(--t-blue); color: #fff; }
+.tm-vol .tm-value { display: flex; align-items: center; gap: 8px; min-width: 11em; padding: 3px 4px; background: #e3ebf3; color: var(--t-ink); }
+.tm-vol .tm-value b { min-width: 1.4em; text-align: center; }
+.tm-step { display: grid; place-items: center; width: 30px; height: 30px; border-radius: 50%; background: var(--t-blue); color: #fff; font-size: 1.2em; line-height: 1; }
+.tm-step:hover { filter: brightness(1.1); }
+.tm-bar { flex: 1; min-width: 80px; height: 10px; border-radius: 99px; background: #fff; overflow: hidden; }
+.tm-bar i { display: block; height: 100%; background: var(--t-blue); border-radius: 99px; }
+.hc .tm-step { background: #ffd400; color: #000; }
+.hc .tm-bar { background: #000; border: 1px solid #fff; }
+.hc .tm-bar i { background: #ffd400; }
 .tm-back {
   width: 100%; min-height: 50px; margin-top: 4px; border-radius: 999px; cursor: pointer;
   background: #fff; border: 2px solid var(--t-line); box-shadow: 0 4px 0 var(--t-line);
@@ -1247,7 +1256,7 @@ details.card > summary:focus-visible { outline: 3px solid var(--focus); outline-
   .title-menu[data-view="main"] { display: contents; }
   .tc-hello { grid-column: 1; margin: 0; align-self: start; }
   .tc-buttons { grid-column: 2; grid-row: 2 / span 2; gap: 8px; }
-  .tc-seas { grid-column: 1; margin-top: 8px; }
+  .tc-seas { grid-column: 1; grid-row: 2 / span 2; margin-top: 0; align-self: center; }
   .tc-seas h2 { margin-bottom: 4px; }
   .tc-sea { width: 42px; height: 42px; }
   .tc-foot { display: none; }
