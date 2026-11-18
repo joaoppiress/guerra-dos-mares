@@ -2,17 +2,31 @@
 <html lang="pt-BR">
 <head>
   <meta charset="utf-8">
-  <meta name="viewport" content="width=device-width,initial-scale=1,maximum-scale=1,user-scalable=no">
-  <meta name="color-scheme" content="dark">
+  <meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
+  <meta name="color-scheme" content="light">
+  <meta name="theme-color" content="#3f7fae">
+  <link rel="icon" type="image/png" href="assets/img/ships/icon_p1.png">
   <title>Guerra dos Mares</title>
-  <link rel="stylesheet" href="assets/css/game.css">
+  <link rel="preload" href="assets/fonts/Fredoka.ttf" as="font" type="font/ttf" crossorigin>
+  <link rel="stylesheet" href="assets/css/game.css?v=2.8.0">
 </head>
 <body>
-  <canvas id="gameCanvas" tabindex="0" role="application" aria-label="Guerra dos Mares. Jogo 1 contra 1 local renderizado em canvas. Pressione F1 para ajuda e F2 para acessibilidade."></canvas>
-  <script src="assets/js/config.js"></script>
-  <script src="assets/js/logic.js"></script>
-  <script src="assets/js/score.js"></script>
-  <script src="assets/js/game.js"></script>
-  <script src="assets/js/ihc_patch.js"></script>
+  <div id="gdmRotate" class="rotate-overlay" role="alert">
+    <div class="rotate-card">
+      <svg class="rotate-phone" viewBox="0 0 120 120" aria-hidden="true" focusable="false"><rect x="38" y="14" width="44" height="80" rx="9" fill="#fff" stroke="#16324f" stroke-width="5"/><circle cx="60" cy="84" r="4" fill="#16324f"/><path d="M18 64a42 42 0 0 0 30 38" fill="none" stroke="#ffc93c" stroke-width="6" stroke-linecap="round"/><path d="M40 98l8 5-2-9" fill="none" stroke="#ffc93c" stroke-width="6" stroke-linecap="round" stroke-linejoin="round"/></svg>
+      <h1>VIRE SEU CELULAR</h1>
+      <p>Os navios precisam de mais espaço!</p>
+    </div>
+  </div>
+  <canvas id="gameCanvas" role="img" aria-label="Mapa do jogo Guerra dos Mares. Use o painel de comandos para jogar."></canvas>
+  <script src="assets/js/config.js?v=2.8.0"></script>
+  <script src="assets/js/logic.js?v=2.8.0"></script>
+  <script src="assets/js/score.js?v=2.8.0"></script>
+  <script src="assets/js/game.js?v=2.8.0"></script>
+  <script src="assets/js/ai.js?v=2.8.0"></script>
+  <script src="assets/js/panel.js?v=2.8.0"></script>
+  <script src="assets/js/mission.js?v=2.8.0"></script>
+  <script src="assets/js/title.js?v=2.8.0"></script>
+  <script src="assets/js/a11y.js?v=2.8.0"></script>
 </body>
 </html>
