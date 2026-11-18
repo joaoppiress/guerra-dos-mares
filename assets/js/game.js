@@ -140,10 +140,14 @@
     try { localStorage.setItem(SETTINGS_KEY, JSON.stringify(settings)); } catch (_e) {}
   }
 
+  const MUSIC_BOOST = 2.4; // a trilha é bem suave; isto a deixa audível em caixinhas de notebook e celular
   class AudioEngine {
     constructor() {
       this.ctx = null; this.music = true; this.sfx = true; this.musicVol = 6; this.sfxVol = 8; this.bus = null;
       this.musicGain = null; this.samples = {}; this.timer = null; this.step = 0; this.nextNote = 0;
+      // O navegador só deixa tocar som depois de um toque ou tecla: o primeiro em qualquer lugar já liga a música.
+      const unlock = () => { this.ensure(); if (this.ctx && this.ctx.state === 'running') ['pointerdown', 'keydown', 'touchend', 'click'].forEach(ev => window.removeEventListener(ev, unlock, true)); };
+      ['pointerdown', 'keydown', 'touchend', 'click'].forEach(ev => window.addEventListener(ev, unlock, true));
     }
 
     ensure() {
@@ -152,7 +156,7 @@
       if (!AC) return;
       this.ctx = new AC();
       this.musicGain = this.ctx.createGain();
-      this.musicGain.gain.value = this.music ? this.musicVol / 6 : 0;
+      this.musicGain.gain.value = this.music ? MUSIC_BOOST * this.musicVol / 6 : 0;
       this.musicGain.connect(this.ctx.destination);
       this.bus = this.ctx.createGain();
       this.bus.gain.value = this.sfxVol / 8;
@@ -232,7 +236,7 @@
     }
 
     syncMusic() {
-      if (this.musicGain) this.musicGain.gain.value = this.music ? this.musicVol / 6 : 0;
+      if (this.musicGain) this.musicGain.gain.value = this.music ? MUSIC_BOOST * this.musicVol / 6 : 0;
       if (this.bus) this.bus.gain.value = this.sfxVol / 8;
     }
 
