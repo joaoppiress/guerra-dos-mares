@@ -116,14 +116,15 @@
       const enemy = foes[0];
       if (!enemy || !mine.length) return false;
       let best = null;
-      for (let row = 0; row < 10; row++) for (let col = 10; col + enemy.size - 1 <= 19; col++) {
-        const cells = L.cells(row, col, enemy.size, 'horizontal');
+      for (const ori of ['horizontal', 'vertical']) for (let row = 0; row < 10; row++) for (let col = 10; col <= 19; col++) {
+        const cells = L.cells(row, col, enemy.size, ori);
+        if (cells.some(c => c.row > 9 || c.col > 19)) continue;
         if (cells.some(c => { const o = L.shipAt(st, c.row, c.col); return (o && o !== enemy) || L.trapAt(st, c.row, c.col) || (st.chests || []).some(h => !h.taken && h.row === c.row && h.col === c.col); })) continue;
         const d = Math.min(...mine.map(x => Math.min(...cells.map(c => L.distanceToShip(c, x)))));
-        if (d >= 2 && d <= GDM_CONFIG.radar.radius && (!best || d > best.d)) best = { row, col, d };
+        if (d >= 1 && d <= GDM_CONFIG.radar.radius && (!best || d > best.d)) best = { row, col, d, ori };
       }
       if (!best) return false;
-      Object.assign(enemy, { row: best.row, col: best.col, orientation: 'horizontal' });
+      Object.assign(enemy, { row: best.row, col: best.col, orientation: best.ori });
       L.refresh(enemy);
       game.computeRadar(me);
       this.data.contact = game.radarContacts().find(c => !c.revealed && c.type === 'ship');
