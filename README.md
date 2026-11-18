@@ -88,7 +88,7 @@ Scripts (na ordem de carregamento):
 - 20 questões de nível 2 → interface **Fácil**;
 - 20 questões de nível 3 → interface **Médio**;
 - 20 questões de nível 4 → interface **Difícil**;
-- habilidades: `EF03CO01`, `EF04CO01`, `EF04CO08`;
+- habilidades da **BNCC de Computação**: `EF03CO01`, `EF04CO01`, `EF04CO08` (3º e 4º ano do Ensino Fundamental);
 - 30 gabaritos Verdadeiro e 30 Falso;
 - cada item mantém pergunta, gabarito e explicação.
 

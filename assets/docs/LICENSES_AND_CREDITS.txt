@@ -13,7 +13,7 @@ Licenca: CC0 1.0 (dominio publico).
 
 3) UI Pack - Kenney (www.kenney.nl)
 Uso nesta build: estrelas, icones de certo/errado e sons de clique.
-Pastas: assets/img/ui, assets/audio
+Pastas: assets/img/ui (star.png, star_grey.png, check.png, cross.png), assets/audio
 Licenca: CC0 1.0 (dominio publico).
 
 4) Fredoka - The Fredoka Project Authors (Google Fonts)
@@ -21,17 +21,18 @@ Uso nesta build: fonte de todo o jogo e do painel.
 Pasta: assets/fonts (licenca completa em assets/fonts/OFL.txt)
 Licenca: SIL Open Font License 1.1.
 
-5) Elementos desenhados por codigo
-Boias, minas, contatos de radar ("?"), cursor, splash, botoes e paineis sao desenhados
-diretamente no canvas/CSS pelo proprio jogo. A musica e parte dos efeitos sonoros sao
-sintetizados com WebAudio.
+5) Arte da equipe do projeto
+Logo do jogo: assets/img/ui/logo.png
+Capitao Mare (personagem guia): assets/img/ui/capitao.png e capitao_rosto.png
+Barba-Rubra (capitao inimigo): assets/img/ui/vilao.png e vilao_rosto.png
+Fundo antigo do menu (nao usado nesta versao): assets/img/ui/menu_fundo.jpg
+Imagens fornecidas pela equipe do Guerra dos Mares para uso no jogo.
 
-6) Capitao (personagem guia)
-Personagem pirata criado especificamente para o Guerra dos Mares.
-Arquivo: assets/img/ui/capitao.png. Enquanto o arquivo nao existir, o jogo usa um retrato
-provisorio desenhado por codigo (SVG em assets/js/mission.js), sem uso de material de terceiros.
+6) Elementos desenhados por codigo
+Baus do tesouro, boias, minas, contatos de radar ("?"), cursor, splash, alcance dos canhoes,
+botoes, paineis, menu de pausa e tela inicial sao desenhados diretamente no canvas/CSS
+pelo proprio jogo, sem material de terceiros.
 
-7) Trilha sonora
-Valsa de marinheiro composta para o jogo e tocada por sintese WebAudio (assets/js/game.js).
-
-Logo: arte enviada pela equipe do projeto.
+7) Trilha sonora e efeitos
+A musica (valsa de marinheiro) e a maior parte dos efeitos sonoros sao sintetizados
+com WebAudio (assets/js/game.js). Os sons de clique vem do UI Pack (item 3).
