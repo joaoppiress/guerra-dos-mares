@@ -243,6 +243,9 @@ Ao apertar **Jogar** o jogo pergunta a dificuldade (Fácil, Médio ou Difícil).
 
 ## Diversão extra
 
+- **Álbum de conquistas:** botão Conquistas na tela inicial com 11 conquistas (tutorial, primeiro acerto, mira afiada, navio afundado, tesouro, armadilha, perguntas, radar e vitória em cada dificuldade). Ficam salvas no navegador; as bloqueadas dizem como ganhar.
+- **Navio vira ao andar:** a proa aponta para onde o navio anda; andando de lado, ele gira em volta do meio se houver espaço.
+
 - **História no tutorial:** o Capitão Maré e o Barba-Rubra conversam com emoções (medo, raiva, risada, comemoração). As expressões usam `assets/img/ui/capitao_<humor>.png` (feliz, medo, bravo, surpreso, pensando, comemorando) e `vilao_<humor>.png` (rindo, bravo, medo, chorando, surpreso, convencido); se o arquivo não existir, o jogo usa a imagem padrão.
 - **Tutorial único:** antes de começar, o Capitão pergunta se a criança joga com teclado ou leitor de tela; se sim, as explicações de acessibilidade entram no mesmo tutorial.
 
