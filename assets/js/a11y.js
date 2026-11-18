@@ -45,7 +45,7 @@
     </table>`).join('');
   sec.innerHTML = `
     <h2 id="gdmMapTitle">Mapa do mar</h2>
-    <p id="gdmMapHelp">Cada botão é uma casa. Enter faz a ação naquela casa. Setas andam de casa em casa; Page Up e Page Down trocam de oceano. Atalhos: I situação, C casa atual, T dica do Capitão.</p>
+    <p id="gdmMapHelp">Cada botão é uma casa. As LETRAS de A a J são as colunas: andam na horizontal, da esquerda para a direita. Os NÚMEROS de 1 a 10 são as linhas: andam na vertical, de cima para baixo. C7 é a coluna C com a linha 7. No mapa use as SETAS para andar de casa em casa e Enter para agir. Tab sai do mapa e vai para o painel. Q explica onde você está.</p>
     <form class="a11y-jump" id="gdmJumpForm">
       <label for="gdmJump">Ir para a casa</label>
       <input id="gdmJump" type="text" inputmode="text" autocomplete="off" spellcheck="false" maxlength="4" aria-describedby="gdmJumpHelp">
@@ -69,7 +69,12 @@
     const full = game.describeCell(r, c), base = GDM_LOGIC.coordWithZone(r, c);
     let what = full.startsWith(base) ? full.slice(base.length).replace(/^,\s*/, '') : full;
     if (!what) what = game.state.phase === 'battle' ? 'água' : 'vazio';
-    if (game.state.phase === 'battle' && game.state.action === 'attack' && c >= 10) what += '. Enter atira aqui';
+    if (game.state.phase === 'battle') {
+      const st = game.state, s = game.selectedShip();
+      if (st.action === 'attack' && s && GDM_LOGIC.zone(c) !== s.owner) what += game.attackCellAllowed(r, c, s) ? '. Enter atira aqui' : '. Longe demais para este navio';
+      if (st.action === 'move' && s && GDM_LOGIC.moveTargets(st, s, game.shipMoveSteps(s)).some(m => m.row === r && m.col === c)) what += '. Casa verde: Enter anda até aqui';
+      if (st.action === 'analyze' && s && !game.inScanRange(s, r, c)) what += '. Longe do radar deste navio';
+    }
     return `${coord}, ${what}`;
   }
 
@@ -140,12 +145,6 @@
     }
     e.preventDefault(); e.stopPropagation();
     if (nr === r && nc === c) { game.announce('Borda do mapa.', true); return; }
-    if (game.state.phase === 'battle' && game.state.action === 'move' && game.selectedShip()) {
-      // no modo mover, as setas mexem o navio (igual ao jogo visual)
-      const dr = nr - r, dc = nc - c;
-      game.moveSelected(Math.sign(dr), Math.sign(dc));
-      return;
-    }
     focusCell(nr, nc);
   });
 
@@ -175,6 +174,7 @@
     const st = game.state;
     zoneSel.value = st.phase === 'battle' && st.action === 'attack' ? '2' : '0';
   });
+  jump.addEventListener('keydown', e => { if (e.key === 'Escape') { e.preventDefault(); e.stopPropagation(); jump.blur(); requestAnimationFrame(() => focusCursor()); } });
   sec.querySelector('#gdmJumpForm').addEventListener('submit', e => {
     e.preventDefault();
     const p = parse(jump.value);
@@ -192,6 +192,57 @@
     if (e.key.toLowerCase() === 'g' && !game.state.modal) { e.preventDefault(); e.stopPropagation(); jump.focus(); }
     if (e.key.toLowerCase() === 'n' && !game.state.modal) { e.preventDefault(); e.stopPropagation(); focusCursor(); }
   }, true);
+
+  // ---------- "Onde estou?" (tecla Q) e explicação na primeira vez ----------
+  const COORD = 'As letras de A a J são as colunas, na horizontal, da esquerda para a direita. Os números de 1 a 10 são as linhas, na vertical, de cima para baixo. Exemplo: C7 é a coluna C com a linha 7.';
+  function regionOf(el) {
+    if (!el || el === document.body) return 'body';
+    if (game.titleOpen) return 'title';
+    if (game.state.modal && game.state.modal.type === 'question') return 'question';
+    if (game.state.modal) return 'modal';
+    if (el.closest && el.closest('#gdmMission')) return 'mission';
+    if (el.id === 'gdmJump' || el.id === 'gdmJumpZone' || (el.closest && el.closest('#gdmJumpForm'))) return 'jump';
+    if (el.classList && el.classList.contains('a11y-cell')) return 'map';
+    if (el.getAttribute && el.getAttribute('role') === 'tab') return 'tabs';
+    if (el.closest && el.closest('#gdmPanel')) return 'panel';
+    return 'body';
+  }
+  function explain(region, el) {
+    const tab = game.panel && game.panel.tab ? { game: 'Jogar', radar: 'Radar', help: 'Ajuda', settings: 'Ajustes' }[game.panel.tab] : '';
+    switch (region) {
+      case 'map': {
+        const c = game.state.cursor, where = GDM_LOGIC.coordWithZone(c.row, c.col);
+        return `Você está no MAPA, na casa ${where}. ${COORD} Aqui as SETAS andam de casa em casa e Enter faz a ação. G leva para uma casa digitando, por exemplo C7. Tab sai do mapa e vai para o painel de comandos.`;
+      }
+      case 'tabs': return 'Você está nas ABAS do painel: Jogar, Radar, Ajuda e Ajustes. Aqui as SETAS para esquerda e direita trocam de aba. Tab entra nos botões da aba. Para voltar ao mapa, aperte N.';
+      case 'panel': return `Você está no PAINEL DE COMANDOS, na aba ${tab}. Aqui use TAB para ir ao próximo botão e SHIFT mais TAB para voltar. Enter aperta o botão. As setas não andam aqui. Para voltar ao mapa, aperte N ou use o botão Voltar para o mapa, no começo do painel.`;
+      case 'jump': return 'Você está no campo IR PARA A CASA. Digite a letra e o número, por exemplo C7, e aperte Enter. Esc ou N voltam para o mapa.';
+      case 'question': return 'Você está numa PERGUNTA do radar. Leia a frase e aperte V se for verdadeira ou F se for falsa. Tab anda entre as duas respostas.';
+      case 'modal': return 'Uma janela está aberta. Tab anda pelos botões dela e Enter aperta. Esc fecha.';
+      case 'mission': return 'Você está no QUADRO DO CAPITÃO, o tutorial. Tab anda pelos botões do quadro e Enter aperta. Quando o Capitão pedir uma casa do mapa, use as setas e Enter.';
+      case 'title': return 'Você está na TELA INICIAL. Setas para cima e para baixo, ou Tab, escolhem um botão. Enter confirma.';
+      default: return 'Aperte N para ir ao mapa ou Tab para ir aos botões. F1 abre o guia e F2 os ajustes.';
+    }
+  }
+  game.whereAmI = () => explain(regionOf(document.activeElement), document.activeElement);
+  window.addEventListener('keydown', e => {
+    if (e.ctrlKey || e.altKey || e.metaKey) return;
+    if (e.target instanceof HTMLInputElement || e.target instanceof HTMLSelectElement || e.target instanceof HTMLTextAreaElement) return;
+    if (e.key.toLowerCase() === 'q') { e.preventDefault(); e.stopPropagation(); game.announce(game.whereAmI(), true); }
+  }, true);
+  // Na primeira vez em cada lugar (só para quem usa teclado ou leitor de tela), explica uma vez.
+  const SEEN_KEY = 'gdm-a11y-explicado-v1';
+  let seen = {}; try { seen = JSON.parse(localStorage.getItem(SEEN_KEY) || '{}'); } catch (_e) {}
+  let lastKey = 0;
+  window.addEventListener('keydown', () => { lastKey = Date.now(); }, true);
+  document.addEventListener('focusin', e => {
+    const region = regionOf(e.target);
+    if (['body', 'modal', 'title'].includes(region) || seen[region]) return;
+    const keyboardUser = game.state.settings.screenReader || Date.now() - lastKey < 1500;
+    if (!keyboardUser || (game.mission && game.mission.active && region !== 'mission')) return;
+    seen[region] = 1; try { localStorage.setItem(SEEN_KEY, JSON.stringify(seen)); } catch (_e) {}
+    setTimeout(() => game.announce(`${explain(region, e.target)} Para ouvir isto de novo, aperte Q.`), 500);
+  });
 
   game.a11y = { refresh, focusCursor, focusCell, cursorCell: () => { const c = game.state.cursor; return cellEl(c.row, c.col); } };
   refresh();

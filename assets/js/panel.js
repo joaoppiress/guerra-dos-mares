@@ -46,11 +46,11 @@
       ['Por que o navio fica vermelho?', 'Vermelho quer dizer que não cabe: ele sairia do seu oceano ou encostaria em outro navio. Troque de casa ou gire.'],
       ['Como giro o navio?', 'Botão GIRAR ou tecla R. Ele fica em pé ou deitado.'],
       ['Tem jeito mais rápido?', 'O botão AUTOMÁTICO (tecla P) coloca todos os navios que faltam.'],
-      ['Quando a batalha começa?', 'Quando os 6 navios estiverem no mapa e você apertar PRONTO.']
+      ['Quando a batalha começa?', 'Quando todos os navios estiverem no mapa e você apertar PRONTO.']
     ]],
     ['Na sua vez', [
       ['O que faço na minha vez?', 'Sempre em três passos: escolha um navio seu, escolha uma ação e escolha uma casa no mapa.'],
-      ['Quais são as ações?', 'ATACAR (1) atira numa casa. MOVER (2) anda 1 casa. ARMADILHA (3) esconde uma mina no seu oceano ou no Neutro. ANALISAR (4) decifra um "?" do radar.'],
+      ['Quais são as ações?', 'ATACAR (1) atira numa casa dentro do alcance. MOVER (2) navega até 3 casas (navios pequenos andam mais). ARMADILHA (3) esconde uma mina no seu oceano ou no Neutro. ANALISAR (4) decifra um "?" do radar.'],
       ['Por que não consigo usar um navio?', 'Cada navio age uma vez por vez. E os tiros usados voltam duas rodadas depois. O Lança-Armadilhas não atira: ele esconde minas.'],
       ['Escolhi a ação errada. E agora?', 'Aperte Cancelar, Esc ou o botão direito do mouse. Nada é gasto ao cancelar.'],
       ['Como termino a minha vez?', 'Aperte PASSAR A VEZ ou a tecla Espaço.']
@@ -69,6 +69,8 @@
       ['O que as estrelas do final mostram?', 'O seu desempenho na partida: quanto mais pontos, mais estrelas.']
     ]],
     ['Teclado, leitor de tela e acessibilidade', [
+      ['Quando uso Tab e quando uso as setas?', 'Tab pula de um lugar para outro (do mapa para o painel, de botão em botão) e Shift+Tab volta. As setas andam de casa em casa dentro do mapa e trocam as abas do painel. Perdido? Aperte Q.'],
+      ['Como volto para o mapa?', 'Aperte N de qualquer lugar. No painel, o primeiro botão de cada aba é Voltar para o mapa.'],
       ['Dá para jogar só com o teclado?', 'Sim. Tab anda pelos botões, setas andam no mapa, Enter confirma e Esc cancela. G leva para o campo "Ir para a casa", onde você digita a casa (ex.: C7).'],
       ['Uso o Narrador do Windows. O que ligo?', 'Em Opções ou Ajustes, ligue "Modo leitor de tela": o computador joga mais devagar e as dicas são faladas sem roubar o foco. I fala a situação da partida, C fala a casa atual e T repete a dica do Capitão.'],
       ['A tela está difícil de ver.', 'Ligue Alto contraste, aumente o tamanho das letras ou troque o tipo de letra em Ajustes, na seção Texto.'],
@@ -132,7 +134,7 @@
           <div class="tabs" role="tablist" aria-label="Seções do painel">
             ${TABS.map(t => `<button type="button" role="tab" class="tab" id="gdmTab-${t.id}" data-tab="${t.id}" aria-controls="gdmTabPanel-${t.id}" aria-selected="false" tabindex="-1">${icon(t.id)}<span>${t.label}</span></button>`).join('')}
           </div>
-          ${TABS.map(t => `<section class="tabpanel" role="tabpanel" id="gdmTabPanel-${t.id}" aria-labelledby="gdmTab-${t.id}" tabindex="0" hidden></section>`).join('')}
+          ${TABS.map(t => `<section class="tabpanel" role="tabpanel" id="gdmTabPanel-${t.id}" aria-labelledby="gdmTab-${t.id}" hidden></section>`).join('')}
         </div>`;
       document.body.appendChild(aside);
       this.el = aside;
@@ -249,7 +251,9 @@
       this.lastModal = modalKey;
       if (modalOpened && this.tab !== 'game' && st.modal.type !== 'help') this.setTab('game');
 
-      const html = { game: this.renderGame(), radar: this.renderRadar(), settings: this.renderSettings(), help: this.renderHelp() };
+      // primeiro item de cada aba: voltar para o mapa (aparece ao receber foco do Tab)
+      const back = `<button type="button" class="back-map" data-key="back-map">Voltar para o mapa (tecla N)</button>`;
+      const html = { game: back + this.renderGame(), radar: back + this.renderRadar(), settings: back + this.renderSettings(), help: back + this.renderHelp() };
       for (const [id, p] of Object.entries(this.panels)) {
         if (force || id === this.tab || p.dataset.html === undefined) this.patch(p, html[id]);
       }
@@ -392,13 +396,13 @@
           </div>`;
       }
       const s = game.selectedShip();
-      const PHRASE = { attack: 'Atire em uma casa do mapa.', move: 'Leve seu navio para uma casa vizinha.', trap: 'Esconda uma mina no mar.', analyze: 'Descubra contatos do radar.' };
+      const PHRASE = { attack: 'Atire numa casa clarinha (no alcance).', move: 'Navegue até a casa verde.', trap: 'Esconda uma mina no mar.', analyze: 'Decifre um “?” perto do navio.' };
       const act = (id, label, key, cls) => `<button type="button" class="btn act ${cls}" data-key="act:${id}" aria-pressed="${st.action === id}">${icon(id)}<span class="act-text"><span class="btn-label">${esc(label)}</span><span class="act-desc">${esc(PHRASE[id])}</span></span><kbd aria-hidden="true">${key}</kbd></button>`;
       const avail = ['attack', 'move', 'trap', 'analyze'].filter(a => !game.actionBlocker(a) && (a === 'analyze' || s));
       const why = !s ? (avail.includes('analyze') ? 'Escolha um navio para ver as ações dele (ou analise um contato do radar).' : 'Escolha um navio para ver as ações dele.')
         : (s.turnLocked ? 'Esse navio já cumpriu sua missão nesta vez. Escolha outro navio ou passe a vez.' : (!avail.filter(a => a !== 'analyze').length ? (game.actionBlocker('attack') || '') : ''));
       const actNames = { attack: 'Atacar', move: 'Mover', trap: 'Armadilha', analyze: 'Analisar' };
-      const actWhat = { attack: 'Escolha uma casa no mapa para atirar.', move: 'Escolha uma casa verde ao lado do navio.', trap: 'Escolha uma casa roxa para esconder a mina.', analyze: 'Escolha um “?” no mapa ou na aba Radar.' };
+      const actWhat = { attack: 'Escolha uma casa clarinha para atirar.', move: 'Escolha uma casa verde para o navio navegar.', trap: 'Escolha uma casa roxa para esconder a mina.', analyze: 'Escolha um “?” no mapa ou na aba Radar.' };
       const activeCard = st.action ? `<div class="card card-active act-${st.action}" role="group" aria-label="Ação escolhida">
           <p class="eyebrow">Ação escolhida</p>
           <h2>${esc(actNames[st.action])}</h2>
@@ -497,7 +501,7 @@
     }
 
     renderHelp() {
-      const keys = [['I', 'Ouvir a situação da partida'], ['C', 'Ouvir a casa atual'], ['T', 'Ouvir a dica do Capitão'], ['G', 'Ir para a casa (digitar, ex.: C7)'], ['N', 'Ir para o mapa acessível'], ['Tab / Shift+Tab', 'Andar pelos botões'], ['Setas ou WASD', 'Mover no mapa'], ['Enter', 'Confirmar'], ['R', 'Girar navio'], ['P', 'Posicionar automático'], ['1 2 3 4', 'Atacar, Mover, Armadilha, Analisar'], ['Espaço', 'Passar a vez'], ['Esc', 'Cancelar / fechar'], ['V / F', 'Verdadeiro / Falso'], ['M', 'Música'], ['F1', 'Guia do Capitão'], ['F2', 'Ajustes'], ['+ / −', 'Zoom']];
+      const keys = [['Q', 'Onde estou? Explica onde você está e quais teclas usar'], ['I', 'Ouvir a situação da partida'], ['C', 'Ouvir a casa atual'], ['T', 'Ouvir a dica do Capitão'], ['G', 'Ir para a casa (digitar, ex.: C7)'], ['N', 'Ir para o mapa acessível'], ['Tab / Shift+Tab', 'Andar pelos botões'], ['Setas ou WASD', 'Mover no mapa'], ['Enter', 'Confirmar'], ['R', 'Girar navio'], ['P', 'Posicionar automático'], ['1 2 3 4', 'Atacar, Mover, Armadilha, Analisar'], ['Espaço', 'Passar a vez'], ['Esc', 'Cancelar / fechar'], ['V / F', 'Verdadeiro / Falso'], ['M', 'Música'], ['F1', 'Guia do Capitão'], ['F2', 'Ajustes'], ['+ / −', 'Zoom']];
       const m = game.mission, face = m ? m.avatar() : '';
       return `<div class="card card-captain">
           <div class="now-row">${face ? `<img src="${esc(face)}" alt="" class="captain-face">` : ''}
@@ -576,6 +580,7 @@
         case 'captain-tip': if (g.mission) g.mission.showTip(); break;
         case 'captain-point': if (g.mission) g.mission.pointAt(g.mission.nextTarget()); break;
         case 'mission-restart': g.restartTutorial(); break;
+        case 'back-map': if (g.a11y) g.a11y.focusCursor(); break;
         case 'open-guide': g.openHelp(); break;
         case 'contrast': g.toggleContrast(); break;
         case 'screenreader': g.toggleScreenReader(); break;

@@ -29,6 +29,9 @@
   };
   // Dúvidas de cada etapa do tutorial (botão "Dúvida?").
   const FAQ_STEP = {
+    moveSel: [['Por que preciso andar?', 'Cada canhão só atira até uma distância. Chegando mais perto do oceano do pirata, seus tiros alcançam os navios dele.']],
+    moveAct: [['Quanto cada navio anda?', 'Destroier anda 3 casas, Cruzador e Encouraçado andam 2, e o Lança-Armadilhas anda 1.']],
+    moveGo: [['Posso andar na diagonal?', 'Não: o navio anda em linha reta, para cima, para baixo, para a esquerda ou para a direita.'], ['E pelo teclado?', 'Use as setas até uma casa verde e aperte Enter.']],
     hello: [['Preciso saber jogar batalha naval?', 'Não! O Capitão mostra tudo, passo por passo. É só seguir o quadro.'],
       ['Posso sair do tutorial?', 'Pode. Use "Pular tutorial". Para ver de novo depois: aba Ajuda, botão "Rever tutorial".']],
     villain: [['Quem joga pelo Barba-Rubra?', 'O computador. Ele escolhe as jogadas sozinho e não espia onde estão os seus navios.']],
@@ -46,14 +49,14 @@
     rotate: [['Para que serve girar?', 'O navio pode ficar deitado (horizontal) ou em pé (vertical). Girar ajuda a caber em mais lugares.'],
       ['Qual a tecla?', 'R gira o navio.']],
     finish: [['O que o botão AUTOMÁTICO faz?', 'Coloca todos os navios que faltam em lugares que cabem.'],
-      ['Tenho que colocar todos?', 'Sim: são 6 navios. A batalha só começa com a frota completa.']],
-    ready: [['O que acontece quando aperto PRONTO?', 'A batalha começa. Na batalha, seus navios ainda podem andar 1 casa com a ação MOVER.']],
+      ['Tenho que colocar todos?', 'Sim: todos os navios da lista. A batalha só começa com a frota completa.']],
+    ready: [['O que acontece quando aperto PRONTO?', 'A batalha começa! Na batalha seus navios podem navegar com a ação MOVER.']],
     battle: [['Quantas jogadas faço na minha vez?', 'Cada navio pode agir uma vez. Quando terminar, aperte PASSAR A VEZ.']],
     select: [['Por que não posso escolher o Lança-Armadilhas aqui?', 'Ele não tem canhões: ele esconde minas. Neste treino vamos atirar, então escolha um navio com canhões.'],
       ['E pelo teclado?', 'Use as setas até o navio e aperte Enter.']],
-    action: [['O que cada ação faz?', 'ATACAR atira numa casa. MOVER anda 1 casa. ARMADILHA esconde uma mina. ANALISAR decifra um "?" do radar.'],
+    action: [['O que cada ação faz?', 'ATACAR atira numa casa dentro do alcance. MOVER navega em linha reta. ARMADILHA esconde uma mina. ANALISAR decifra um "?" do radar.'],
       ['Tem atalho?', 'Teclas 1, 2, 3 e 4: Atacar, Mover, Armadilha e Analisar.']],
-    fire: [['Onde eu atiro?', 'No oceano do computador, à direita. Os navios dele estão escondidos, então é só tentar!'],
+    fire: [['Onde eu atiro?', 'Nas casas clarinhas: é até onde o canhão do navio alcança. Para atirar mais longe, chegue mais perto com MOVER.'],
       ['E pelo teclado?', 'Use as setas para escolher a casa e Enter para atirar. Ou aperte G e digite a casa.']],
     shotResult: [['Como sei se acertei?', 'Fogo e "ACERTO!" quer dizer que pegou um navio. Respingo e "ÁGUA!" quer dizer que não tinha nada ali.']],
     radar: [['Para que servem as perguntas?', 'O radar mostra "?" perto dos seus navios. Acertando a pergunta, você descobre se é um navio ou uma armadilha.'],
@@ -63,7 +66,7 @@
     done: [['Onde vejo as dúvidas depois?', 'Na aba Ajuda, em "Dúvidas frequentes". F1 abre o Guia do Capitão.']]
   };
   // Etapas que ganham a demonstração animada (mouse/toque ou teclado).
-  const DEMO_STEP = { place: 'place', fire: 'fire' };
+  const DEMO_STEP = { place: 'place', fire: 'fire', moveGo: 'move' };
 
   const esc = s => String(s).replace(/[&<>"']/g, c => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' }[c]));
   const $ = sel => document.querySelector(sel);
@@ -100,7 +103,7 @@
 
     waitForGame() {
       const tick = () => {
-        if (game.state.phase === 'placement' && game.assetsReady && !game.titleOpen) { if (!this.completed() && game.state.settings.tutorialAuto !== false) setTimeout(() => this.start(), 350); return; }
+        if (game.state.phase === 'placement' && game.assetsReady && !game.titleOpen) { if (!this.completed() && game.state.settings.tutorialAuto !== false) setTimeout(() => { if (!this.active && !this.suppressAuto) this.start(); }, 350); return; }
         setTimeout(tick, 200);
       };
       tick();
@@ -113,12 +116,14 @@
 
     steps() {
       const human = () => this.human();
+      // há algum navio com canhão que já alcança o mar fora do nosso oceano?
+      const canShoot = () => game.state.ships[human()].some(sh => !sh.destroyed && sh.chargeType === 'missile' && sh.availableCharges > 0 && game.hasAttackCells(sh));
       const enemyZone = () => this.zoneOf(game.isAiMode() ? 'player2' : (game.state.turn === 'player1' ? 'player2' : 'player1'));
       return [
         { id: 'hello', title: 'OLÁ, CAPITÃO!', big: true,
           text: () => 'Bem-vindo ao Guerra dos Mares! Eu vou ficar com você nessa primeira missão.',
           text2: () => 'Não se preocupe em decorar nada. Eu vou mostrar o que fazer, passo por passo!',
-          buttons: [['VAMOS LÁ!', () => this.next(), 'primary'], ['JÁ SEI JOGAR', () => this.skip(), 'soft']] },
+          buttons: [['VAMOS LÁ!', () => this.next(), 'primary'], ['JÁ SEI JOGAR', () => this.skip(), 'soft'], ['TECLADO E LEITOR DE TELA', () => this.startA11yGuide(true), 'soft']] },
         { id: 'villain', title: 'O ADVERSÁRIO', villain: true, skip: () => !game.isAiMode(),
           text: () => 'Este é o Barba-Rubra, o capitão da frota inimiga. Ele quer afundar os nossos navios. Vamos treinar para vencer!',
           buttons: [['CONTINUAR', () => this.next(), 'primary']] },
@@ -126,13 +131,13 @@
           text: () => `Este é o nosso oceano, capitão! À esquerda fica o ${GDM_LOGIC.zoneNames.player1}, no meio o Oceano Neutro e à direita o ${GDM_LOGIC.zoneNames.player2}.`,
           buttons: [['PRÓXIMO', () => this.next(), 'primary']] },
         { id: 'cols', title: 'CONHEÇA O MAPA', target: { cols: 0 },
-          text: () => 'As letras mostram as colunas: A, B, C...',
+          text: () => 'As LETRAS ficam em cima e mostram as colunas. Elas andam na HORIZONTAL, da esquerda para a direita: A, B, C... até J.',
           buttons: [['PRÓXIMO', () => this.next(), 'primary']] },
         { id: 'rows', title: 'CONHEÇA O MAPA', target: { rows: 0 },
-          text: () => 'Os números mostram as linhas: 1, 2, 3...',
+          text: () => 'Os NÚMEROS ficam do lado e mostram as linhas. Eles andam na VERTICAL, de cima para baixo: 1, 2, 3... até 10.',
           buttons: [['PRÓXIMO', () => this.next(), 'primary']] },
         { id: 'a1', title: 'CONHEÇA O MAPA', target: { cell: [0, 0] }, guides: true,
-          text: () => 'Quando juntamos os dois, temos uma coordenada! Coluna A + linha 1 = A1. Então A1 é esta casa!',
+          text: () => 'Juntando a letra e o número temos o endereço da casa: a coordenada! Coluna A + linha 1 = A1, a casa do canto de cima, à esquerda. C7 seria 3 casas para a direita e 7 para baixo.',
           buttons: [['ENTENDI!', () => this.next(), 'primary']] },
         { id: 'pick', title: 'MONTE SUA FROTA', target: { dom: '#gdmTabPanel-game .ships' },
           enter: () => { if (game.panel) game.panel.setTab('game'); },
@@ -159,22 +164,41 @@
           enter: () => game.audio.play('tutorialNext'),
           text: () => 'Não se preocupe: na sua vez é sempre NAVIO, depois AÇÃO, depois MAPA.',
           buttons: [['ENTENDI!', () => this.next(), 'primary']] },
-        { id: 'select', title: 'PASSO 1 · ESCOLHA UM NAVIO', target: { zone: () => this.zoneOf(game.state.turn) },
+        { id: 'select', skip: () => !canShoot() && !this.data.fired, title: 'PASSO 1 · ESCOLHA UM NAVIO', target: { zone: () => this.zoneOf(game.state.turn) },
           enter: () => game.focusZone(this.zoneOf(game.state.turn), true),
           text: () => 'Primeiro escolha um navio que ainda pode agir. Toque em um dos SEUS navios com canhões (Encouraçado, Cruzador ou Destroier).',
-          wait: ev => ev.name === 'battleSelect' && ev.data && ev.data.ship.chargeType === 'missile' && ev.data.ship.availableCharges > 0,
-          fail: ev => ev.name === 'battleSelect' && !(ev.data.ship.chargeType === 'missile' && ev.data.ship.availableCharges > 0) ? 'Esse navio não tem canhões. Para o treino, escolha o Encouraçado, o Cruzador ou um Destroier.' : null },
-        { id: 'action', title: 'PASSO 2 · ESCOLHA UMA AÇÃO', target: { dom: '[data-key="act:attack"]' },
+          wait: ev => ev.name === 'battleSelect' && ev.data && ev.data.ship.chargeType === 'missile' && ev.data.ship.availableCharges > 0 && game.hasAttackCells(ev.data.ship),
+          fail: ev => {
+            if (ev.name !== 'battleSelect' || !ev.data) return null;
+            const sh = ev.data.ship;
+            if (!(sh.chargeType === 'missile' && sh.availableCharges > 0)) return 'Esse navio não tem canhões. Para o treino, escolha o Encouraçado, o Cruzador ou um Destroier.';
+            if (!game.hasAttackCells(sh)) return 'Esse navio está muito no fundo e o canhão não alcança. Escolha um navio com canhões mais para a direita!';
+            return null;
+          } },
+        { id: 'action', skip: () => !canShoot() && !this.data.fired, title: 'PASSO 2 · ESCOLHA UMA AÇÃO', target: { dom: '[data-key="act:attack"]' },
           text: () => 'Agora escolha ATACAR: atire em uma casa do mapa.',
           wait: ev => ev.name === 'chooseAction' && game.state.action === 'attack',
           fail: ev => ev.name === 'chooseAction' && game.state.action !== 'attack' ? 'Nesse treino, vamos usar ATACAR. Toque em Cancelar e depois em Atacar.' : null },
-        { id: 'fire', title: 'PASSO 3 · ESCOLHA NO MAPA', target: { zone: enemyZone }, enter: () => game.focusZone(enemyZone(), true),
-          text: () => 'Toque numa casa do oceano inimigo para atirar. Os navios dele estão escondidos: é só tentar!',
+        { id: 'fire', skip: () => !canShoot() && !this.data.fired, title: 'PASSO 3 · ESCOLHA NO MAPA', target: { zone: () => 1 }, enter: () => game.focusZone(1, true),
+          text: () => 'Cada canhão tem um alcance. As casas CLARINHAS são onde ele consegue atirar. Toque numa casa clarinha!',
           wait: ev => ev.name === 'actionDone' && ev.data && ev.data.type === 'attack',
-          done: ev => { this.data.hit = !!(ev.data && ev.data.hit); } },
-        { id: 'shotResult', title: () => this.data.hit ? 'ACERTO!' : 'ÁGUA!', light: true,
-          text: () => this.data.hit ? 'Na mosca, capitão! Cada acerto tira vida do navio inimigo.' : 'Passou perto! Agora você sabe que ali não tem navio.',
+          done: ev => { this.data.hit = !!(ev.data && ev.data.hit); this.data.fired = true; } },
+        { id: 'shotResult', skip: () => !canShoot() && !this.data.fired, title: () => this.data.hit ? 'ACERTO!' : 'ÁGUA!', light: true,
+          text: () => this.data.hit ? 'Na mosca, capitão! Cada acerto tira vida do navio inimigo.' : 'Splash! Ali só tinha água. Os navios do pirata estão mais longe, no oceano da direita.',
           buttons: [['CONTINUAR', () => this.next(), 'primary']] },
+        { id: 'moveSel', title: 'CHEGUE MAIS PERTO!', target: { zone: () => this.zoneOf(game.state.turn) },
+          enter: () => game.focusZone(this.zoneOf(game.state.turn), true),
+          text: () => 'Para alcançar o pirata, precisamos navegar até ele. Escolha OUTRO navio seu, que ainda não jogou.',
+          wait: ev => ev.name === 'battleSelect' && ev.data && !ev.data.ship.turnLocked,
+          fail: ev => ev.name === 'battleSelect' && ev.data && ev.data.ship.turnLocked ? 'Esse navio já jogou nesta vez. Escolha outro!' : null },
+        { id: 'moveAct', title: 'MOVER', target: { dom: '[data-key="act:move"]' },
+          text: () => 'Agora escolha MOVER (tecla 2). Navios pequenos andam mais: o Destroier anda 3 casas!',
+          wait: ev => ev.name === 'chooseAction' && game.state.action === 'move',
+          fail: ev => ev.name === 'chooseAction' && game.state.action !== 'move' ? 'Agora vamos usar MOVER. Toque em Cancelar e depois em Mover.' : null },
+        { id: 'moveGo', title: 'MOVER', target: { zone: () => this.zoneOf(game.state.turn) },
+          text: () => 'Toque numa casa VERDE para o navio andar até lá. Ir para a direita deixa você mais perto do pirata!',
+          wait: ev => ev.name === 'actionDone' && ev.data && ev.data.type === 'move',
+          done: () => this.cheer('Vrum! Navegando!') },
         { id: 'radar', title: 'O RADAR', target: { dom: '[data-tab="radar"]' }, skip: () => !game.questionsLoaded,
           text: () => 'Capitão! Nosso radar encontrou um sinal misterioso. Para decifrar, responda se a frase é VERDADEIRA ou FALSA. Vamos treinar!',
           buttons: [['DECIFRAR SINAL', () => { if (!game.openPracticeQuestion()) this.next(); }, 'primary']],
@@ -195,10 +219,57 @@
       ];
     }
 
-    start() {
+    // Guia opcional: só aparece para quem escolhe saber mais sobre acessibilidade.
+    a11ySteps(thenTutorial) {
+      const sr = () => game.state.settings.screenReader;
+      return [
+        { id: 'ax-intro', title: 'TECLADO E LEITOR DE TELA',
+          text: () => 'Vou mostrar como jogar sem mouse e com o Narrador do Windows. Você pode pular quando quiser.',
+          buttons: [['COMEÇAR', () => this.next(), 'primary']] },
+        { id: 'ax-sr', title: 'MODO LEITOR DE TELA',
+          text: () => `Usa o Narrador (Windows + Ctrl + Enter)? Ligue o Modo leitor de tela: o computador joga mais devagar e o Capitão fala as dicas sem tirar o foco do lugar. Agora ele está ${sr() ? 'LIGADO' : 'DESLIGADO'}.`,
+          buttons: [[() => sr() ? 'DESLIGAR MODO LEITOR' : 'LIGAR MODO LEITOR', () => { game.toggleScreenReader(); this.render(true); }, 'soft'], ['PRÓXIMO', () => this.next(), 'primary']] },
+        { id: 'ax-coords', title: 'AS CASAS DO MAPA',
+          text: () => 'O mapa tem 3 oceanos, cada um com 10 colunas e 10 linhas. As LETRAS de A a J são as colunas: andam na HORIZONTAL, da esquerda para a direita. Os NÚMEROS de 1 a 10 são as linhas: andam na VERTICAL, de cima para baixo. C7 é a coluna C com a linha 7.',
+          buttons: [['PRÓXIMO', () => this.next(), 'primary']] },
+        { id: 'ax-move', title: 'TAB OU SETAS?',
+          text: () => 'Regra simples: TAB pula de um lugar para outro (do mapa para o painel, de botão em botão) e SHIFT mais TAB volta. As SETAS só andam DENTRO do mapa, de casa em casa, e nas abas do painel. No painel, use Tab. Enter aperta ou faz a ação. Esc cancela.',
+          buttons: [['PRÓXIMO', () => this.next(), 'primary']] },
+        { id: 'ax-back', title: 'VOLTAR PARA O MAPA',
+          text: () => 'De qualquer lugar, aperte N para voltar ao mapa. No painel, o primeiro botão de cada aba é "Voltar para o mapa". E se ficar perdido, aperte Q: eu explico onde você está e quais teclas usar.',
+          buttons: [['PRÓXIMO', () => this.next(), 'primary']] },
+        { id: 'ax-goto', title: 'IR DIRETO PARA UMA CASA',
+          text: () => 'Aperte G, digite a casa (por exemplo C7) e aperte Enter. O foco vai direto para ela.',
+          buttons: [['PRÓXIMO', () => this.next(), 'primary']] },
+        { id: 'ax-listen', title: 'OUVIR O JOGO',
+          text: () => 'I fala a situação da partida. C fala a casa onde você está. T repete a dica do Capitão. Q explica onde você está. Com Sons do mapa ligado, o som vai da esquerda para a direita conforme a coluna.',
+          buttons: [['PRÓXIMO', () => this.next(), 'primary']] },
+        { id: 'ax-keys', title: 'ATALHOS DA BATALHA',
+          text: () => 'R gira o navio e P posiciona tudo sozinho. Na batalha: 1 Atacar, 2 Mover, 3 Armadilha, 4 Analisar. Espaço passa a vez. Nas perguntas: V é Verdadeiro e F é Falso.',
+          buttons: [['PRÓXIMO', () => this.next(), 'primary']] },
+        { id: 'ax-settings', title: 'AJUSTES E AJUDA',
+          text: () => 'F2 abre os Ajustes: alto contraste, tamanho e tipo de letra, menos movimento e volume. F1 abre o Guia do Capitão. Na aba Ajuda tem as Dúvidas frequentes.',
+          buttons: [['PRÓXIMO', () => this.next(), 'primary']] },
+        { id: 'ax-done', title: 'PRONTO!',
+          text: () => thenTutorial || !this.completed() ? 'Agora vamos aprender a jogar, passo a passo.' : 'Agora é com você, capitão!',
+          buttons: thenTutorial || !this.completed()
+            ? [['VER O TUTORIAL DO JOGO', () => this.start(true), 'primary'], ['JÁ SEI JOGAR', () => this.skip(), 'soft']]
+            : [['VAMOS JOGAR!', () => this.stop(), 'primary']] }
+      ];
+    }
+
+    startA11yGuide(thenTutorial = false) {
+      this.mode = 'mission'; this.active = true; this.data = {}; this.index = -1;
+      this.list = this.a11ySteps(thenTutorial);
+      if (game.panel) game.panel.open(null);
+      this.next();
+    }
+
+    start(skipHello = false) {
       if (game.state.phase !== 'placement' || game.state.placementOwner !== 'player1') return;
       this.mode = 'mission'; this.active = true; this.data = {}; this.index = -1;
       this.list = this.steps();
+      if (skipHello) this.index = 0;  // vindo do guia de acessibilidade: pula o "Olá"
       this.next(true);
     }
 
@@ -341,8 +412,8 @@
       if (st.phase === 'battle') {
         if (game.isAiTurn()) return 'Espere: o computador está jogando.';
         const a = st.action;
-        if (a === 'attack') return 'Escolha a casa onde o navio vai atirar.';
-        if (a === 'move') return 'Toque numa casa verde ao lado do navio.';
+        if (a === 'attack') return 'Toque numa casa clarinha para atirar.';
+        if (a === 'move') return 'Toque numa casa verde para navegar.';
         if (a === 'trap') return 'Toque numa casa roxa para esconder a mina.';
         if (a === 'analyze') return 'Toque num “?” para decifrar o sinal.';
         const s = game.selectedShip();
@@ -371,8 +442,8 @@
       if (st.phase === 'battle') {
         if (game.isAiTurn()) return 'É a vez do computador. Observe o seu oceano e espere a sua vez!';
         const a = st.action;
-        if (a === 'attack') return 'Agora escolha onde seu navio vai atirar.';
-        if (a === 'move') return 'Toque numa casa verde colada no navio para ele andar 1 casa.';
+        if (a === 'attack') return 'As casas clarinhas são onde o canhão alcança. Se o pirata estiver longe, use MOVER para chegar mais perto.';
+        if (a === 'move') return 'Toque numa casa verde: o navio navega até lá. Navios pequenos andam mais!';
         if (a === 'trap') return 'Toque numa casa roxa (até 7 casas) para esconder uma mina no seu mar ou no Neutro.';
         if (a === 'analyze') return 'Toque num “?” para decifrar o sinal do radar.';
         const s = game.selectedShip();
@@ -491,8 +562,8 @@
         <section class="m-bubble" role="dialog" aria-modal="true" aria-labelledby="gdmMissionTitle" aria-describedby="gdmMissionText">
           <p class="m-name"><span class="m-name-tag">Capitão Maré</span><span class="m-count"></span></p>
           <h2 class="m-title" id="gdmMissionTitle"></h2>
-          <p class="m-text" id="gdmMissionText"></p>
-          <p class="m-text m-text2"></p>
+          <p class="m-text m-read" id="gdmMissionText" tabindex="0"></p>
+          <p class="m-text m-text2 m-read" tabindex="0"></p>
           <div class="m-legend" hidden><span class="ok">Verde = pode</span><span class="no">Vermelho = não pode</span></div>
           <ol class="m-flow" hidden><li><b>1</b>Escolha um navio</li><li><b>2</b>Escolha uma ação</li><li><b>3</b>Escolha uma casa</li></ol>
           <div class="m-demo" hidden></div>
@@ -544,8 +615,10 @@
       if (!this.active || !st || st.noBubble || this.el.hidden) return [];
       const list = [];
       const target = this.domTarget(st) || this.mapTarget(st);
+      // o texto do Capitão também recebe foco: o leitor de tela lê com calma, palavra por palavra
+      list.push(...[...this.bubble.querySelectorAll('.m-read')].filter(p => !p.hidden && p.textContent.trim()));
       if (target) list.push(target);
-      list.push(...this.bubble.querySelectorAll('button'));
+      list.push(...[...this.bubble.querySelectorAll('button, .m-faq')].filter(x => !x.hidden && x.offsetParent !== null));
       return list;
     }
 
@@ -598,11 +671,11 @@
       this.btns.innerHTML = '';
       for (const [label, fn, kind] of (st.buttons || [])) {
         const b = document.createElement('button');
-        b.type = 'button'; b.className = `btn ${kind === 'primary' ? 'btn-primary' : 'btn-soft'}`; b.textContent = label;
+        b.type = 'button'; b.className = `btn ${kind === 'primary' ? 'btn-primary' : 'btn-soft'}`; b.textContent = typeof label === 'function' ? label() : label;
         b.addEventListener('click', () => { if (st.finished && this.mode === 'mission') return; game.audio.play('click'); fn(); });
         this.btns.appendChild(b);
       }
-      if (this.mode === 'mission' && !(st.buttons || []).some(([l]) => l === 'JÁ SEI JOGAR') && st.id !== 'done') {
+      if (this.mode === 'mission' && !(st.buttons || []).some(([l]) => l === 'JÁ SEI JOGAR') && st.id !== 'done' && st.id !== 'ax-done') {
         const sk = document.createElement('button');
         sk.type = 'button'; sk.className = 'btn btn-link m-skip'; sk.textContent = 'Pular tutorial';
         // Pular pede confirmação (toque de novo), para não sair do tutorial sem querer.
@@ -677,7 +750,8 @@
       const input = this.demoInput || (game.state.settings.screenReader ? 'keyboard' : this.inputKind);
       const how = {
         place: { mouse: 'Passe o mouse no seu oceano. Quando o navio ficar VERDE, clique.', keyboard: 'Setas andam com o navio. R gira. Enter coloca. (Ou G e digite a casa.)' },
-        fire: { mouse: 'Clique numa casa do oceano do computador para atirar.', keyboard: 'Setas escolhem a casa. Enter atira. (Ou G e digite a casa.)' }
+        fire: { mouse: 'Clique numa casa clarinha para atirar.', keyboard: 'Setas escolhem a casa. Enter atira. (Ou G e digite a casa.)' },
+        move: { mouse: 'Clique numa casa verde: o navio navega até lá.', keyboard: 'Setas até uma casa verde. Enter faz o navio andar.' }
       }[kind];
       this.demoEl.hidden = false;
       this.demoEl.innerHTML = `
@@ -693,6 +767,7 @@
           <div class="dg-ship"></div><div class="dg-mark"></div>
           <svg class="dg-cursor" viewBox="0 0 24 24"><path d="M5 3l14 8-6 1.5L10 19z"/></svg>
           <div class="dg-ripple"></div>
+          <div class="dg-path"></div>
           <div class="dg-keys">${['←', '↑', '↓', '→', kind === 'place' ? 'R' : '', 'Enter'].filter(Boolean).map(k => `<kbd data-k="${k}">${k}</kbd>`).join('')}</div>
         </div>
         <p class="m-demo-cap">${esc(how[input])}</p>`;
@@ -714,7 +789,20 @@
       const key = k => { stage.querySelectorAll('kbd').forEach(x => x.classList.toggle('on', x.dataset.k === k)); };
       const set = (cls) => { ship.className = 'dg-ship ' + cls; };
       let frames;
-      if (kind === 'place' && input === 'mouse') frames = [
+      if (kind === 'move') frames = input === 'mouse' ? [
+        () => { set('placed'); at(ship, 0, 1); at(cur, 5, 2); rip.className = 'dg-ripple'; stage.classList.add('show-path'); },
+        () => { at(cur, 3.6, 1); },
+        () => { rip.className = 'dg-ripple go'; at(rip, 3.6, 1); },
+        () => { at(ship, 2, 1); },
+        () => {}
+      ] : [
+        () => { set('placed'); at(ship, 0, 1); key(''); stage.classList.add('show-path'); },
+        () => { key('→'); },
+        () => { key('→'); },
+        () => { key('Enter'); at(ship, 2, 1); },
+        () => { key(''); }
+      ];
+      else if (kind === 'place' && input === 'mouse') frames = [
         () => { set('ghost'); at(ship, 4, 0); at(cur, 5, 0); rip.className = 'dg-ripple'; },
         () => { set('bad'); at(ship, 4, 1); at(cur, 4.6, 1); },
         () => { set('good'); at(ship, 1, 1); at(cur, 1.6, 1); },
