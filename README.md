@@ -11,6 +11,7 @@ Feita seguindo as Xbox Accessibility Guidelines (narração de tela, navegação
 - **Tela inicial com opções antes de jogar:** Modo leitor de tela, Alto contraste, Texto grande, Menos animação.
 - **Mapa acessível** (`assets/js/a11y.js`): o mesmo mapa do canvas em três tabelas HTML (uma por oceano, com cabeçalhos A–J e 1–10). Cada casa é um botão com o que existe nela (“C7, água. Enter atira aqui”, “B3, seu Destroier, vida 600 de 600”, “E5, o Encouraçado cabe aqui”). Funciona no **modo de varredura do Narrador** (que o Chrome/Edge ligam sozinhos) e fora dele (setas andam de casa em casa, Page Up/Down trocam de oceano, Enter faz a ação).
 - **Ir para a casa (tecla G):** campo de texto — digite “C7”, escolha o oceano e o foco vai para a casa.
+- **Tecla Q (onde estou?):** diz o lugar, o campo atual (nome, tipo, ligado/desligado) e como se movimentar ali; Q duas vezes dá a explicação completa.
 - **Atalhos falados:** I = situação da partida, C = casa atual, T = dica do Capitão, N = ir para o mapa; links “Ir para o mapa / Ir para o painel” no começo da página.
 - **Duas regiões ao vivo:** avisos importantes (sua vez, acertos, tiros do computador, fim de jogo) interrompem; o resto espera o leitor terminar.
 - **Modo leitor de tela:** o computador joga mais devagar (dá tempo de ouvir cada tiro), as dicas automáticas são faladas sem abrir caixas nem roubar o foco.
