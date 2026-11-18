@@ -1610,3 +1610,6 @@ details.card > summary:focus-visible { outline: 3px solid var(--focus); outline-
 #gdmGear:focus-visible { outline: 3px solid #fff; outline-offset: 3px; }
 #gdmGear[hidden] { display: none; }
 .hc #gdmGear { background: #000; color: #ffd400; border-color: #ffd400; box-shadow: none; }
+
+.title-screen .is-armed { animation: armed-shake .35s ease-in-out 2; outline: 3px dashed #c0392b; outline-offset: 3px; }
+@keyframes armed-shake { 0%,100% { translate: 0 0; } 25% { translate: -4px 0; } 75% { translate: 4px 0; } }
