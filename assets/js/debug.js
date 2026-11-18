@@ -1,4 +1,4 @@
-// Menu de cenários (para apresentar rápido): Ctrl + Shift + D, ou abra o jogo com ?debug=1.
+// Menu de cenários (para apresentar rápido): só pelo atalho Ctrl + Shift + D.
 (function () {
   'use strict';
   const game = window.GDM_GAME;
@@ -98,10 +98,5 @@
   window.addEventListener('keydown', e => {
     if (e.ctrlKey && e.shiftKey && e.key.toLowerCase() === 'd') { e.preventDefault(); e.stopPropagation(); toggle(); }
   }, true);
-  if (/[?&]debug=1/.test(location.search)) {
-    const fab = document.createElement('button');
-    fab.type = 'button'; fab.id = 'gdmDebugFab'; fab.textContent = 'Cenários'; fab.addEventListener('click', toggle);
-    document.body.appendChild(fab);
-  }
   game.debugScenes = { open: toggle, scenes: SCENES };
 })();
