@@ -1885,7 +1885,9 @@
       if (this.state.winner === 'player1' && this.mission && this.mission.confetti) setTimeout(() => { try { this.mission.confetti(); } catch (_e) {} }, 300);
       this.state.toast = null; this.state.action = null; this.closeSpot && this.closeSpot();
       this.state.modal = { type: 'end', buttons: [], openedAt: now() };
-      sendFinalScore({ score: this.state.platformScore, difficulty: getPlatformDifficulty() });
+      // Garante o contrato do Manual antes de enviar: inteiro de 0 a 100, sem frações nem negativos.
+      const finalScore = Math.max(0, Math.min(100, Math.round(Number(this.state.platformScore) || 0)));
+      sendFinalScore({ score: finalScore, difficulty: getPlatformDifficulty() });
       this.audio.play(this.isAiMode() && this.state.winner === 'player2' ? 'lose' : 'win');
       this.announce(`${this.winTitle()} Pontuação do ${TEAM.player1.label} enviada para a plataforma: ${this.state.platformScore} de 100. Enter para jogar de novo.`);
       return true;
