@@ -49,11 +49,31 @@
     ['Vez do Barba-Rubra', async () => { await toBattle(); game.endTurn(); }],
     ['Quase vencendo', async () => {
       await toBattle();
-      const foes = st().ships.player2.filter(s => !s.destroyed).sort((a, b) => a.size - b.size);
+      const g = game, S = st();
+      const foes = S.ships.player2.filter(s => !s.destroyed).sort((a, b) => a.size - b.size);
       foes.slice(1).forEach(sink);
       const last = foes[0];
-      if (last) { last.hp = Math.ceil(last.maxHp * 0.2); st().revealed.player1.add(L.objectId(last, 'ship')); }
-      game.toast('Só falta 1 navio do Barba-Rubra!', 'success', 2400);
+      // nosso melhor canhão, carregado e pronto
+      const shooter = S.ships.player1.filter(s => !s.destroyed && s.chargeType === 'missile').sort((a, b) => g.shipRange(b) - g.shipRange(a))[0];
+      if (!last || !shooter) return;
+      shooter.turnLocked = false; shooter.availableCharges = Math.max(1, shooter.availableCharges); shooter.rechargeQueue = [];
+      // leva o último navio do pirata para dentro do alcance (no oceano dele ou no Neutro)
+      const free = cells => cells.every(c => c.col >= 10 && c.col <= 29 && c.row >= 0 && c.row <= 9 && !(L.shipAt(S, c.row, c.col) && L.shipAt(S, c.row, c.col) !== last) && !L.trapAt(S, c.row, c.col));
+      let spot = null;
+      for (const startCol of [20, 21, 22, 19, 18, 17, 16, 15, 14, 13, 12, 11, 10]) {
+        for (let row = 0; row < 10 && !spot; row++) {
+          const cells = L.cells(row, startCol, last.size, 'horizontal');
+          if (free(cells) && cells.every(c => g.inAttackRange(shooter, c.row, c.col))) spot = { row, col: startCol };
+        }
+        if (spot) break;
+      }
+      if (spot) { Object.assign(last, { row: spot.row, col: spot.col, orientation: 'horizontal' }); L.refresh(last); }
+      last.hp = Math.min(last.maxHp, Math.max(1, (shooter.damage || 200) - 1));
+      S.revealed.player1.add(L.objectId(last, 'ship'));
+      g.computeRadar('player1');
+      g.selectShip(shooter.uid);
+      g.focusZone(2, true);
+      g.toast(`Só falta 1 navio! Use o ${g.shipName(shooter)}: ATACAR e um tiro nele!`, 'success', 3200);
     }],
     ['Vitória', async () => { await toBattle(); st().ships.player2.forEach(sink); game.checkEnd(); }],
     ['Derrota', async () => { await toBattle(); st().ships.player1.forEach(sink); game.checkEnd(); }]

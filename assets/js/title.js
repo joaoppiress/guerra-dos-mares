@@ -152,6 +152,19 @@
     if (!b) return;
     if (b.dataset.go === 'resume') { if (game.resumeMatch()) start(true); return; }
     if (['play', 'tutorial', 'a11y'].includes(b.dataset.go)) {
+      // Já existe partida salva: avisa que ela será perdida e pede um segundo clique.
+      if (hasSave() && !b.dataset.armed) {
+        b.dataset.armed = '1';
+        const span = b.querySelector('span'), old = span.textContent;
+        span.textContent = 'Tem certeza? Clique de novo';
+        b.classList.add('is-armed');
+        game.audio.play('error');
+        game.announce('Atenção: começar uma nova partida apaga a partida salva. Você vai perder o progresso. Aperte de novo para confirmar, ou escolha Continuar partida.', true);
+        game.toast('Começar de novo apaga a partida salva!', 'warn', 3000);
+        setTimeout(() => { delete b.dataset.armed; span.textContent = old; b.classList.remove('is-armed'); }, 4000);
+        return;
+      }
+      if (hasSave()) game.clearSave();
       afterStart = b.dataset.go === 'play' ? null : b.dataset.go;
       // dificuldade já escolhida pela plataforma: começa direto
       if (typeof hasPlatformDifficulty === 'function' && hasPlatformDifficulty()) return begin(getPlatformDifficulty());
@@ -202,7 +215,7 @@
     const resume = el.querySelector('[data-go="resume"]'), play = el.querySelector('[data-go="play"]');
     if (hasSave()) {
       resume.hidden = false;
-      play.querySelector('span').textContent = 'Novo jogo';
+      play.querySelector('span').textContent = 'Nova partida';
       play.classList.replace('tc-primary', 'tc-second');
       el.querySelector('[data-go="tutorial"]').classList.replace('tc-second', 'tc-ghost');
     }
