@@ -7,6 +7,7 @@
   const game = window.GDM_GAME;
   if (!game) return;
   game.titleOpen = true;
+  document.documentElement.classList.add('title-on');
 
   const SIZES = [[1, 'Normal'], [1.25, 'Grande'], [1.5, 'Gigante']];
   const OPTIONS = [
@@ -143,6 +144,7 @@
     game.audio.play('handoff');
     el.classList.add('is-leaving');
     game.titleOpen = false;
+    document.documentElement.classList.remove('title-on');
     setTimeout(() => { el.remove(); if (game.panel) game.panel.render(true); }, game.state.settings.reduceMotion ? 0 : 400);
     if (!resumed) game.announce('Vamos jogar! Você contra o Barba-Rubra.');
   };

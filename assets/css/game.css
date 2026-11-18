@@ -1158,7 +1158,7 @@ details.card > summary:focus-visible { outline: 3px solid var(--focus); outline-
   --t-ink: #17365c; --t-soft: #5d738c; --t-line: #cfe0ef; --t-blue: #2a6fb5; --t-blue-d: #1b4f86;
   --t-amber: #f0a52b; --t-amber-d: #c4801a; --t-gold: #c7801b;
   position: fixed; inset: 0; z-index: 80; overflow-y: auto;
-  display: flex; align-items: center; justify-content: center; padding: 3vh 16px;
+  display: flex; align-items: safe center; justify-content: center; padding: 3vh 16px;
   font-family: var(--font); color: var(--t-ink); background: #eaf3fa;
   transition: opacity .35s ease, visibility .35s;
 }
@@ -1605,7 +1605,7 @@ details.card > summary:focus-visible { outline: 3px solid var(--focus); outline-
 #gdmDebugFab { position: fixed; left: 10px; bottom: 10px; z-index: 99998; padding: 6px 10px; border: 0; border-radius: 10px; background: #13294b; color: #ffc93c; font: 700 13px var(--font, sans-serif); opacity: .7; cursor: pointer; }
 
 /* Botão de menu/configurações dentro do jogo */
-#gdmGear { position: fixed; left: 12px; bottom: 12px; z-index: 40; width: 52px; height: 52px; display: grid; place-items: center; border: 3px solid #13294b; border-radius: 50%; background: #ffc93c; color: #13294b; box-shadow: 0 4px 0 #13294b; cursor: pointer; }
+#gdmGear { position: fixed; left: 12px; bottom: 12px; z-index: 39; width: 52px; height: 52px; display: grid; place-items: center; border: 3px solid #13294b; border-radius: 50%; background: #ffc93c; color: #13294b; box-shadow: 0 4px 0 #13294b; cursor: pointer; }
 #gdmGear svg { width: 26px; height: 26px; }
 #gdmGear:focus-visible { outline: 3px solid #fff; outline-offset: 3px; }
 #gdmGear[hidden] { display: none; }
@@ -1613,3 +1613,16 @@ details.card > summary:focus-visible { outline: 3px solid var(--focus); outline-
 
 .title-screen .is-armed { animation: armed-shake .35s ease-in-out 2; outline: 3px dashed #c0392b; outline-offset: 3px; }
 @keyframes armed-shake { 0%,100% { translate: 0 0; } 25% { translate: -4px 0; } 75% { translate: 4px 0; } }
+
+/* No celular em pé, o menu inicial funciona; só o jogo pede para deitar. */
+.title-on .rotate-overlay { display: none !important; }
+
+/* Celular em pé: botões de som e ajustes numa linha própria, logo grande no meio */
+@media (max-width: 520px) {
+  .tc-quick { position: static; justify-content: flex-end; margin: -4px -4px 4px; }
+  .tc-head, .title-screen.is-options .tc-head { margin: 0 0 12px; }
+  .tc-logo { width: min(300px, 100%); }
+  .tm-vol .tm-value { min-width: 0; gap: 5px; }
+  .tm-bar { min-width: 44px; }
+  .tm-step { width: 28px; height: 28px; }
+}
