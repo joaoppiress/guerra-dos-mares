@@ -14,7 +14,9 @@
     { key: 'fontScale', label: 'Tamanho do texto', toggle: () => game.cycleFont() },
     { key: 'reduceMotion', label: 'Menos animação', toggle: () => game.toggleMotion() },
     { key: 'music', label: 'Música', toggle: () => game.toggleMusic() },
+    { key: 'musicVol', label: 'Volume da música', vol: 'music' },
     { key: 'sfx', label: 'Efeitos sonoros', toggle: () => game.toggleSfx() },
+    { key: 'sfxVol', label: 'Volume dos efeitos', vol: 'sfx' },
     { key: 'mapSounds', label: 'Sons do mapa', toggle: () => game.toggleMapSounds() }
   ];
 
@@ -34,7 +36,7 @@
         <p class="pause-note" id="gdmPauseNote"></p>
       </div>
       <div class="pause-view" data-view="options" hidden>
-        ${OPTIONS.map(o => `<button type="button" class="tm-row" data-opt="${o.key}" ${o.key === 'fontScale' ? '' : 'role="switch" aria-checked="false"'}>
+        ${OPTIONS.map(o => `<button type="button" class="tm-row${o.vol ? ' tm-vol' : ''}" data-opt="${o.key}" ${o.vol ? `data-vol="${o.vol}" role="slider" aria-valuemin="0" aria-valuemax="10"` : o.key === 'fontScale' ? '' : 'role="switch" aria-checked="false"'}>
           <span class="tm-label">${o.label}</span><span class="tm-value" aria-hidden="true"></span></button>`).join('')}
         <button type="button" class="tm-back" data-go="main">Voltar</button>
       </div>
@@ -49,6 +51,14 @@
     const s = game.state.settings;
     for (const row of el.querySelectorAll('.tm-row')) {
       const k = row.dataset.opt, out = row.querySelector('.tm-value');
+      if (row.dataset.vol) {
+        const v = s[k] ?? (k === 'musicVol' ? 6 : 8);
+        out.innerHTML = `<span class="tm-step" data-step="-1" aria-hidden="true">−</span><span class="tm-bar" aria-hidden="true"><i style="width:${v * 10}%"></i></span><b>${v}</b><span class="tm-step" data-step="1" aria-hidden="true">+</span>`;
+        row.setAttribute('aria-valuenow', String(v));
+        row.setAttribute('aria-valuetext', v === 0 ? 'mudo' : `${v} de 10`);
+        row.setAttribute("aria-label", row.querySelector(".tm-label").textContent);
+        continue;
+      }
       if (k === 'fontScale') {
         const name = (SIZES.find(([v]) => v === (s.fontScale || 1)) || SIZES[0])[1];
         out.textContent = name; row.setAttribute('aria-label', `Tamanho do texto: ${name}. Enter muda`);
@@ -108,6 +118,12 @@
       location.reload();
       return;
     }
+    if (b.dataset.vol) {
+      const k = b.dataset.opt, cur = game.state.settings[k] ?? (k === 'musicVol' ? 6 : 8);
+      const stepEl = e.target.closest && e.target.closest('.tm-step');
+      const d = stepEl ? Number(stepEl.dataset.step) : (cur >= 10 ? -10 : 1);
+      game.setVolume(b.dataset.vol, cur + d); sync(); return;
+    }
     const opt = OPTIONS.find(o => o.key === b.dataset.opt);
     if (opt) { opt.toggle(); game.audio.play('select'); sync(); }
   });
@@ -122,8 +138,13 @@
     if (e.key === 'Tab') return step(e.shiftKey ? -1 : 1);
     if (e.key === 'ArrowDown') return step(1);
     if (e.key === 'ArrowUp') return step(-1);
-    if ((e.key === 'ArrowLeft' || e.key === 'ArrowRight') && document.activeElement?.classList.contains('tm-row')) { e.preventDefault(); document.activeElement.click(); return; }
-    if (e.key.toLowerCase() === 'q') { e.preventDefault(); game.announce('Você está no MENU DE PAUSA. Setas ou Tab escolhem um botão, Enter confirma e Esc volta para o jogo.', true); }
+    if ((e.key === 'ArrowLeft' || e.key === 'ArrowRight') && document.activeElement?.classList.contains('tm-row')) {
+      e.preventDefault();
+      const r = document.activeElement;
+      if (r.dataset.vol) { const k = r.dataset.opt; game.setVolume(r.dataset.vol, (game.state.settings[k] ?? (k === 'musicVol' ? 6 : 8)) + (e.key === 'ArrowRight' ? 1 : -1)); sync(); }
+      else r.click();
+      return;
+    }
   }, true);
 
   game.openPause = open;

@@ -69,10 +69,10 @@
       ['O que as estrelas do final mostram?', 'O seu desempenho na partida: quanto mais pontos, mais estrelas.']
     ]],
     ['Teclado, leitor de tela e acessibilidade', [
-      ['Quando uso Tab e quando uso as setas?', 'Tab pula de um lugar para outro (do mapa para o painel, de botão em botão) e Shift+Tab volta. As setas andam de casa em casa dentro do mapa e trocam as abas do painel. Perdido? Aperte Q.'],
+      ['Quando uso Tab e quando uso as setas?', 'Tab pula de um lugar para outro (do mapa para o painel, de botão em botão) e Shift+Tab volta. As setas andam de casa em casa dentro do mapa e trocam as abas do painel. Se ficar perdido, aperte a tecla Q.'],
       ['Como volto para o mapa?', 'Aperte N de qualquer lugar. No painel, o primeiro botão de cada aba é Voltar para o mapa.'],
       ['Dá para jogar só com o teclado?', 'Sim. Tab anda pelos botões, setas andam no mapa, Enter confirma e Esc cancela. G leva para o campo "Ir para a casa", onde você digita a casa (ex.: C7).'],
-      ['Uso o Narrador do Windows. O que ligo?', 'Em Opções ou Ajustes, ligue "Modo leitor de tela": o computador joga mais devagar e as dicas são faladas sem roubar o foco. I fala a situação da partida, C fala a casa atual e T repete a dica do Capitão.'],
+      ['Uso o Narrador do Windows. O que ligo?', 'Em Opções ou Ajustes, ligue "Modo leitor de tela": o computador joga mais devagar e as dicas são faladas sem roubar o foco. A tecla I fala como está a partida, a tecla C fala a casa atual, a tecla T repete a dica do Capitão e a tecla Q diz onde você está.'],
       ['A tela está difícil de ver.', 'Ligue Alto contraste, aumente o tamanho das letras ou troque o tipo de letra em Ajustes, na seção Texto.'],
       ['As animações me incomodam.', 'Ligue "Menos movimento" em Ajustes, na seção Tela.']
     ]]
@@ -501,7 +501,7 @@
     }
 
     renderHelp() {
-      const keys = [['Q', 'Onde estou? Explica onde você está e quais teclas usar'], ['I', 'Ouvir a situação da partida'], ['C', 'Ouvir a casa atual'], ['T', 'Ouvir a dica do Capitão'], ['G', 'Ir para a casa (digitar, ex.: C7)'], ['N', 'Ir para o mapa acessível'], ['Tab / Shift+Tab', 'Andar pelos botões'], ['Setas ou WASD', 'Mover no mapa'], ['Enter', 'Confirmar'], ['R', 'Girar navio'], ['P', 'Posicionar automático'], ['1 2 3 4', 'Atacar, Mover, Armadilha, Analisar'], ['Espaço', 'Passar a vez'], ['Esc', 'Cancelar ou fechar. Sem nada para cancelar, abre o menu de pausa'], ['V / F', 'Verdadeiro / Falso'], ['M', 'Música'], ['F1', 'Guia do Capitão'], ['F2', 'Ajustes'], ['+ / −', 'Zoom']];
+      const keys = [['Q', 'A tecla Q diz onde você está, em qual campo, e quais teclas usar ali. Duas vezes: explicação completa'], ['I', 'A tecla I fala como está a partida'], ['C', 'A tecla C fala a casa onde você está'], ['T', 'A tecla T repete a dica do Capitão'], ['G', 'A tecla G abre o campo Ir para a casa (digite, por exemplo, C7)'], ['N', 'A tecla N volta para o mapa'], ['Tab / Shift+Tab', 'Tab vai para o próximo botão; Shift mais Tab volta'], ['Setas ou WASD', 'Andam de casa em casa no mapa'], ['Enter', 'Aperta o botão ou faz a ação'], ['R', 'A tecla R gira o navio'], ['P', 'A tecla P coloca todos os navios sozinha'], ['1 2 3 4', 'Escolhem Atacar, Mover, Armadilha e Analisar'], ['Espaço', 'Passa a vez'], ['Esc', 'Cancela ou fecha. Se não tiver nada para cancelar, abre o menu de pausa'], ['V / F', 'Respondem Verdadeiro ou Falso'], ['M', 'A tecla M liga e desliga a música'], ['F1', 'A tecla F1 abre o Guia do Capitão'], ['F2', 'A tecla F2 abre os Ajustes'], ['+ / −', 'Aumentam ou diminuem o zoom']];
       const m = game.mission, face = m ? m.avatar() : '';
       return `<div class="card card-captain">
           <div class="now-row">${face ? `<img src="${esc(face)}" alt="" class="captain-face">` : ''}

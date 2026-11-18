@@ -45,7 +45,7 @@
     </table>`).join('');
   sec.innerHTML = `
     <h2 id="gdmMapTitle">Mapa do mar</h2>
-    <p id="gdmMapHelp">Cada botão é uma casa. As LETRAS de A a J são as colunas: andam na horizontal, da esquerda para a direita. Os NÚMEROS de 1 a 10 são as linhas: andam na vertical, de cima para baixo. C7 é a coluna C com a linha 7. No mapa use as SETAS para andar de casa em casa e Enter para agir. Tab sai do mapa e vai para o painel. Q explica onde você está.</p>
+    <p id="gdmMapHelp">Cada botão é uma casa. As LETRAS de A a J são as colunas: andam na horizontal, da esquerda para a direita. Os NÚMEROS de 1 a 10 são as linhas: andam na vertical, de cima para baixo. C7 é a coluna C com a linha 7. No mapa use as SETAS para andar de casa em casa e Enter para agir. A tecla Tab sai do mapa e vai para o painel. A tecla Q diz onde você está.</p>
     <form class="a11y-jump" id="gdmJumpForm">
       <label for="gdmJump">Ir para a casa</label>
       <input id="gdmJump" type="text" inputmode="text" autocomplete="off" spellcheck="false" maxlength="4" aria-describedby="gdmJumpHelp">
@@ -212,23 +212,96 @@
     switch (region) {
       case 'map': {
         const c = game.state.cursor, where = GDM_LOGIC.coordWithZone(c.row, c.col);
-        return `Você está no MAPA, na casa ${where}. ${COORD} Aqui as SETAS andam de casa em casa e Enter faz a ação. G leva para uma casa digitando, por exemplo C7. Tab sai do mapa e vai para o painel de comandos.`;
+        return `Você está no MAPA, na casa ${where}. ${COORD} No mapa, as SETAS andam de casa em casa e a tecla Enter faz a ação. A tecla G abre o campo para digitar uma casa, por exemplo C7. A tecla Tab sai do mapa e vai para o painel de comandos.`;
       }
-      case 'tabs': return 'Você está nas ABAS do painel: Jogar, Radar, Ajuda e Ajustes. Aqui as SETAS para esquerda e direita trocam de aba. Tab entra nos botões da aba. Para voltar ao mapa, aperte N.';
-      case 'panel': return `Você está no PAINEL DE COMANDOS, na aba ${tab}. Aqui use TAB para ir ao próximo botão e SHIFT mais TAB para voltar. Enter aperta o botão. As setas não andam aqui. Para voltar ao mapa, aperte N ou use o botão Voltar para o mapa, no começo do painel.`;
-      case 'jump': return 'Você está no campo IR PARA A CASA. Digite a letra e o número, por exemplo C7, e aperte Enter. Esc ou N voltam para o mapa.';
-      case 'question': return 'Você está numa PERGUNTA do radar. Leia a frase e aperte V se for verdadeira ou F se for falsa. Tab anda entre as duas respostas.';
-      case 'modal': return 'Uma janela está aberta. Tab anda pelos botões dela e Enter aperta. Esc fecha.';
-      case 'mission': return 'Você está no QUADRO DO CAPITÃO, o tutorial. Tab anda pelos botões do quadro e Enter aperta. Quando o Capitão pedir uma casa do mapa, use as setas e Enter.';
-      case 'title': return 'Você está na TELA INICIAL. Setas para cima e para baixo, ou Tab, escolhem um botão. Enter confirma.';
-      default: return 'Aperte N para ir ao mapa ou Tab para ir aos botões. F1 abre o guia e F2 os ajustes.';
+      case 'tabs': return 'Você está nas ABAS do painel: Jogar, Radar, Ajuda e Ajustes. As SETAS para a esquerda e para a direita trocam de aba. A tecla Tab entra nos botões da aba. A tecla N volta para o mapa.';
+      case 'panel': return `Você está no PAINEL DE COMANDOS, na aba ${tab}. Aqui as setas não funcionam. A tecla Tab vai para o próximo botão e as teclas Shift e Tab juntas voltam. A tecla Enter aperta o botão. A tecla N volta para o mapa. O primeiro botão do painel também é Voltar para o mapa.`;
+      case 'jump': return 'Você está no campo IR PARA A CASA. Digite a letra e o número, por exemplo C7, e aperte a tecla Enter. A tecla Esc ou a tecla N voltam para o mapa.';
+      case 'question': return 'Você está numa PERGUNTA do radar. Escute a frase. A tecla V responde Verdadeiro e a tecla F responde Falso. A tecla Tab anda entre as duas respostas.';
+      case 'modal': return 'Uma janela está aberta. A tecla Tab anda pelos botões dela e a tecla Enter aperta o botão. A tecla Esc fecha a janela.';
+      case 'mission': return 'Você está no QUADRO DO CAPITÃO, o tutorial. A tecla Tab anda pelos textos e botões do quadro e a tecla Enter aperta o botão. Quando o Capitão pedir uma casa do mapa, use as setas e a tecla Enter.';
+      case 'title': return 'Você está na TELA INICIAL. As setas para cima e para baixo, ou a tecla Tab, escolhem um botão. A tecla Enter confirma.';
+      default: return 'A tecla N leva para o mapa e a tecla Tab leva para os botões. A tecla F1 abre o guia e a tecla F2 abre os ajustes.';
     }
   }
-  game.whereAmI = () => explain(regionOf(document.activeElement), document.activeElement);
+  // ---------- Tecla Q: lugar + campo atual + como se mexer ----------
+  const clean = t => String(t || '').replace(/\s+/g, ' ').trim();
+  const cut = t => (t.length > 120 ? `${t.slice(0, 117)}...` : t);
+  function fieldName(el) {
+    if (!el || el === document.body) return '';
+    const by = el.getAttribute('aria-labelledby');
+    let name = el.getAttribute('aria-label')
+      || (by && clean(by.split(' ').map(id => document.getElementById(id)?.textContent).join(' ')))
+      || clean(el.querySelector?.('.btn-label, .tm-label, .tc-level-text b')?.textContent)
+      || (el.id && clean(document.querySelector(`label[for="${el.id}"]`)?.textContent))
+      || clean(el.textContent) || el.getAttribute('placeholder') || '';
+    return cut(clean(name));
+  }
+  function fieldKind(el) {
+    const role = el.getAttribute('role'), tag = el.tagName;
+    const parts = [];
+    if (role === 'switch' || el.type === 'checkbox') parts.push('botão de ligar e desligar', (el.getAttribute('aria-checked') === 'true' || el.checked) ? 'ligado' : 'desligado');
+    else if (role === 'tab') parts.push('aba', el.getAttribute('aria-selected') === 'true' ? 'aberta' : 'fechada');
+    else if (el.type === 'range') parts.push('controle deslizante', `valor ${el.value}`);
+    else if (role === 'slider') parts.push('controle de volume', el.getAttribute('aria-valuetext') || el.getAttribute('aria-valuenow'));
+    else if (tag === 'SELECT') parts.push('lista de escolha', `escolhido ${clean(el.selectedOptions?.[0]?.textContent)}`);
+    else if (tag === 'INPUT' || tag === 'TEXTAREA') parts.push('campo de texto');
+    else if (tag === 'BUTTON' || role === 'button') {
+      parts.push('botão');
+      const pr = el.getAttribute('aria-pressed');
+      if (el.dataset.go === 'sound') parts.push(pr === 'true' ? 'som ligado' : 'som desligado');
+      else if (pr === 'true') parts.push('escolhido');
+    } else if (/^H[1-6]$/.test(tag)) parts.push('título');
+    else parts.push('texto');
+    if (el.getAttribute('aria-disabled') === 'true' || el.disabled) parts.push('indisponível agora');
+    return parts.join(', ');
+  }
+  function placeOf(region, el) {
+    const tab = game.panel && game.panel.tab ? { game: 'Jogar', radar: 'Radar', help: 'Ajuda', settings: 'Ajustes' }[game.panel.tab] : '';
+    if (game.pauseOpen) return el.closest?.('[data-view="options"]') ? 'nas OPÇÕES do menu de pausa' : 'no MENU DE PAUSA';
+    if (region === 'title') {
+      if (el.closest?.('.tc-quick')) return 'no MENU INICIAL, nos botões do canto';
+      const v = el.closest?.('[data-view]')?.dataset.view;
+      return v === 'options' ? 'nas OPÇÕES da tela inicial' : v === 'difficulty' ? 'na escolha de DIFICULDADE' : 'no MENU INICIAL';
+    }
+    return {
+      map: `no MAPA, ${GDM_LOGIC.zoneNames[GDM_LOGIC.zone(game.state.cursor.col)]}`,
+      tabs: 'nas ABAS do painel', panel: `no PAINEL DE COMANDOS, aba ${tab}`, jump: 'no campo IR PARA A CASA',
+      question: 'numa PERGUNTA do radar', modal: 'numa JANELA aberta', mission: 'no QUADRO DO CAPITÃO, o tutorial'
+    }[region] || 'na página do jogo';
+  }
+  function howToMove(region, el) {
+    const kind = el.getAttribute?.('role');
+    const extra = kind === 'switch' || (el.classList?.contains('tm-row') && kind !== 'slider') ? ' As setas para os lados, ou a tecla Enter, ligam e desligam este campo.'
+      : el.type === 'range' || kind === 'slider' ? ' As setas para os lados mudam o valor: a seta para a direita aumenta e a seta para a esquerda diminui.' : '';
+    if (game.pauseOpen) return `Para se movimentar use as setas para cima e para baixo, ou a tecla Tab e Shift mais Tab. A tecla Enter confirma. A tecla Esc volta${el.closest?.('[data-view="options"]') ? ' para o menu de pausa' : ' para o jogo'}.${extra}`;
+    switch (region) {
+      case 'title': return `Para se movimentar use as setas para cima e para baixo, ou a tecla Tab e Shift mais Tab. A tecla Enter confirma.${el.closest?.('[data-view="options"], [data-view="difficulty"]') ? ' A tecla Esc volta para o menu inicial.' : ''}${extra}`;
+      case 'map': return 'Para se movimentar use as SETAS, de casa em casa. As teclas Page Up e Page Down trocam de oceano. A tecla Enter faz a ação. A tecla G abre o campo para digitar uma casa. A tecla Tab vai para o painel.';
+      case 'tabs': return 'Para se movimentar use as setas para os lados, que trocam de aba. A tecla Tab entra nos botões. A tecla N volta para o mapa.';
+      case 'panel': return `Para se movimentar use a tecla Tab, de botão em botão, e Shift mais Tab para voltar. A tecla Enter aperta o botão. A tecla N volta para o mapa.${extra}`;
+      case 'jump': return 'Digite a letra e o número, por exemplo C7, e aperte a tecla Enter. A tecla Esc volta para o mapa.';
+      case 'question': return 'A tecla V responde Verdadeiro e a tecla F responde Falso. A tecla Tab anda entre as respostas.';
+      case 'modal': return 'Para se movimentar use a tecla Tab e Shift mais Tab. A tecla Enter aperta o botão. A tecla Esc fecha a janela.';
+      case 'mission': return 'Para se movimentar use a tecla Tab e Shift mais Tab pelos textos e botões do quadro. A tecla Enter aperta o botão. Quando o Capitão pedir uma casa, use as setas no mapa.';
+      default: return 'A tecla N leva para o mapa e a tecla Tab leva para os botões.';
+    }
+  }
+  game.whereAmI = () => {
+    const el = document.activeElement, region = regionOf(el);
+    const name = el && el !== document.body ? fieldName(el) : '';
+    const field = !name ? '' : el.classList.contains('a11y-cell') ? `, na casa ${name}` : `, no campo ${name}, ${fieldKind(el)}`;
+    return `Você está ${placeOf(region, el)}${field}. ${howToMove(region, el)} Aperte a tecla Q duas vezes para ouvir a explicação completa.`;
+  };
+  let lastQ = 0;
   window.addEventListener('keydown', e => {
-    if (e.ctrlKey || e.altKey || e.metaKey || game.pauseOpen) return;
-    if (e.target instanceof HTMLInputElement || e.target instanceof HTMLSelectElement || e.target instanceof HTMLTextAreaElement) return;
-    if (e.key.toLowerCase() === 'q') { e.preventDefault(); e.stopPropagation(); game.announce(game.whereAmI(), true); }
+    if (e.ctrlKey || e.altKey || e.metaKey || e.key.toLowerCase() !== 'q') return;
+    const t = e.target;
+    if (t instanceof HTMLTextAreaElement || t instanceof HTMLSelectElement || (t instanceof HTMLInputElement && !['range', 'checkbox', 'radio', 'button'].includes(t.type))) return;
+    e.preventDefault(); e.stopPropagation();
+    const now = Date.now(), twice = now - lastQ < 1500; lastQ = now;
+    const el = document.activeElement;
+    game.announce(twice && !game.pauseOpen ? explain(regionOf(el), el) : game.whereAmI(), true);
   }, true);
   // Na primeira vez em cada lugar (só para quem usa teclado ou leitor de tela), explica uma vez.
   const SEEN_KEY = 'gdm-a11y-explicado-v1';
@@ -237,11 +310,11 @@
   window.addEventListener('keydown', () => { lastKey = Date.now(); }, true);
   document.addEventListener('focusin', e => {
     const region = regionOf(e.target);
-    if (['body', 'modal', 'title'].includes(region) || seen[region]) return;
+    if (['body', 'modal', 'title', 'question'].includes(region) || seen[region]) return;
     const keyboardUser = game.state.settings.screenReader || Date.now() - lastKey < 1500;
     if (!keyboardUser || (game.mission && game.mission.active && region !== 'mission')) return;
     seen[region] = 1; try { localStorage.setItem(SEEN_KEY, JSON.stringify(seen)); } catch (_e) {}
-    setTimeout(() => game.announce(`${explain(region, e.target)} Para ouvir isto de novo, aperte Q.`), 500);
+    setTimeout(() => game.announce(`${explain(region, e.target)} Para ouvir isto de novo, aperte a tecla Q.`), 500);
   });
 
   game.a11y = { refresh, focusCursor, focusCell, cursorCell: () => { const c = game.state.cursor; return cellEl(c.row, c.col); } };

@@ -371,7 +371,7 @@
       this.resetMatch(getPlatformDifficulty());
       this.state.phase = 'placement';
       this.invalidateCaches();
-      this.announce(`${TEAM.player1.label}, posicione sua frota no oceano da esquerda. F1 abre o guia, F2 os ajustes de acessibilidade e F3 leva ao painel de comandos.`);
+      this.announce(`${TEAM.player1.label}, posicione sua frota no oceano da esquerda. A tecla F1 abre o guia, a tecla F2 abre os ajustes e a tecla F3 leva ao painel de comandos.`);
       if (window.innerHeight > window.innerWidth && window.innerWidth < 700) this.toast('Dica: deite o celular para ver mais mar', 'info', 3500);
       requestAnimationFrame(t => this.loop(t));
     }
@@ -385,7 +385,7 @@
       this.a11yRoot = root;
       this.live = root.querySelector('#gdmLive');
       this.alertLive = root.querySelector('#gdmAlert');
-      root.querySelector('#gdmInstructions').textContent = 'Tab pula de um lugar para outro e Shift+Tab volta. As setas andam de casa em casa só dentro do mapa. Letras são as colunas (horizontal), números são as linhas (vertical). Q explica onde você está. N volta para o mapa. Enter faz a ação. Atalhos: I situação da partida, C casa atual, T dica do Capitão, R gira, P posiciona tudo, 1 atacar, 2 mover, 3 armadilha, 4 analisar, Espaço passa a vez, F1 guia, F2 ajustes, F3 painel.';
+      root.querySelector('#gdmInstructions').textContent = 'A tecla Tab pula para o próximo lugar e Shift mais Tab volta. As setas andam de casa em casa dentro do mapa. As letras são as colunas, na horizontal. Os números são as linhas, na vertical. A tecla Q diz onde você está. A tecla N volta para o mapa. A tecla Enter faz a ação. Outras teclas: a tecla I fala como está a partida, a tecla C fala a casa atual, a tecla T repete a dica do Capitão, a tecla R gira o navio, a tecla P coloca todos os navios, as teclas 1, 2, 3 e 4 escolhem Atacar, Mover, Armadilha e Analisar, a tecla Espaço passa a vez, a tecla F1 abre o guia, a tecla F2 abre os ajustes e a tecla F3 vai para o painel.';
       root.querySelector('#gdmVisualDescription').textContent = 'Mapa do mar visto de cima com três oceanos de dez por dez casas: o seu oceano à esquerda, o Oceano Neutro no meio e o Oceano do Computador à direita. Cada oceano usa colunas A até J e linhas 1 até 10, com A1 no canto superior esquerdo.';
       canvas.setAttribute('aria-describedby', 'gdmInstructions gdmVisualDescription gdmState');
       this.syncA11y();
@@ -1470,7 +1470,7 @@
         return;
       }
       this.toast(`Vez do ${TEAM[owner].label}!`, 'info');
-      this.announce(`Rodada ${this.state.round}. Sua vez, ${TEAM[owner].label}. Escolha um navio. Tecla I fala a situação da partida.`, true);
+      this.announce(`Rodada ${this.state.round}. Sua vez, ${TEAM[owner].label}. Escolha um navio. Para saber como está a partida, aperte a tecla I.`, true);
       this.tutorialEvent('turnStart', { owner });
       setTimeout(() => this.saveMatch(), 50);
     }
@@ -1552,7 +1552,7 @@
       this.invalidateCaches(); this.layout && this.layout();
       this.banner('De volta à batalha!', 'player1');
       this.toast(`Partida retomada na rodada ${st.round}`, 'success', 2200);
-      this.announce(`Partida retomada. Rodada ${st.round}. Sua vez, Capitão. Tecla I fala a situação da partida.`, true);
+      this.announce(`Partida retomada. Rodada ${st.round}. Sua vez, Capitão. Para saber como está a partida, aperte a tecla I.`, true);
       this.notify();
       return true;
     }
@@ -1748,7 +1748,7 @@
       this.audio.play('radar');
       this.tutorialEvent('analyzeMode');
       this.tutorialEvent('signal');
-      this.announce(`Capitão! Nosso radar encontrou um sinal misterioso. Vamos decifrar esse sinal! A frase é verdadeira ou falsa? ${q.pergunta} Pressione V para verdadeiro ou F para falso.`);
+      this.announce('Pergunta do radar. A frase é verdadeira ou falsa? Aperte a tecla V para verdadeiro ou a tecla F para falso.');
     }
 
     pickQuestion() {
@@ -1998,7 +1998,7 @@
     toggleScreenReader() {
       const on = !this.state.settings.screenReader;
       this.updateSetting('screenReader', on, on ? 'Modo leitor de tela ligado' : 'Modo leitor de tela desligado');
-      if (on) this.announce('Modo leitor de tela ligado. O computador joga mais devagar e as dicas não roubam o foco. Use o mapa acessível ou o campo Ir para a casa. Tecla I fala a situação da partida.', true);
+      if (on) this.announce('Modo leitor de tela ligado. O computador joga mais devagar e as dicas não roubam o foco. Use o mapa acessível ou o campo Ir para a casa. A tecla I fala como está a partida e a tecla Q diz onde você está.', true);
     }
     toggleMapSounds() { const on = !this.state.settings.mapSounds; this.updateSetting('mapSounds', on, on ? 'Sons do mapa ligados' : 'Sons do mapa desligados'); }
 
@@ -2073,7 +2073,7 @@
       if (!q) return false;
       this.state.modal = { type: 'question', question: q, practice: true, owner: this.viewer(), buttons: [], openedAt: now() };
       this.audio.play('radar');
-      this.announce(`Sinal de treino do radar. Verdadeiro ou falso? ${q.pergunta} Pressione V para verdadeiro ou F para falso.`);
+      this.announce('Pergunta de treino do radar. A frase é verdadeira ou falsa? Aperte a tecla V para verdadeiro ou a tecla F para falso.');
       return true;
     }
 

@@ -227,28 +227,28 @@
           text: () => 'Vou mostrar como jogar sem mouse e com o Narrador do Windows. Você pode pular quando quiser.',
           buttons: [['COMEÇAR', () => this.next(), 'primary']] },
         { id: 'ax-sr', title: 'MODO LEITOR DE TELA',
-          text: () => `Usa o Narrador (Windows + Ctrl + Enter)? Ligue o Modo leitor de tela: o computador joga mais devagar e o Capitão fala as dicas sem tirar o foco do lugar. Agora ele está ${sr() ? 'LIGADO' : 'DESLIGADO'}.`,
+          text: () => `Você usa o Narrador do Windows? Para ligar o Narrador, aperte as teclas Windows, Control e Enter juntas. Depois, ligue aqui o Modo leitor de tela. Com ele ligado, o computador joga mais devagar e o Capitão fala as dicas sem mudar o lugar onde você está. Agora o Modo leitor de tela está ${sr() ? 'LIGADO' : 'DESLIGADO'}.`,
           buttons: [[() => sr() ? 'DESLIGAR MODO LEITOR' : 'LIGAR MODO LEITOR', () => { game.toggleScreenReader(); this.render(true); }, 'soft'], ['PRÓXIMO', () => this.next(), 'primary']] },
         { id: 'ax-coords', title: 'AS CASAS DO MAPA',
-          text: () => 'O mapa tem 3 oceanos, cada um com 10 colunas e 10 linhas. As LETRAS de A a J são as colunas: andam na HORIZONTAL, da esquerda para a direita. Os NÚMEROS de 1 a 10 são as linhas: andam na VERTICAL, de cima para baixo. C7 é a coluna C com a linha 7.',
+          text: () => 'O mapa tem 3 oceanos. Cada oceano tem 10 colunas e 10 linhas. As LETRAS, de A até J, são as colunas. Elas mudam quando você anda na HORIZONTAL, para a esquerda ou para a direita. Os NÚMEROS, de 1 até 10, são as linhas. Eles mudam quando você anda na VERTICAL, para cima ou para baixo. Exemplo: a casa C7 fica na coluna C e na linha 7.',
           buttons: [['PRÓXIMO', () => this.next(), 'primary']] },
         { id: 'ax-move', title: 'TAB OU SETAS?',
-          text: () => 'Regra simples: TAB pula de um lugar para outro (do mapa para o painel, de botão em botão) e SHIFT mais TAB volta. As SETAS só andam DENTRO do mapa, de casa em casa, e nas abas do painel. No painel, use Tab. Enter aperta ou faz a ação. Esc cancela.',
+          text: () => 'A tecla TAB pula para o próximo lugar: do mapa para o painel, e de um botão para outro. As teclas SHIFT e TAB juntas voltam para o lugar anterior. As SETAS andam de casa em casa dentro do mapa, e trocam de aba no painel. A tecla ENTER aperta o botão ou faz a ação. A tecla ESC cancela o que você escolheu.',
           buttons: [['PRÓXIMO', () => this.next(), 'primary']] },
         { id: 'ax-back', title: 'VOLTAR PARA O MAPA',
-          text: () => 'De qualquer lugar, aperte N para voltar ao mapa. No painel, o primeiro botão de cada aba é "Voltar para o mapa". E se ficar perdido, aperte Q: eu explico onde você está e quais teclas usar.',
+          text: () => 'A tecla N leva você de volta para o mapa, de qualquer lugar. No painel, o primeiro botão de cada aba também é "Voltar para o mapa". Se ficar perdido, aperte a tecla Q: ela diz onde você está, em qual campo, e quais teclas usar ali.',
           buttons: [['PRÓXIMO', () => this.next(), 'primary']] },
         { id: 'ax-goto', title: 'IR DIRETO PARA UMA CASA',
-          text: () => 'Aperte G, digite a casa (por exemplo C7) e aperte Enter. O foco vai direto para ela.',
+          text: () => 'A tecla G abre o campo Ir para a casa. Digite a letra e o número da casa, por exemplo C7, e aperte Enter. Você vai direto para essa casa.',
           buttons: [['PRÓXIMO', () => this.next(), 'primary']] },
         { id: 'ax-listen', title: 'OUVIR O JOGO',
-          text: () => 'I fala a situação da partida. C fala a casa onde você está. T repete a dica do Capitão. Q explica onde você está. Com Sons do mapa ligado, o som vai da esquerda para a direita conforme a coluna.',
+          text: () => 'A tecla I fala como está a partida: de quem é a vez e quantos navios cada um ainda tem. A tecla C fala a casa onde você está no mapa. A tecla T repete a dica do Capitão. A tecla Q diz onde você está e como se movimentar. Se a opção Sons do mapa estiver ligada, o som muda quando você anda: ele vai da esquerda para a direita conforme a coluna, e do grave para o agudo conforme a linha.',
           buttons: [['PRÓXIMO', () => this.next(), 'primary']] },
         { id: 'ax-keys', title: 'ATALHOS DA BATALHA',
-          text: () => 'R gira o navio e P posiciona tudo sozinho. Na batalha: 1 Atacar, 2 Mover, 3 Armadilha, 4 Analisar. Espaço passa a vez. Nas perguntas: V é Verdadeiro e F é Falso.',
+          text: () => 'Ao montar a frota: a tecla R gira o navio, e a tecla P coloca todos os navios sozinha. Na batalha: a tecla 1 escolhe Atacar, a tecla 2 escolhe Mover, a tecla 3 escolhe Armadilha e a tecla 4 escolhe Analisar. A tecla ESPAÇO passa a vez. Nas perguntas: a tecla V responde Verdadeiro e a tecla F responde Falso.',
           buttons: [['PRÓXIMO', () => this.next(), 'primary']] },
         { id: 'ax-settings', title: 'AJUSTES E AJUDA',
-          text: () => 'Esc abre o menu de pausa e F2 abre os Ajustes: alto contraste, tamanho e tipo de letra, menos movimento e volume. F1 abre o Guia do Capitão. Na aba Ajuda tem as Dúvidas frequentes.',
+          text: () => 'A tecla ESC abre o menu de pausa. A tecla F2 abre os Ajustes, onde você muda o alto contraste, o tamanho e o tipo de letra, o movimento da tela e o volume. A tecla F1 abre o Guia do Capitão. Na aba Ajuda tem as Dúvidas frequentes.',
           buttons: [['PRÓXIMO', () => this.next(), 'primary']] },
         { id: 'ax-done', title: 'PRONTO!',
           text: () => thenTutorial || !this.completed() ? 'Agora vamos aprender a jogar, passo a passo.' : 'Agora é com você, capitão!',
@@ -575,7 +575,7 @@
         <div class="m-guide m-guide-row" aria-hidden="true">${ICON.left}<b>1</b></div>
         <img class="m-hero" src="${HERO_PNG}" alt="">
         <img class="m-villain" src="${VILLAIN_PNG}" alt="">
-        <section class="m-bubble" role="dialog" aria-modal="true" aria-labelledby="gdmMissionTitle" aria-describedby="gdmMissionText">
+        <section class="m-bubble" role="dialog" aria-modal="true" aria-labelledby="gdmMissionTitle">
           <p class="m-name"><span class="m-name-tag">Capitão Maré</span><span class="m-count"></span></p>
           <h2 class="m-title" id="gdmMissionTitle"></h2>
           <p class="m-text m-read" id="gdmMissionText" tabindex="0"></p>

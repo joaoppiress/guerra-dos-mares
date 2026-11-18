@@ -15,7 +15,9 @@
     { key: 'fontScale', label: 'Tamanho do texto', toggle: () => game.cycleFont() },
     { key: 'reduceMotion', label: 'Reduzir animações', toggle: () => game.toggleMotion() },
     { key: 'music', label: 'Música', toggle: () => game.toggleMusic() },
+    { key: 'musicVol', label: 'Volume da música', vol: 'music' },
     { key: 'sfx', label: 'Efeitos sonoros', toggle: () => game.toggleSfx() },
+    { key: 'sfxVol', label: 'Volume dos efeitos', vol: 'sfx' },
     { key: 'mapSounds', label: 'Sons do mapa', toggle: () => game.toggleMapSounds() }
   ];
 
@@ -38,9 +40,9 @@
   el.setAttribute('role', 'dialog');
   el.setAttribute('aria-modal', 'true');
   el.setAttribute('aria-labelledby', 'gdmTitleHeading');
-  el.setAttribute('aria-describedby', 'gdmHello gdmTitleDesc');
+  el.setAttribute('aria-describedby', 'gdmTitleDesc');
   el.innerHTML = `
-        <p id="gdmTitleDesc" class="sr-only">Use as setas para cima e para baixo, ou Tab, para andar pelos textos e botões. Enter confirma. Q explica onde você está.</p>
+        <p id="gdmTitleDesc" class="sr-only">Use as setas para cima e para baixo, ou Tab, para andar pelos textos e botões. Enter confirma. A tecla Q diz onde você está e como se movimentar.</p>
     <div class="tc-card">
       <div class="tc-quick">
         <button type="button" class="tc-round" data-go="sound" aria-pressed="true" aria-label="Som">${svg(I.sound)}</button>
@@ -51,10 +53,6 @@
         <p class="tc-sub">${svg(I.anchor)}Batalha naval de perguntas</p>
       </header>
       <div class="title-menu" data-view="main">
-        <div class="tc-hello">
-          <img src="assets/img/ui/capitao_rosto.png" alt="">
-          <p id="gdmHello" class="tc-read" tabindex="0">Ahoy! Eu sou o <b>Capitão Maré</b>. Vamos vencer o pirata <b>Barba-Rubra</b> e proteger os mares?</p>
-        </div>
         <nav class="tc-buttons" aria-label="Menu principal">
           <button type="button" class="tm-item tc-btn tc-primary tc-resume" data-go="resume" hidden>${svg(I.play)}<span>Continuar partida</span></button>
           <button type="button" class="tm-item tc-btn tc-primary" data-go="play">${svg(I.play)}<span>Jogar</span></button>
@@ -83,7 +81,7 @@
       <div class="title-board">
       <section class="title-menu title-options" data-view="options" aria-labelledby="gdmOptHeading" hidden>
         <h2 id="gdmOptHeading" class="tm-heading">Opções</h2>
-        ${OPTIONS.map(o => `<button type="button" class="tm-row" data-opt="${o.key}" ${o.key === 'fontScale' ? '' : 'role="switch" aria-checked="false"'}>
+        ${OPTIONS.map(o => `<button type="button" class="tm-row${o.vol ? ' tm-vol' : ''}" data-opt="${o.key}" ${o.vol ? `data-vol="${o.vol}" role="slider" aria-valuemin="0" aria-valuemax="10"` : o.key === 'fontScale' ? '' : 'role="switch" aria-checked="false"'}>
           <span class="tm-label">${o.label}</span><span class="tm-value" aria-hidden="true"></span></button>`).join('')}
         <button type="button" class="tm-item tm-back" data-go="main">Voltar</button>
       </section>
@@ -104,6 +102,14 @@
     const s = game.state.settings;
     for (const row of el.querySelectorAll('.tm-row')) {
       const k = row.dataset.opt, out = row.querySelector('.tm-value');
+      if (row.dataset.vol) {
+        const v = s[k] ?? (k === 'musicVol' ? 6 : 8);
+        out.innerHTML = `<span class="tm-step" data-step="-1" aria-hidden="true">−</span><span class="tm-bar" aria-hidden="true"><i style="width:${v * 10}%"></i></span><b>${v}</b><span class="tm-step" data-step="1" aria-hidden="true">+</span>`;
+        row.setAttribute('aria-valuenow', String(v));
+        row.setAttribute('aria-valuetext', v === 0 ? 'mudo' : `${v} de 10`);
+        row.setAttribute("aria-label", row.querySelector(".tm-label").textContent);
+        continue;
+      }
       if (k === 'fontScale') {
         const name = (SIZES.find(([v]) => v === (s.fontScale || 1)) || SIZES[0])[1];
         out.textContent = name;
@@ -170,6 +176,12 @@
     }
     if (b.dataset.go === 'options') return show('options');
     if (b.dataset.go === 'main') return show('main', view === 'options' ? 'options' : 'play');
+    if (b.dataset.vol) {
+      const k = b.dataset.opt, cur = game.state.settings[k] ?? (k === 'musicVol' ? 6 : 8);
+      const stepEl = e.target.closest && e.target.closest('.tm-step');
+      const d = stepEl ? Number(stepEl.dataset.step) : (cur >= 10 ? -10 : 1);
+      game.setVolume(b.dataset.vol, cur + d); sync(); return;
+    }
     const opt = OPTIONS.find(o => o.key === b.dataset.opt);
     if (opt) { opt.toggle(); game.audio.play('select'); sync(); }
   });
@@ -184,7 +196,11 @@
     if (e.key === 'ArrowDown') { e.stopPropagation(); return step(1); }
     if (e.key === 'ArrowUp') { e.stopPropagation(); return step(-1); }
     if ((e.key === 'ArrowLeft' || e.key === 'ArrowRight') && document.activeElement?.classList.contains('tm-row')) {
-      e.preventDefault(); e.stopPropagation(); document.activeElement.click(); return;
+      e.preventDefault(); e.stopPropagation();
+      const r = document.activeElement;
+      if (r.dataset.vol) { const k = r.dataset.opt; game.setVolume(r.dataset.vol, (game.state.settings[k] ?? (k === 'musicVol' ? 6 : 8)) + (e.key === 'ArrowRight' ? 1 : -1)); sync(); }
+      else r.click();
+      return;
     }
     if (e.key === 'Escape' && view !== 'main') { e.preventDefault(); e.stopPropagation(); show('main', view === 'options' ? 'options' : 'play'); return; }
     e.stopPropagation();
