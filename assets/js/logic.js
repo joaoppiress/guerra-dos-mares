@@ -46,6 +46,28 @@ const GDM_LOGIC = {
     const cells=this.cells(ship.row+dr,ship.col+dc,ship.size,ship.orientation);
     return this.inBounds(cells) && !this.occupied(state,cells,ship.uid);
   },
+  // Caminho livre em linha reta: o navio anda passo a passo, sem atravessar nada.
+  canSlide(state,ship,dr,dc){
+    const n=Math.max(Math.abs(dr),Math.abs(dc));
+    if(!n || (dr && dc)) return false;
+    const sr=Math.sign(dr), sc=Math.sign(dc);
+    for(let k=1;k<=n;k++) if(!this.canMove(state,ship,sr*k,sc*k)) return false;
+    return true;
+  },
+  // Casas verdes do MOVER: até "move" casas em linha reta para cima, baixo, esquerda ou direita.
+  moveTargets(state,ship,steps){
+    const rows=ship.cells.map(c=>c.row), cols=ship.cells.map(c=>c.col);
+    const minR=Math.min(...rows), maxR=Math.max(...rows), minC=Math.min(...cols), maxC=Math.max(...cols);
+    const out=[];
+    for(const [sr,sc] of [[-1,0],[1,0],[0,-1],[0,1]]){
+      for(let k=1;k<=steps;k++){
+        if(!this.canMove(state,ship,sr*k,sc*k)) break;
+        if(sr){ const row=sr<0?minR-k:maxR+k; for(let col=minC;col<=maxC;col++) out.push({row,col,dr:sr*k,dc:0}); }
+        else { const col=sc<0?minC-k:maxC+k; for(let row=minR;row<=maxR;row++) out.push({row,col,dr:0,dc:sc*k}); }
+      }
+    }
+    return out;
+  },
   chebyshev(a,b){ return Math.max(Math.abs(a.row-b.row),Math.abs(a.col-b.col)); },
   distanceToShip(cell,ship){ return Math.min(...ship.cells.map(c=>this.chebyshev(cell,c))); },
   spendCharge(ship,round){

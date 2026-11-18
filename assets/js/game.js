@@ -5,18 +5,19 @@
   const ctx = canvas.getContext('2d');
 
   const FONT = 'Fredoka, "Trebuchet MS", "Segoe UI", sans-serif';
+  const SAVE_KEY = 'gdm-partida-salva-v1';
   const SETTINGS_KEY = 'gdm-settings-v2';
   const NATIVE_CELL = 64;
 
   const C = {
-    ink: '#13283f', inkSoft: '#4f6479', paper: '#ffffff', cream: '#fbf8f1',
-    p1: '#2f6fb5', p1Soft: '#d8e7f6', p1Deep: '#1f4f86',
-    p2: '#cf5a43', p2Soft: '#f7ddd6', p2Deep: '#a13f2c',
-    neutral: '#2a9184', neutralSoft: '#d4ece8', neutralDeep: '#1c6b61',
-    sun: '#e2b33d', sunDeep: '#a87c16', grass: '#2f9e5b', grassDeep: '#21744a',
-    orange: '#e07b39', purple: '#7a5ad6', grey: '#93a4b8',
-    // Mar com saturação baixa: não compete com navios e interface.
-    sea1: '#a6cfe2', sea2: '#73abcb', sea3: '#4a7fa6'
+    ink: '#1d2b4f', inkSoft: '#4f6479', paper: '#ffffff', cream: '#fff8e8',
+    // cores alegres, iguais às da logo: azul do mar, vermelho do pirata, amarelo do ouro
+    p1: '#2f86de', p1Soft: '#d6ecff', p1Deep: '#1b5fae',
+    p2: '#e5433a', p2Soft: '#ffe0dc', p2Deep: '#b02d25',
+    neutral: '#1fae9a', neutralSoft: '#d3f5ee', neutralDeep: '#12806f',
+    sun: '#ffc93c', sunDeep: '#c88a0a', grass: '#2fb36a', grassDeep: '#1f8a4c',
+    orange: '#f08a2c', purple: '#8a5ce6', grey: '#93a4b8',
+    sea1: '#9fe0ff', sea2: '#5cbcf0', sea3: '#2f91d8'
   };
 
   const TEAM = {
@@ -290,6 +291,7 @@
       this.live = null;
       this.a11yRoot = null;
       this.listeners = new Set();
+      window.addEventListener('pagehide', () => this.saveMatch());
       this.shipCache = new Map();
       this.bgCache = null;
       this.boardCache = null;
@@ -383,7 +385,7 @@
       this.a11yRoot = root;
       this.live = root.querySelector('#gdmLive');
       this.alertLive = root.querySelector('#gdmAlert');
-      root.querySelector('#gdmInstructions').textContent = 'Use o mapa acessível (tabelas com as casas) ou o campo Ir para a casa. No mapa, setas mudam de casa e Enter faz a ação. Atalhos: I situação da partida, C casa atual, T dica do Capitão, R gira, P posiciona tudo, 1 atacar, 2 mover, 3 armadilha, 4 analisar, Espaço passa a vez, F1 guia, F2 ajustes, F3 painel.';
+      root.querySelector('#gdmInstructions').textContent = 'Tab pula de um lugar para outro e Shift+Tab volta. As setas andam de casa em casa só dentro do mapa. Letras são as colunas (horizontal), números são as linhas (vertical). Q explica onde você está. N volta para o mapa. Enter faz a ação. Atalhos: I situação da partida, C casa atual, T dica do Capitão, R gira, P posiciona tudo, 1 atacar, 2 mover, 3 armadilha, 4 analisar, Espaço passa a vez, F1 guia, F2 ajustes, F3 painel.';
       root.querySelector('#gdmVisualDescription').textContent = 'Mapa do mar visto de cima com três oceanos de dez por dez casas: o seu oceano à esquerda, o Oceano Neutro no meio e o Oceano do Computador à direita. Cada oceano usa colunas A até J e linhas 1 até 10, com A1 no canto superior esquerdo.';
       canvas.setAttribute('aria-describedby', 'gdmInstructions gdmVisualDescription gdmState');
       this.syncA11y();
@@ -684,6 +686,8 @@
       if (el.matches('.a11y-cell') && e.key === ' ') return false;
       if (el.matches('button, a, [role="button"], [role="tab"]') && (e.key === 'Enter' || e.key === ' ')) return true;
       if (el.matches('[role="tab"]') && ['ArrowLeft', 'ArrowRight', 'Home', 'End'].includes(e.key)) return true;
+      // Fora do mapa (painel, quadro do Capitão, tela inicial), as setas NÃO mexem no cursor do mapa.
+      if (e.key.startsWith('Arrow') && el.closest('#gdmPanel, #gdmMission, #gdmTitle, .skip-links')) return true;
       return false;
     }
 
@@ -755,7 +759,6 @@
 
     moveCursor(dr, dc) {
       if (this.state.modal) return;
-      if (this.state.phase === 'battle' && this.state.action === 'move' && this.selectedShip()) { this.moveSelected(dr, dc); return; }
       const before = { ...this.state.cursor };
       if (this.state.phase === 'placement') {
         const h = GDM_LOGIC.home(this.state.placementOwner);
@@ -931,7 +934,7 @@
       if (!s) return { text: '', blocked: false };
       const text = {
         attack: `Atira um míssil: ${s.damage} de dano`,
-        move: 'Anda 1 casa para qualquer lado',
+        move: 'Navega em linha reta (pequenos andam mais)',
         trap: `Esconde uma mina (${s.trapStock} sobrando)`,
         analyze: 'Responda V ou F para revelar um “?”'
       }[id];
@@ -1399,6 +1402,7 @@
       this.toast(`Vez do ${TEAM[owner].label}!`, 'info');
       this.announce(`Rodada ${this.state.round}. Sua vez, ${TEAM[owner].label}. Escolha um navio. Tecla I fala a situação da partida.`, true);
       this.tutorialEvent('turnStart', { owner });
+      setTimeout(() => this.saveMatch(), 50);
     }
 
     endTurn() {
@@ -1416,21 +1420,90 @@
       this.openHandoff(next, `${TEAM[current].label}: missão concluída!`, `Passe o comando: entregue o aparelho para o ${TEAM[next].label}.`, () => { this.state.round = newRound; this.startTurn(next); });
     }
 
+    // ---------- alcance e movimento de cada navio ----------
+    shipMoveSteps(s) { return (s && GDM_CONFIG.ships[s.typeId].move) || 1; }
+    shipRange(s) { return (s && GDM_CONFIG.ships[s.typeId].range) || 0; }
+    inAttackRange(s, row, col) { return !!s && GDM_LOGIC.distanceToShip({ row, col }, s) <= this.shipRange(s); }
+    inScanRange(s, row, col) { return !!s && GDM_LOGIC.distanceToShip({ row, col }, s) <= GDM_CONFIG.scan.range; }
+    hasAttackCells(s) { for (let r = 0; r < 10; r++) for (let c = 0; c < 30; c++) if (this.attackCellAllowed(r, c, s)) return true; return false; }
+    // Casa onde faz sentido mirar: dentro do alcance e fora do próprio oceano.
+    attackCellAllowed(row, col, s = this.selectedShip()) {
+      if (!s || !this.inAttackRange(s, row, col)) return false;
+      return GDM_LOGIC.zone(col) !== s.owner;
+    }
+
+    // ---------- salvar e continuar a partida ----------
+    // Salva só em momentos seguros: batalha, vez do jogador, sem janela aberta.
+    saveMatch() {
+      const st = this.state;
+      if (st.phase !== 'battle' || st.turn !== 'player1' || st.modal || this.aiBusy) return;
+      const setArr = x => [...x], mapArr = x => [...x.entries()];
+      const data = {
+        v: 1, savedAt: Date.now(), version: GDM_CONFIG.version,
+        state: {
+          difficulty: st.difficulty, round: st.round, roundStarter: st.roundStarter, turn: st.turn,
+          ships: st.ships, traps: st.traps, analysisAvailable: st.analysisAvailable, stats: st.stats,
+          detected: { player1: setArr(st.detected.player1), player2: setArr(st.detected.player2) },
+          revealed: { player1: setArr(st.revealed.player1), player2: setArr(st.revealed.player2) },
+          marks: { player1: mapArr(st.marks.player1), player2: mapArr(st.marks.player2) },
+          usedQuestionIds: setArr(st.usedQuestionIds), stars: st.stars || null, streak: st.streak || null,
+          achievements: st.achievements ? setArr(st.achievements) : [], elapsed: now() - (st.startAt || now())
+        }
+      };
+      try { localStorage.setItem(SAVE_KEY, JSON.stringify(data)); } catch (_e) {}
+    }
+    savedMatch() {
+      try {
+        const d = JSON.parse(localStorage.getItem(SAVE_KEY) || 'null');
+        if (!d || d.v !== 1 || !d.state || !d.state.ships) return null;
+        if (Date.now() - d.savedAt > 7 * 24 * 3600 * 1000) return null;
+        return d;
+      } catch (_e) { return null; }
+    }
+    clearSave() { try { localStorage.removeItem(SAVE_KEY); } catch (_e) {} }
+    resumeMatch() {
+      const d = this.savedMatch();
+      if (!d) return false;
+      const x = d.state;
+      this.resetMatch(x.difficulty);
+      const st = this.state;
+      Object.assign(st, {
+        phase: 'battle', round: x.round, roundStarter: x.roundStarter, turn: 'player1',
+        ships: x.ships, traps: x.traps, analysisAvailable: x.analysisAvailable, stats: x.stats,
+        detected: { player1: new Set(x.detected.player1), player2: new Set(x.detected.player2) },
+        revealed: { player1: new Set(x.revealed.player1), player2: new Set(x.revealed.player2) },
+        marks: { player1: new Map(x.marks.player1), player2: new Map(x.marks.player2) },
+        usedQuestionIds: new Set(x.usedQuestionIds), stars: x.stars || undefined, streak: x.streak || undefined,
+        achievements: new Set(x.achievements || []), startAt: now() - (x.elapsed || 0),
+        matchId: Date.now(), selectedShipId: null, action: null, modal: null
+      });
+      for (const o of ['player1', 'player2']) for (const s of st.ships[o]) if (!s.destroyed) GDM_LOGIC.refresh(s);
+      this.computeRadar('player1'); this.computeRadar('player2');
+      this.invalidateCaches(); this.layout && this.layout();
+      this.banner('De volta à batalha!', 'player1');
+      this.toast(`Partida retomada na rodada ${st.round}`, 'success', 2200);
+      this.announce(`Partida retomada. Rodada ${st.round}. Sua vez, Capitão. Tecla I fala a situação da partida.`, true);
+      this.notify();
+      return true;
+    }
+
     // Motivo pelo qual uma ação não pode ser usada agora (null = liberada).
     actionBlocker(action) {
       if (this.state.phase !== 'battle' || this.state.modal) return 'Disponível só na batalha';
+      const s = this.selectedShip();
       if (action === 'analyze') {
-        if (!this.state.analysisAvailable[this.state.turn]) return 'Análise já usada nesta vez';
-        if (!this.questionsLoaded) return 'Abra o jogo pelo JOGAR_AGORA.bat';
+        if (!this.state.analysisAvailable[this.state.turn]) return 'Você já usou o radar nesta vez. Na próxima vez tem de novo!';
+        if (!this.questionsLoaded) return 'As perguntas não carregaram. Abra o jogo pelo JOGAR_AGORA.bat';
+        if (!s) return 'Escolha um navio primeiro';
         return null;
       }
-      const s = this.selectedShip();
       if (!s) return 'Escolha um navio primeiro';
-      if (s.turnLocked) return 'Esse navio já cumpriu sua missão nesta vez. Escolha outro ou passe a vez';
-      if (action === 'attack' && s.chargeType !== 'missile') return 'Esse navio não tem mísseis';
+      if (s.turnLocked) return 'Esse navio já jogou nesta vez. Escolha outro ou passe a vez';
+      if (action === 'attack' && s.chargeType !== 'missile') return 'Esse navio não tem canhões: ele solta armadilhas';
       if (action === 'trap' && s.typeId !== 'trap-layer') return 'Só o Lança-Armadilhas solta minas';
-      if ((action === 'attack' || action === 'trap') && s.availableCharges <= 0) return 'Esse navio está sem munição. Ela volta depois de algumas rodadas';
+      if ((action === 'attack' || action === 'trap') && s.availableCharges <= 0) return 'Acabaram as balas deste navio. Elas voltam daqui a 2 rodadas!';
       if (action === 'trap' && s.trapStock <= 0) return 'Acabaram as armadilhas';
+      if (action === 'attack' && !this.hasAttackCells(s)) return 'Longe demais! Daqui o canhão não alcança o mar do pirata. Use MOVER para chegar mais perto';
       return null;
     }
 
@@ -1445,10 +1518,10 @@
       this.audio.play('select');
       this.tutorialEvent(action === 'analyze' ? 'analyzeMode' : 'chooseAction');
       const msg = {
-        attack: 'Modo ataque: escolha uma casa para atirar',
-        move: 'Modo mover: escolha uma casa ao lado do navio',
-        trap: 'Modo armadilha: escolha uma casa até 7 de distância',
-        analyze: 'Modo radar: escolha um ponto de interrogação'
+        attack: 'Mire numa casa clarinha: é até onde o canhão alcança',
+        move: 'Escolha uma casa verde para o navio andar',
+        trap: 'Escolha uma casa roxa para esconder a armadilha',
+        analyze: 'Escolha um “?” perto do navio para decifrar'
       }[action];
       this.toast(msg, 'info', 2200);
     }
@@ -1471,6 +1544,11 @@
     attack(row, col, skipRisk = false) {
       const owner = this.state.turn, opponent = GDM_LOGIC.other(owner), s = this.selectedShip();
       if (!s || s.chargeType !== 'missile' || s.availableCharges <= 0 || s.turnLocked) return;
+      if (!this.inAttackRange(s, row, col)) {
+        if (!this.isAiOwner(owner)) { this.toast(`Longe demais! O ${this.shipName(s)} alcança ${this.shipRange(s)} casas. Use MOVER para chegar mais perto`, 'warn', 2600); this.audio.play('error'); }
+        return;
+      }
+      if (GDM_LOGIC.zone(col) === owner) { if (!this.isAiOwner(owner)) { this.toast('Esse é o seu oceano! Mire no mar do inimigo', 'warn'); this.audio.play('error'); } return; }
       const targetShip = GDM_LOGIC.shipAt(this.state, row, col, opponent), targetTrap = GDM_LOGIC.trapAt(this.state, row, col, opponent), obj = targetShip || targetTrap;
       if (obj && !skipRisk) {
         const id = GDM_LOGIC.objectId(obj, targetShip ? 'ship' : 'trap');
@@ -1529,21 +1607,16 @@
     moveByClickedCell(row, col) {
       const s = this.selectedShip();
       if (!s) return;
-      const rows = s.cells.map(c => c.row), cols = s.cells.map(c => c.col);
-      const minR = Math.min(...rows), maxR = Math.max(...rows), minC = Math.min(...cols), maxC = Math.max(...cols);
-      let dr = 0, dc = 0;
-      if (row === minR - 1 && col >= minC && col <= maxC) dr = -1;
-      else if (row === maxR + 1 && col >= minC && col <= maxC) dr = 1;
-      else if (col === minC - 1 && row >= minR && row <= maxR) dc = -1;
-      else if (col === maxC + 1 && row >= minR && row <= maxR) dc = 1;
-      else { this.toast('Escolha uma casa colada no navio', 'warn'); this.audio.play('error'); return; }
-      this.moveSelected(dr, dc);
+      const t = GDM_LOGIC.moveTargets(this.state, s, this.shipMoveSteps(s)).find(m => m.row === row && m.col === col);
+      if (!t) { this.toast(`Escolha uma casa verde (este navio anda até ${this.shipMoveSteps(s)} ${this.shipMoveSteps(s) > 1 ? 'casas' : 'casa'})`, 'warn'); this.audio.play('error'); return; }
+      this.moveSelected(t.dr, t.dc);
     }
 
     moveSelected(dr, dc) {
       const s = this.selectedShip();
       if (!s || s.turnLocked) return;
-      if (!GDM_LOGIC.canMove(this.state, s, dr, dc)) { this.toast('Caminho bloqueado', 'warn'); this.audio.play('error'); return; }
+      const n = Math.max(Math.abs(dr), Math.abs(dc));
+      if (n > this.shipMoveSteps(s) || !GDM_LOGIC.canSlide(this.state, s, dr, dc)) { if (!this.isAiOwner(s.owner)) { this.toast('Caminho bloqueado', 'warn'); this.audio.play('error'); } return; }
       s.row += dr; s.col += dc; GDM_LOGIC.refresh(s); s.turnLocked = true; s.movedThisTurn = true; this.state.action = null;
       if (this.isAiOwner(s.owner)) {
         // Movimento do computador fica escondido: o jogador só fica sabendo que algo mudou.
@@ -1554,8 +1627,8 @@
       this.state.cursor = { row: s.row, col: s.col };
       this.ensureVisible(s.row, s.col);
       this.audio.play('move'); this.computeRadar(this.state.turn);
-      this.toast('O navio andou 1 casa', 'success');
-      this.tutorialEvent('actionDone');
+      this.toast(n > 1 ? `Vrum! O navio andou ${n} casas` : 'O navio andou 1 casa', 'success');
+      this.tutorialEvent('actionDone', { type: 'move' });
     }
 
     trapCellAllowed(row, col, s = this.selectedShip()) {
@@ -1587,6 +1660,8 @@
       if (!obj) { this.toast('Nenhum contato nessa casa', 'warn'); return; }
       const type = ship ? 'ship' : 'trap', id = GDM_LOGIC.objectId(obj, type);
       if (!this.state.detected[owner].has(id)) { this.toast('Fora do alcance do radar', 'warn'); return; }
+      const scanner = this.selectedShip();
+      if (scanner && !this.inScanRange(scanner, row, col)) { this.toast(`Longe demais! O radar do navio alcança ${GDM_CONFIG.scan.range} casas. Chegue mais perto`, 'warn', 2400); this.audio.play('error'); return; }
       if (this.state.revealed[owner].has(id)) { this.toast('Esse já foi descoberto', 'info'); return; }
       if (!this.questionsLoaded) { this.toast('Perguntas não carregadas', 'warn'); return; }
       const q = this.pickQuestion();
@@ -1646,6 +1721,7 @@
       this.state.modal = null;
       if (practice) { this.tutorialEvent('practiceClosed'); this.notify(); return; }
       this.computeRadar(this.state.turn);
+      this.saveMatch();
       this.notify();
     }
 
@@ -1726,6 +1802,7 @@
       this.state.finalScores = { player1: this.performanceScore('player1'), player2: this.performanceScore('player2') };
       this.state.platformScore = this.state.finalScores.player1;
       this.state.phase = 'end';
+      this.clearSave();
       this.state.toast = null; this.state.action = null; this.closeSpot && this.closeSpot();
       this.state.modal = { type: 'end', buttons: [], openedAt: now() };
       sendFinalScore({ score: this.state.platformScore, difficulty: getPlatformDifficulty() });
@@ -1902,7 +1979,9 @@
     /* ---------- Primeira Missão (assets/js/mission.js) ---------- */
 
     // Avisa a Primeira Missão sobre o que o jogador acabou de fazer.
-    tutorialEvent(name, data) { if (this.mission) { try { this.mission.onEvent(name, data); } catch (err) { console.error(err); } } }
+    tutorialEvent(name, data) {
+      if (name === 'actionDone' && !this.isAiTurn()) setTimeout(() => this.saveMatch(), 60);
+      if (this.mission) { try { this.mission.onEvent(name, data); } catch (err) { console.error(err); } } }
     restartTutorial() { if (this.mission) this.mission.restart(); }
 
     // Pergunta de treino do radar: ensina o V/F sem mexer na pontuação nem revelar nada.
@@ -2329,16 +2408,18 @@
       if (this.state.phase !== 'battle' || !s) return;
       const pulse = this.still ? 0.5 : (Math.sin(t / 260) + 1) / 2;
       if (this.state.action === 'move' && !s.turnLocked) {
-        const rows = s.cells.map(c => c.row), cols = s.cells.map(c => c.col);
-        const minR = Math.min(...rows), maxR = Math.max(...rows), minC = Math.min(...cols), maxC = Math.max(...cols);
-        for (const [dr, dc] of [[-1, 0], [1, 0], [0, -1], [0, 1]]) {
-          if (!GDM_LOGIC.canMove(this.state, s, dr, dc)) continue;
-          const cells = dr ? [{ row: dr < 0 ? minR - 1 : maxR + 1, cols: [minC, maxC] }] : [{ col: dc < 0 ? minC - 1 : maxC + 1, rows: [minR, maxR] }];
-          for (const c of cells) {
-            if (c.cols) for (let cc = c.cols[0]; cc <= c.cols[1]; cc++) this.cellTint(c.row, cc, C.grass, 0.35 + pulse * 0.2);
-            else for (let rr = c.rows[0]; rr <= c.rows[1]; rr++) this.cellTint(rr, c.col, C.grass, 0.35 + pulse * 0.2);
-          }
+        for (const m of GDM_LOGIC.moveTargets(this.state, s, this.shipMoveSteps(s))) this.cellTint(m.row, m.col, C.grass, 0.32 + pulse * 0.2);
+      }
+      if (this.state.action === 'attack') {
+        // área que o canhão alcança fica clarinha; o resto escurece um pouco
+        for (let row = 0; row < 10; row++) for (let col = 0; col < 30; col++) {
+          if (GDM_LOGIC.zone(col) === s.owner) continue;
+          if (this.attackCellAllowed(row, col, s)) this.cellTint(row, col, '#ffe36b', 0.18 + pulse * 0.12);
+          else this.cellTint(row, col, '#0b2139', 0.22);
         }
+      }
+      if (this.state.action === 'analyze') {
+        for (let row = 0; row < 10; row++) for (let col = 0; col < 30; col++) if (this.inScanRange(s, row, col)) this.cellTint(row, col, C.purple, 0.1 + pulse * 0.06);
       }
       if (this.state.action === 'trap') {
         for (let row = 0; row < 10; row++) for (let col = 0; col < 30; col++) if (this.trapCellAllowed(row, col, s)) this.cellTint(row, col, C.purple, 0.16 + pulse * 0.1);
@@ -2365,50 +2446,97 @@
 
     /* ---------- navios ---------- */
 
-    // Monta o navio com casco + velas do Pirate Pack, sem esticar os sprites.
+    // Navio desenhado à mão (vetor), visto de cima: popa em cima, proa embaixo.
+    // Estilo da logo: contorno escuro grosso, madeira quente e velas da cor do time.
     buildShip(team, size, lenCells, damaged) {
-      const key = `${team}:${size}:${lenCells.toFixed(2)}:${damaged}`;
+      const key = `v2:${team}:${size}:${lenCells.toFixed(2)}:${damaged}`;
       if (this.shipCache.has(key)) return this.shipCache.get(key);
-      const hull = this.img.hull, sail = this.img[`sail_${team}${damaged ? '_torn' : ''}`], flag = this.img[`flag_${team}`];
       const L = Math.max(100, Math.round(lenCells * NATIVE_CELL - 10)), W = 76;
       const c = makeCanvas(W, L), x = c.getContext('2d');
-      const hx = (W - hull.width) / 2, STERN = 30, MID = 36, BOW = 42;
-      x.drawImage(hull, 0, 0, hull.width, STERN, hx, 0, hull.width, STERN);
-      let y = STERN;
-      const midEnd = L - BOW;
-      while (y < midEnd) {
-        const h = Math.min(MID, midEnd - y);
-        x.drawImage(hull, 0, STERN, hull.width, h, hx, y, hull.width, h);
-        y += h;
-      }
-      x.drawImage(hull, 0, hull.height - BOW, hull.width, BOW, hx, midEnd, hull.width, BOW);
-      const sails = { 2: 1, 3: 2, 4: 3, 5: 3 }[size] || 1;
-      const top = STERN + 4, bottom = L - BOW + 6, seg = (bottom - top) / sails;
-      const scale = clamp(seg / 44, 0.72, 1);
-      const crewKeys = ['crew1', 'crew2', 'crew3', 'crew4'];
-      if (size >= 3) {
-        for (let i = 1; i < sails; i++) {
-          const crew = this.img[crewKeys[(i + size) % 4]];
-          if (crew) x.drawImage(crew, W / 2 - crew.width / 2, top + seg * i - crew.height / 2 + 4);
-        }
-      }
-      if (size === 4 && this.img.cannon) {
-        const cn = this.img.cannon;
+      const INK = '#22160f', WOOD = damaged ? '#7c4a2a' : '#b86b35', DECK = damaged ? '#9a6440' : '#e2a066', PLANK = 'rgba(80,40,15,.35)';
+      const SAIL = team === 'p1' ? (damaged ? '#6f8fb3' : '#2f86de') : (damaged ? '#b9746e' : '#e5433a');
+      const SAIL_D = team === 'p1' ? '#1d5fa8' : '#a92b23';
+      const hw = 27, cx = W / 2, top = 10, bow = L - 4;
+      x.lineJoin = 'round'; x.lineCap = 'round';
+      // casco
+      const hull = () => {
+        x.beginPath();
+        x.moveTo(cx - hw + 6, top);
+        x.quadraticCurveTo(cx - hw, top, cx - hw, top + 10);
+        x.lineTo(cx - hw, bow - 34);
+        x.quadraticCurveTo(cx - hw + 2, bow - 10, cx, bow);
+        x.quadraticCurveTo(cx + hw - 2, bow - 10, cx + hw, bow - 34);
+        x.lineTo(cx + hw, top + 10);
+        x.quadraticCurveTo(cx + hw, top, cx + hw - 6, top);
+        x.closePath();
+      };
+      hull(); x.fillStyle = WOOD; x.fill(); x.lineWidth = 4; x.strokeStyle = INK; x.stroke();
+      // convés (madeira clara) com tábuas
+      x.save(); hull(); x.clip();
+      x.beginPath(); x.rect(cx - hw + 7, top + 6, (hw - 7) * 2, bow - top - 22);
+      x.fillStyle = DECK; x.fill();
+      x.strokeStyle = PLANK; x.lineWidth = 1.5;
+      for (let px = cx - hw + 15; px < cx + hw - 7; px += 8) { x.beginPath(); x.moveTo(px, top + 6); x.lineTo(px, bow - 16); x.stroke(); }
+      x.restore();
+      // borda do convés
+      x.beginPath(); x.moveTo(cx - hw + 7, top + 8); x.lineTo(cx - hw + 7, bow - 32); x.moveTo(cx + hw - 7, top + 8); x.lineTo(cx + hw - 7, bow - 32);
+      x.strokeStyle = 'rgba(34,22,15,.45)'; x.lineWidth = 2; x.stroke();
+      // escotilhas / canhões nas laterais
+      const guns = size === 4 ? 3 : size === 3 ? 2 : size === 5 ? 0 : 1;
+      for (let i = 0; i < guns; i++) {
+        const gy = top + 20 + (i + 0.5) * ((bow - top - 60) / Math.max(1, guns));
         for (const side of [-1, 1]) {
-          x.save(); x.translate(W / 2 + side * 21, L * 0.55); x.rotate(side < 0 ? Math.PI : 0);
-          x.drawImage(cn, -4, -cn.height / 2, cn.width * 0.7, cn.height * 0.7); x.restore();
+          x.beginPath(); x.rect(cx + side * (hw + 1) - (side < 0 ? 7 : 0), gy - 3, 7, 6);
+          x.fillStyle = '#3b3f48'; x.fill(); x.lineWidth = 2; x.strokeStyle = INK; x.stroke();
         }
       }
+      // velas (vistas de cima: faixa curvada atravessando o navio)
+      const sails = { 2: 1, 3: 2, 4: 3, 5: 2 }[size] || 1;
+      const zoneTop = top + 18, zoneBot = bow - (size === 5 ? 60 : 30), seg = (zoneBot - zoneTop) / sails;
       for (let i = 0; i < sails; i++) {
-        const cy = top + seg * (i + 0.5), sw = sail.width * scale, sh = sail.height * scale;
-        x.drawImage(sail, W / 2 - sw / 2, cy - sh / 2, sw, sh);
-        if (this.img.nest) { const n = this.img.nest; x.drawImage(n, W / 2 - n.width * 0.35, cy - sh / 2 - n.height * 0.15, n.width * 0.7, n.height * 0.7); }
+        const sy = zoneTop + seg * (i + 0.5), sw = hw + 12, sh = Math.min(26, seg * 0.62);
+        // mastro
+        x.beginPath(); x.arc(cx, sy + sh * 0.15, 4.5, 0, Math.PI * 2); x.fillStyle = '#6b3d1e'; x.fill(); x.lineWidth = 2; x.strokeStyle = INK; x.stroke();
+        // vela
+        x.beginPath();
+        x.moveTo(cx - sw, sy - sh / 2);
+        x.quadraticCurveTo(cx, sy - sh / 2 + sh * 0.5, cx + sw, sy - sh / 2);
+        x.lineTo(cx + sw - 3, sy + sh / 2 - 2);
+        x.quadraticCurveTo(cx, sy + sh / 2 + sh * 0.55, cx - sw + 3, sy + sh / 2 - 2);
+        x.closePath();
+        x.fillStyle = SAIL; x.fill(); x.lineWidth = 3.5; x.strokeStyle = INK; x.stroke();
+        // faixa clara
+        x.beginPath(); x.moveTo(cx - sw + 6, sy - sh / 2 + 5); x.quadraticCurveTo(cx, sy - sh / 2 + sh * 0.55, cx + sw - 6, sy - sh / 2 + 5);
+        x.strokeStyle = 'rgba(255,255,255,.35)'; x.lineWidth = 3; x.stroke();
+        // emblema: âncora (azul) ou caveira (vermelho)
+        const ey = sy + sh * 0.12;
+        x.fillStyle = '#fff7e6'; x.strokeStyle = '#fff7e6';
+        if (team === 'p1') {
+          x.lineWidth = 2.4; x.beginPath(); x.arc(cx, ey - 6, 2.2, 0, Math.PI * 2); x.stroke();
+          x.beginPath(); x.moveTo(cx, ey - 4); x.lineTo(cx, ey + 6); x.moveTo(cx - 4, ey - 1); x.lineTo(cx + 4, ey - 1); x.stroke();
+          x.beginPath(); x.arc(cx, ey + 1, 6, 0.25 * Math.PI, 0.75 * Math.PI); x.stroke();
+        } else {
+          x.beginPath(); x.arc(cx, ey - 1, 5.5, 0, Math.PI * 2); x.fill();
+          x.fillRect(cx - 3.2, ey + 3, 6.4, 3.6);
+          x.fillStyle = SAIL_D; x.beginPath(); x.arc(cx - 2.2, ey - 1.5, 1.5, 0, Math.PI * 2); x.arc(cx + 2.2, ey - 1.5, 1.5, 0, Math.PI * 2); x.fill();
+        }
+        if (damaged) { // rasgo
+          x.beginPath(); x.moveTo(cx + sw * 0.35, sy - sh / 2 + 3); x.lineTo(cx + sw * 0.5, sy); x.lineTo(cx + sw * 0.3, sy + 3);
+          x.strokeStyle = INK; x.lineWidth = 2.5; x.stroke();
+        }
       }
-      if (flag) x.drawImage(flag, W / 2 - flag.width / 2, 2, flag.width, flag.height);
-      if (size === 5 && this.img.cannonball) {
-        const b = this.img.cannonball;
-        for (let i = 0; i < 3; i++) x.drawImage(b, W / 2 - 13 + i * 9, L - BOW + 4, b.width * 0.8, b.height * 0.8);
+      // Lança-Armadilhas: minas guardadas na popa
+      if (size === 5) {
+        for (let i = 0; i < 3; i++) {
+          const mx = cx - 14 + i * 14, my = bow - 46;
+          x.beginPath(); x.arc(mx, my, 5.5, 0, Math.PI * 2); x.fillStyle = '#3b3f48'; x.fill(); x.lineWidth = 2; x.strokeStyle = INK; x.stroke();
+          x.fillStyle = '#ffc93c'; x.fillRect(mx - 1, my - 8, 2, 3);
+        }
       }
+      // bandeirinha na popa
+      x.beginPath(); x.moveTo(cx, top + 2); x.lineTo(cx, top - 4 + 12); x.strokeStyle = INK; x.lineWidth = 2; x.stroke();
+      x.beginPath(); x.moveTo(cx + 1, top - 1); x.lineTo(cx + 13, top + 3); x.lineTo(cx + 1, top + 7); x.closePath();
+      x.fillStyle = team === 'p1' ? '#ffc93c' : '#22160f'; x.fill(); x.lineWidth = 1.5; x.strokeStyle = INK; x.stroke();
       this.shipCache.set(key, c);
       return c;
     }
@@ -2776,8 +2904,8 @@
       if (st.phase === 'battle') {
         if (this.isAiTurn()) return { text: 'O computador está jogando… observe o seu oceano!', color: C.p2Deep };
         if (this.menuOpen()) return { text: 'Escolha uma ação nos botões do navio · toque fora para fechar', color: C.ink };
-        if (st.action === 'attack') return { text: 'Escolha uma casa para atirar! (Esc cancela)', color: C.p2Deep };
-        if (st.action === 'move') return { text: 'Escolha uma casa verde para andar (Esc cancela)', color: C.grassDeep };
+        if (st.action === 'attack') return { text: 'Atire numa casa clarinha! (Esc cancela)', color: C.p2Deep };
+        if (st.action === 'move') return { text: 'Escolha uma casa verde para navegar (Esc cancela)', color: C.grassDeep };
         if (st.action === 'trap') return { text: 'Escolha uma casa roxa para a armadilha (Esc cancela)', color: C.purple };
         if (st.action === 'analyze') return { text: 'Escolha um ponto de interrogação para analisar', color: C.purple };
         if (s) return { text: `${this.shipName(s)} · Vida ${Math.max(0, s.hp)}/${s.maxHp} · Cargas ${s.availableCharges}/${s.maxCharges}${s.turnLocked ? ' · já agiu' : ''}`, color: C.ink };
@@ -2790,7 +2918,7 @@
     drawActionBar(t) {
       const g = this.geom, act = SHIP_ACTIONS.find(a => a.id === this.state.action);
       if (!act) return;
-      const what = { attack: 'escolha uma casa para atirar', move: 'escolha uma casa verde para andar', trap: 'escolha uma casa roxa para a mina', analyze: 'escolha um “?” para analisar' }[act.id];
+      const what = { attack: 'escolha uma casa clarinha', move: 'escolha uma casa verde para navegar', trap: 'escolha uma casa roxa para a mina', analyze: 'escolha um “?” para analisar' }[act.id];
       // Cabe no espaço reservado embaixo do mapa; em telas baixas fica no lugar do placar de cima.
       const fsz = this.fs(g.compact ? 14 : 16), h = g.infoH ? g.infoH - 2 : g.hudH, ic = h - 14;
       const btnLabel = 'Cancelar (Esc)', btnW = Math.min(200, Math.max(110, this.measure(btnLabel, fsz) + 40));
@@ -3025,7 +3153,7 @@
         ['Como jogar', 'Na sua vez é sempre: 1. escolha um navio, 2. escolha uma ação, 3. escolha uma casa no mapa. Afunde todos os navios do adversário!', C.p1],
         ['Coordenadas', 'As letras (A a J) mostram as colunas e os números (1 a 10) mostram as linhas. A1 fica no canto de cima, à esquerda.', C.neutral],
         ['Radar', 'Inimigos a até 3 casas dos seus navios aparecem como “?”. Use Analisar e responda Verdadeiro ou Falso para descobrir o que é.', C.purple],
-        ['Ações', 'Atacar: atire numa casa. Mover: ande 1 casa. Armadilha: esconda uma mina (só o Lança-Armadilhas). Analisar: descubra um “?”.', C.p2]
+        ['Ações', 'Atacar: atire numa casa clarinha (dentro do alcance). Mover: navegue até a casa verde. Armadilha: esconda uma mina (só o Lança-Armadilhas). Analisar: descubra um “?”.', C.p2]
       ];
       const w = Math.min(820, g.playW - 24), two = w > 640, colW = two ? (w - 90) / 2 : w - 60;
       // Mede o conteúdo; se não couber na tela, diminui um pouco o texto.
