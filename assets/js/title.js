@@ -56,19 +56,9 @@
         <nav class="tc-buttons" aria-label="Menu principal">
           <button type="button" class="tm-item tc-btn tc-primary tc-resume" data-go="resume" hidden>${svg(I.play)}<span>Continuar partida</span></button>
           <button type="button" class="tm-item tc-btn tc-primary" data-go="play">${svg(I.play)}<span>Jogar</span></button>
-          <button type="button" class="tm-item tc-btn tc-second" data-go="tutorial">${svg(I.book)}<span>Como jogar</span></button>
+          <button type="button" class="tm-item tc-btn tc-second" data-go="tutorial">${svg(I.book)}<span>Tutorial</span></button>
           <button type="button" class="tm-item tc-btn tc-ghost" data-go="options">${svg(I.gear)}<span>Opções</span></button>
-          <button type="button" class="tm-item tc-btn tc-ghost tc-a11y" data-go="a11y">${svg(I.a11y)}<span>Jogar com teclado ou leitor de tela</span></button>
         </nav>
-        <section class="tc-seas" aria-label="Os três oceanos">
-          <h2>Os três oceanos</h2>
-          <ul>
-            <li><span class="tc-sea tc-sea-me"><img src="assets/img/ships/icon_p1.png" alt=""></span>Seu oceano</li>
-            <li><span class="tc-sea tc-sea-mid"><svg viewBox="0 0 24 24" aria-hidden="true"><circle cx="12" cy="12" r="8"/><circle cx="12" cy="12" r="4"/><path d="M12 12l6-6"/></svg></span>Oceano neutro</li>
-            <li><span class="tc-sea tc-sea-foe"><img src="assets/img/ships/icon_p2.png" alt=""></span>Oceano inimigo</li>
-          </ul>
-        </section>
-        <p class="tc-foot">3º e 4º ano do Ensino Fundamental</p>
       </div>
       <section class="title-menu tc-diff" data-view="difficulty" aria-labelledby="gdmDiffHeading" hidden>
         <h2 id="gdmDiffHeading" class="tm-heading">Qual desafio você quer?</h2>
@@ -154,7 +144,7 @@
     el.classList.add('is-leaving');
     game.titleOpen = false;
     setTimeout(() => { el.remove(); if (game.panel) game.panel.render(true); }, game.state.settings.reduceMotion ? 0 : 400);
-    if (!resumed) game.announce('Vamos jogar! Você contra o computador.');
+    if (!resumed) game.announce('Vamos jogar! Você contra o Barba-Rubra.');
   };
 
   el.addEventListener('click', e => {

@@ -35,7 +35,7 @@
   const MODE_LABELS = {
     ai: {
       player1: { label: 'Capitão', short: 'Você', chip: 'Você', zone: 'Oceano do Capitão' },
-      player2: { label: 'Computador', short: 'PC', chip: 'Computador', zone: 'Oceano do Computador' }
+      player2: { label: 'Barba-Rubra', short: 'Pirata', chip: 'Barba-Rubra', zone: 'Oceano do Barba-Rubra' }
     },
     pvp: {
       player1: { label: 'Jogador 1', short: 'J1', chip: 'Jogador 1', zone: 'Oceano do Jogador 1' },
@@ -386,7 +386,7 @@
       this.live = root.querySelector('#gdmLive');
       this.alertLive = root.querySelector('#gdmAlert');
       root.querySelector('#gdmInstructions').textContent = 'A tecla Tab pula para o próximo lugar e Shift mais Tab volta. As setas andam de casa em casa dentro do mapa. As letras são as colunas, na horizontal. Os números são as linhas, na vertical. A tecla Q diz onde você está. A tecla N volta para o mapa. A tecla Enter faz a ação. Outras teclas: a tecla I fala como está a partida, a tecla C fala a casa atual, a tecla T repete a dica do Capitão, a tecla R gira o navio, a tecla P coloca todos os navios, as teclas 1, 2, 3 e 4 escolhem Atacar, Mover, Armadilha e Analisar, a tecla Espaço passa a vez, a tecla F1 abre o guia, a tecla F2 abre os ajustes e a tecla F3 vai para o painel.';
-      root.querySelector('#gdmVisualDescription').textContent = 'Mapa do mar visto de cima com três oceanos de dez por dez casas: o seu oceano à esquerda, o Oceano Neutro no meio e o Oceano do Computador à direita. Cada oceano usa colunas A até J e linhas 1 até 10, com A1 no canto superior esquerdo.';
+      root.querySelector('#gdmVisualDescription').textContent = 'Mapa do mar visto de cima com três oceanos de dez por dez casas: o seu oceano à esquerda, o Oceano Neutro no meio e o Oceano do Barba-Rubra à direita. Cada oceano usa colunas A até J e linhas 1 até 10, com A1 no canto superior esquerdo.';
       canvas.setAttribute('aria-describedby', 'gdmInstructions gdmVisualDescription gdmState');
       this.syncA11y();
     }
@@ -1247,7 +1247,7 @@
     isAiTurn() { return this.isAiMode() && this.state.phase === 'battle' && this.state.turn === 'player2'; }
     // Quem está olhando a tela: contra o computador é sempre o jogador humano.
     viewer() { return this.isAiMode() ? 'player1' : this.currentOwner(); }
-    modeName(mode = this.state.mode) { return mode === 'ai' ? 'Contra o computador' : '2 jogadores'; }
+    modeName(mode = this.state.mode) { return mode === 'ai' ? 'Contra o Barba-Rubra' : '2 jogadores'; }
 
     applyModeLabels() {
       const labels = MODE_LABELS[this.state.mode] || MODE_LABELS.ai;
@@ -1275,7 +1275,7 @@
     // Durante a vez do computador o jogador só assiste; o jogo explica o motivo.
     blockedByAi() {
       if (!this.isAiTurn()) return false;
-      this.toast('Espere! O computador está jogando agora', 'warn', 1600);
+      this.toast('Espere! O Barba-Rubra está jogando agora', 'warn', 1600);
       return true;
     }
     selectedShip() {
@@ -1312,6 +1312,7 @@
     }
 
     placeSelected(row, col) {
+      if (this.boardLocked()) return false;
       const s = this.selectedShip();
       if (!s || this.state.phase !== 'placement') return;
       if (this.mission && !this.mission.allowPlace(s, row, col)) return;
@@ -1462,10 +1463,10 @@
       if (first) { this.state.cursor = { row: first.row, col: first.col }; this.ensureVisible(first.row, first.col, true); }
       this.computeRadar(owner);
       this.audio.play(this.isAiOwner(owner) ? 'enemyTurn' : 'turn');
-      this.banner(this.isAiOwner(owner) ? 'Vez do Computador' : (this.isAiMode() ? 'Sua vez, Capitão!' : `${TEAM[owner].label}: sua vez!`), owner);
+      this.banner(this.isAiOwner(owner) ? 'Vez do Barba-Rubra' : (this.isAiMode() ? 'Sua vez, Capitão!' : `${TEAM[owner].label}: sua vez!`), owner);
       if (this.isAiOwner(owner)) {
-        this.toast('Vez do Computador! Ele está pensando…', 'info', 2200);
-        this.announce(`Rodada ${this.state.round}. Vez do Computador. Espere a jogada dele.`, true);
+        this.toast('Vez do Barba-Rubra! Ele está pensando…', 'info', 2200);
+        this.announce(`Rodada ${this.state.round}. Vez do Barba-Rubra. Espere a jogada dele.`, true);
         if (this.ai) this.ai.takeTurn();
         return;
       }
@@ -1605,6 +1606,7 @@
     }
 
     executeCellAction(row, col) {
+      if (this.boardLocked()) return;
       if (this.state.action === 'attack') this.attack(row, col);
       else if (this.state.action === 'move') this.moveByClickedCell(row, col);
       else if (this.state.action === 'trap') this.placeTrap(row, col);
@@ -1639,9 +1641,9 @@
         if (byAi) this.achieve('trapWorked', 'ARMADILHA PERFEITA!', 'O inimigo caiu na sua mina'); this.state.stats[owner].trapsTriggered++; this.state.revealed[owner].add(GDM_LOGIC.objectId(targetTrap, 'trap'));
         this.state.marks[owner].set(`${row}:${col}`, 'hit'); this.spawnExplosion(row, col);
         this.audio.play('boom');
-        if (byAi) this.toast(`O computador caiu na sua armadilha em ${where}!`, 'success', 2400);
+        if (byAi) this.toast(`O Barba-Rubra caiu na sua armadilha em ${where}!`, 'success', 2400);
         else this.toast(`Era uma armadilha! Seu navio perdeu ${GDM_CONFIG.traps.damage} de vida`, 'danger', 2400);
-        if (s.hp <= 0) { s.destroyed = true; s.cells = []; this.toast(byAi ? 'Sua armadilha afundou um navio do computador!' : `Que pena! Seu ${this.shipName(s)} afundou`, byAi ? 'success' : 'danger', 2400); }
+        if (s.hp <= 0) { s.destroyed = true; s.cells = []; this.toast(byAi ? 'Sua armadilha afundou um navio do Barba-Rubra!' : `Que pena! Seu ${this.shipName(s)} afundou`, byAi ? 'success' : 'danger', 2400); }
       } else if (targetShip) {
         this.buzz(50);
         targetShip.hp -= s.damage; this.state.stats[owner].hits++;
@@ -1662,8 +1664,8 @@
         if (targetShip.hp <= 0) {
           if (!byAi) this.achieve('firstSink', 'NAVIO AFUNDADO!', 'Você afundou um navio inimigo');
           targetShip.destroyed = true; targetShip.cells = []; this.state.stats[owner].shipsDestroyed++;
-          this.toast(byAi ? `O computador afundou seu ${this.shipName(targetShip)} em ${where}!` : `Afundou o ${this.shipName(targetShip)} inimigo em ${where}!`, byAi ? 'danger' : 'success', 2400);
-        } else this.toast(byAi ? `O computador acertou seu ${this.shipName(targetShip)} em ${where}!` : `Na mosca! Acertou em ${where}: ${s.damage} de dano`, byAi ? 'danger' : 'success', byAi ? 2200 : 1800);
+          this.toast(byAi ? `O Barba-Rubra afundou seu ${this.shipName(targetShip)} em ${where}!` : `Afundou o ${this.shipName(targetShip)} inimigo em ${where}!`, byAi ? 'danger' : 'success', 2400);
+        } else this.toast(byAi ? `O Barba-Rubra acertou seu ${this.shipName(targetShip)} em ${where}!` : `Na mosca! Acertou em ${where}: ${s.damage} de dano`, byAi ? 'danger' : 'success', byAi ? 2200 : 1800);
       } else {
         this.state.marks[owner].set(`${row}:${col}`, 'miss'); this.spawnSplash(row, col);
         this.spawnWord(row, col, 'ÁGUA!', C.p1Deep);
@@ -1671,7 +1673,7 @@
         if (!byAi) this.tutorialEvent('shot', { hit: false });
         else this.tutorialEvent('villain', { kind: 'aiMiss' });
         this.audio.play('splash');
-        this.toast(byAi ? `O computador errou! Água em ${where}` : `Splash! Água em ${where}`, 'info');
+        this.toast(byAi ? `O Barba-Rubra errou! Água em ${where}` : `Splash! Água em ${where}`, 'info');
       }
       this.state.action = null; this.computeRadar(owner);
       this.tutorialEvent('actionDone', { type: 'attack', owner, hit: !!(targetShip || targetTrap) });
@@ -1695,7 +1697,7 @@
       if (this.isAiOwner(s.owner)) {
         // Movimento do computador fica escondido: o jogador só fica sabendo que algo mudou.
         this.audio.play('move'); this.computeRadar(this.state.turn);
-        this.toast('O computador moveu um navio escondido', 'info');
+        this.toast('O Barba-Rubra moveu um navio escondido', 'info');
         this.collectChests(s);
         return;
       }
@@ -1725,7 +1727,7 @@
       this.state.traps.push({ uid: `trap-${owner}-${Date.now()}-${Math.random()}`, owner, row, col, active: true });
       this.state.action = null; this.audio.play('trap'); this.computeRadar(owner);
       if (!this.isAiOwner(owner)) this.spawnWord(row, col, 'ARMADILHA ESCONDIDA!', C.purple);
-      this.toast(this.isAiOwner(owner) ? 'O computador escondeu uma armadilha no mar!' : 'Armadilha escondida!', this.isAiOwner(owner) ? 'warn' : 'success');
+      this.toast(this.isAiOwner(owner) ? 'O Barba-Rubra escondeu uma armadilha no mar!' : 'Armadilha escondida!', this.isAiOwner(owner) ? 'warn' : 'success');
       this.tutorialEvent('actionDone');
     }
 
@@ -1998,7 +2000,7 @@
     toggleScreenReader() {
       const on = !this.state.settings.screenReader;
       this.updateSetting('screenReader', on, on ? 'Modo leitor de tela ligado' : 'Modo leitor de tela desligado');
-      if (on) this.announce('Modo leitor de tela ligado. O computador joga mais devagar e as dicas não roubam o foco. Use o mapa acessível ou o campo Ir para a casa. A tecla I fala como está a partida e a tecla Q diz onde você está.', true);
+      if (on) this.announce('Modo leitor de tela ligado. O Barba-Rubra joga mais devagar e as dicas não roubam o foco. Use o mapa acessível ou o campo Ir para a casa. A tecla I fala como está a partida e a tecla Q diz onde você está.', true);
     }
     toggleMapSounds() { const on = !this.state.settings.mapSounds; this.updateSetting('mapSounds', on, on ? 'Sons do mapa ligados' : 'Sons do mapa desligados'); }
 
@@ -2032,7 +2034,7 @@
       if (st.phase === 'end') return `${this.winTitle()} Pontuação ${this.currentScores()[me]} de 100.`;
       const mine = st.ships[me].filter(s => !s.destroyed), sunk = st.ships[opp].filter(s => s.destroyed).length;
       const ready = mine.filter(s => !s.turnLocked).length, contacts = this.radarContacts().filter(c => !c.revealed).length;
-      return `Rodada ${st.round}. ${this.isAiTurn() ? 'Vez do computador.' : 'Sua vez.'} Você tem ${mine.length} navios, ${ready} ainda podem agir. Você afundou ${sunk} de ${st.ships[opp].length} navios inimigos. ${contacts ? `${contacts} contatos misteriosos no radar.` : 'Nenhum contato no radar.'} Pontos: ${this.currentScores()[me]} de 100.`;
+      return `Rodada ${st.round}. ${this.isAiTurn() ? 'Vez do Barba-Rubra.' : 'Sua vez.'} Você tem ${mine.length} navios, ${ready} ainda podem agir. Você afundou ${sunk} de ${st.ships[opp].length} navios inimigos. ${contacts ? `${contacts} contatos misteriosos no radar.` : 'Nenhum contato no radar.'} Pontos: ${this.currentScores()[me]} de 100.`;
     }
 
     toggleMotion() { const on = !this.state.settings.reduceMotion; this.updateSetting('reduceMotion', on, on ? 'Animações reduzidas' : 'Animações completas'); }
@@ -2118,10 +2120,13 @@
 
     loop(t) {
       requestAnimationFrame(tt => this.loop(tt));
-      if (t - this.lastFrame < 1000 / 45) return;
+      // desenha em todo quadro da tela (60 fps num monitor de 60 Hz)
       this.lastFrame = t;
       this.draw(t);
     }
+
+    // No tutorial, enquanto o Capitão só explica, o mapa não aceita jogadas (evita colocar navio sem querer).
+    boardLocked() { return !!(this.mission && this.mission.locksBoard && this.mission.locksBoard()); }
 
     get hc() { return !!this.state.settings.highContrast; }
     get still() { return !!this.state.settings.reduceMotion; }
@@ -2662,7 +2667,7 @@
       for (const ship of this.state.ships[owner]) if (ship.row !== null) this.drawShip(ship, { selected: ship.uid === this.state.selectedShipId, t });
       const c = this.state.modal ? null : (this.hover.cell || this.state.cursor);
       const home = GDM_LOGIC.home(owner);
-      if (s && c && c.col >= home.minCol && c.col <= home.maxCol) {
+      if (s && c && !this.boardLocked() && c.col >= home.minCol && c.col <= home.maxCol) {
         const valid = GDM_LOGIC.canPlace(this.state, s, c.row, c.col, s.orientation);
         const cells = GDM_LOGIC.cells(c.row, c.col, s.size, s.orientation).filter(x => x.row < 10 && x.col < 30);
         if (cells.length) this.drawShip({ ...s, row: c.row, col: c.col, cells }, { alpha: 0.6, t, ghost: true, valid });
@@ -2938,7 +2943,7 @@
         return { text: s ? `Posicionando: ${this.shipName(s)} (${s.size} casas) · R gira · P automático` : 'Escolha um navio no painel', color: C.ink };
       }
       if (st.phase === 'battle') {
-        if (this.isAiTurn()) return { text: 'O computador está jogando… observe o seu oceano!', color: C.p2Deep };
+        if (this.isAiTurn()) return { text: 'O Barba-Rubra está jogando… observe o seu oceano!', color: C.p2Deep };
         if (this.menuOpen()) return { text: 'Escolha uma ação nos botões do navio · toque fora para fechar', color: C.ink };
         if (st.action === 'attack') return { text: 'Atire numa casa clarinha! (Esc cancela)', color: C.p2Deep };
         if (st.action === 'move') return { text: 'Escolha uma casa verde para navegar (Esc cancela)', color: C.grassDeep };

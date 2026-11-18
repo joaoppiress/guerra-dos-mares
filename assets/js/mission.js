@@ -19,6 +19,13 @@
   const FACE_PNG = 'assets/img/ui/capitao_rosto.png';
   const HERO_PNG = 'assets/img/ui/capitao.png';
   const VILLAIN_PNG = 'assets/img/ui/vilao.png';
+  // Expressões: assets/img/ui/capitao_<humor>.png e vilao_<humor>.png. Sem o arquivo, usa a imagem padrão.
+  const MOODS = { capitao: ['feliz', 'medo', 'bravo', 'surpreso', 'pensando', 'comemorando'], vilao: ['rindo', 'bravo', 'medo', 'chorando', 'surpreso', 'convencido'] };
+  const moodOk = {};
+  for (const [who, list] of Object.entries(MOODS)) for (const m of list) {
+    const im = new Image(); im.onload = () => { moodOk[`${who}_${m}`] = true; }; im.src = `assets/img/ui/${who}_${m}.png`;
+  }
+  const pic = (who, mood) => mood && moodOk[`${who}_${mood}`] ? `assets/img/ui/${who}_${mood}.png` : (who === 'vilao' ? VILLAIN_PNG : HERO_PNG);
   const HERO_RATIO = 671 / 900;
   const IDLE_HINT_MS = 8000;
   const IDLE_POINT_MS = 16000;
@@ -35,7 +42,7 @@
     hello: [['Preciso saber jogar batalha naval?', 'Não! O Capitão mostra tudo, passo por passo. É só seguir o quadro.'],
       ['Posso sair do tutorial?', 'Pode. Use "Pular tutorial". Para ver de novo depois: aba Ajuda, botão "Rever tutorial".']],
     villain: [['Quem joga pelo Barba-Rubra?', 'O computador. Ele escolhe as jogadas sozinho e não espia onde estão os seus navios.']],
-    map: [['Quais são os três oceanos?', 'À esquerda fica o SEU oceano, onde você esconde seus navios. No meio fica o Oceano Neutro, onde todos podem navegar. À direita fica o oceano do computador, com os navios dele escondidos.']],
+    map: [['Quais são os três oceanos?', 'À esquerda fica o SEU oceano, onde você esconde seus navios. No meio fica o Oceano Neutro, onde todos podem navegar. À direita fica o oceano do Barba-Rubra, com os navios dele escondidos.']],
     cols: [['Para que servem as letras?', 'Cada letra é uma coluna (de cima para baixo). A primeira é A, depois B, C... até J.']],
     rows: [['Para que servem os números?', 'Cada número é uma linha (da esquerda para a direita). Vão de 1 até 10.']],
     a1: [['Como acho uma casa?', 'Primeiro a letra (coluna), depois o número (linha). C7 é a coluna C com a linha 7.'],
@@ -54,8 +61,10 @@
     battle: [['Quantas jogadas faço na minha vez?', 'Cada navio pode agir uma vez. Quando terminar, aperte PASSAR A VEZ.']],
     select: [['Por que não posso escolher o Lança-Armadilhas aqui?', 'Ele não tem canhões: ele esconde minas. Neste treino vamos atirar, então escolha um navio com canhões.'],
       ['E pelo teclado?', 'Use as setas até o navio e aperte Enter.']],
+    chest: [['Como pego um baú?', 'Escolha um navio, escolha MOVER e leve o navio até a casa do baú. O prêmio aparece na hora.'], ['Que prêmios tem?', 'Balas novas para atirar, conserto de parte da vida do navio, ou uma luneta que mostra onde está um navio do Barba-Rubra.']],
     action: [['O que cada ação faz?', 'ATACAR atira numa casa dentro do alcance. MOVER navega em linha reta. ARMADILHA esconde uma mina. ANALISAR decifra um "?" do radar.'],
-      ['Tem atalho?', 'Teclas 1, 2, 3 e 4: Atacar, Mover, Armadilha e Analisar.']],
+      ['Onde ficam as ações?', 'Em dois lugares: nos botões redondos que aparecem em volta do navio quando você toca nele, no mapa, e nos botões do painel. Os dois fazem a mesma coisa.'],
+      ['Tem atalho?', 'A tecla 1 escolhe Atacar, a tecla 2 Mover, a tecla 3 Armadilha e a tecla 4 Analisar.']],
     fire: [['Onde eu atiro?', 'Nas casas clarinhas: é até onde o canhão do navio alcança. Para atirar mais longe, chegue mais perto com MOVER.'],
       ['E pelo teclado?', 'Use as setas para escolher a casa e Enter para atirar. Ou aperte G e digite a casa.']],
     shotResult: [['Como sei se acertei?', 'Fogo e "ACERTO!" quer dizer que pegou um navio. Respingo e "ÁGUA!" quer dizer que não tinha nada ali.']],
@@ -97,6 +106,36 @@
       this.waitForGame();
     }
 
+    // Tutorial: garante um “?” de verdade perto da frota (um navio do pirata chega pelo Oceano Neutro).
+    forceContact() {
+      const st = game.state, me = 'player1', foe = 'player2', L = GDM_LOGIC;
+      const known = game.radarContacts().find(c => !c.revealed && c.type === 'ship');
+      if (known) { this.data.contact = known; return true; }
+      const mine = st.ships[me].filter(x => !x.destroyed);
+      const foes = st.ships[foe].filter(x => !x.destroyed).sort((a, b) => a.size - b.size);
+      const enemy = foes[0];
+      if (!enemy || !mine.length) return false;
+      let best = null;
+      for (let row = 0; row < 10; row++) for (let col = 10; col + enemy.size - 1 <= 19; col++) {
+        const cells = L.cells(row, col, enemy.size, 'horizontal');
+        if (cells.some(c => { const o = L.shipAt(st, c.row, c.col); return (o && o !== enemy) || L.trapAt(st, c.row, c.col) || (st.chests || []).some(h => !h.taken && h.row === c.row && h.col === c.col); })) continue;
+        const d = Math.min(...mine.map(x => Math.min(...cells.map(c => L.distanceToShip(c, x)))));
+        if (d >= 2 && d <= GDM_CONFIG.radar.radius && (!best || d > best.d)) best = { row, col, d };
+      }
+      if (!best) return false;
+      Object.assign(enemy, { row: best.row, col: best.col, orientation: 'horizontal' });
+      L.refresh(enemy);
+      game.computeRadar(me);
+      this.data.contact = game.radarContacts().find(c => !c.revealed && c.type === 'ship');
+      return !!this.data.contact;
+    }
+
+    locksBoard() {
+      if (!this.active || this.mode !== 'mission') return false;
+      const st = this.step();
+      return !!st && (!st.wait || st.id === 'pick');
+    }
+
     avatar() { return this.faceOk ? FACE_PNG : ''; }
     completed() { try { return localStorage.getItem(DONE_KEY) === '1'; } catch (_e) { return false; } }
     markDone() { try { localStorage.setItem(DONE_KEY, '1'); } catch (_e) {} }
@@ -120,15 +159,29 @@
       const canShoot = () => game.state.ships[human()].some(sh => !sh.destroyed && sh.chargeType === 'missile' && sh.availableCharges > 0 && game.hasAttackCells(sh));
       const enemyZone = () => this.zoneOf(game.isAiMode() ? 'player2' : (game.state.turn === 'player1' ? 'player2' : 'player1'));
       return [
-        { id: 'hello', title: 'OLÁ, CAPITÃO!', big: true,
-          text: () => 'Bem-vindo ao Guerra dos Mares! Eu vou ficar com você nessa primeira missão.',
-          text2: () => 'Não se preocupe em decorar nada. Eu vou mostrar o que fazer, passo por passo!',
-          buttons: [['VAMOS LÁ!', () => this.next(), 'primary'], ['JÁ SEI JOGAR', () => this.skip(), 'soft'], ['TECLADO E LEITOR DE TELA', () => this.startA11yGuide(true), 'soft']] },
-        { id: 'villain', title: 'O ADVERSÁRIO', villain: true, skip: () => !game.isAiMode(),
-          text: () => 'Este é o Barba-Rubra, o capitão da frota inimiga. Ele quer afundar os nossos navios. Vamos treinar para vencer!',
+        { id: 'hello', title: 'OLÁ, MARUJO!', big: true, mood: 'feliz',
+          text: () => 'Ahoy! Eu sou o Capitão Maré! Que bom que você chegou! Os mares estavam tão calminhos... até agora.',
+          text2: () => 'Eu vou ficar com você nessa primeira missão e mostrar tudo, passo por passo!',
+          buttons: [['VAMOS LÁ!', () => this.next(), 'primary'], ['JÁ SEI JOGAR', () => this.skip(), 'soft']] },
+        { id: 'ask', title: 'UMA PERGUNTA, MARUJO', mood: 'pensando',
+          text: () => 'Antes de começar: você vai jogar usando só o teclado, ou com um leitor de tela, como o Narrador do Windows?',
+          text2: () => 'Se sim, eu explico as teclas primeiro. Se não, vamos direto para a aventura!',
+          buttons: [['SIM, TECLADO OU LEITOR DE TELA', () => this.chooseA11y(true), 'primary'], ['NÃO, VOU USAR O MOUSE OU O DEDO', () => this.chooseA11y(false), 'soft']] },
+        { id: 'villain', title: 'QUEM VEM LÁ?', villain: true, speaker: 'villain', villainMood: 'rindo', skip: () => !game.isAiMode(),
+          enter: () => game.audio.play('tutorialNext'),
+          text: () => 'HA HA HA! Eu sou o Barba-Rubra, o pirata mais malvado dos sete mares! Vou afundar todos os seus barquinhos, um por um!',
           buttons: [['CONTINUAR', () => this.next(), 'primary']] },
-        { id: 'map', title: 'CONHEÇA O MAPA', target: { board: true }, enter: () => game.resetCamera(),
-          text: () => `Este é o nosso oceano, capitão! À esquerda fica o ${GDM_LOGIC.zoneNames.player1}, no meio o Oceano Neutro e à direita o ${GDM_LOGIC.zoneNames.player2}.`,
+        { id: 'scared', title: 'GLUP...', villain: true, mood: 'medo', villainMood: 'convencido', skip: () => !game.isAiMode(),
+          text: () => 'Glup... ele é bem assustador, né? Minhas pernas estão tremendo! Mas eu sei de um segredo...',
+          buttons: [['QUAL SEGREDO?', () => this.next(), 'primary']] },
+        { id: 'brave', title: 'CORAGEM!', villain: true, mood: 'bravo', villainMood: 'surpreso', skip: () => !game.isAiMode(),
+          text: () => 'Com você no comando, a gente fica corajoso! Ei, Barba-Rubra: deixa os nossos mares em paz!',
+          buttons: [['ISSO AÍ!', () => this.next(), 'primary']] },
+        { id: 'villainMad', title: 'ARRR!', villain: true, speaker: 'villain', mood: 'bravo', villainMood: 'bravo', skip: () => !game.isAiMode(),
+          text: () => 'Corajosos? ARRR! Vocês nem sabem onde estão os meus navios! Vamos ver quem ri por último!',
+          buttons: [['VAMOS VENCER ELE!', () => this.next(), 'primary']] },
+        { id: 'map', title: 'CONHEÇA O MAPA', mood: 'feliz', target: { board: true }, enter: () => game.resetCamera(),
+          text: () => `Primeiro, vamos estudar o mapa, como todo bom capitão! À esquerda fica o ${GDM_LOGIC.zoneNames.player1}, no meio o Oceano Neutro e à direita o ${GDM_LOGIC.zoneNames.player2}.`,
           buttons: [['PRÓXIMO', () => this.next(), 'primary']] },
         { id: 'cols', title: 'CONHEÇA O MAPA', target: { cols: 0 },
           text: () => 'As LETRAS ficam em cima e mostram as colunas. Elas andam na HORIZONTAL, da esquerda para a direita: A, B, C... até J.',
@@ -175,46 +228,76 @@
             if (!game.hasAttackCells(sh)) return 'Esse navio está muito no fundo e o canhão não alcança. Escolha um navio com canhões mais para a direita!';
             return null;
           } },
-        { id: 'action', skip: () => !canShoot() && !this.data.fired, title: 'PASSO 2 · ESCOLHA UMA AÇÃO', target: { dom: '[data-key="act:attack"]' },
-          text: () => 'Agora escolha ATACAR: atire em uma casa do mapa.',
+        { id: 'action', skip: () => !canShoot() && !this.data.fired, title: 'PASSO 2 · ESCOLHA UMA AÇÃO', target: { dom: '[data-key="act:attack"]' }, open: true,
+          text: () => 'Agora escolha ATACAR. Você pode escolher de dois jeitos: no MAPA, tocando no botão vermelho ATACAR que apareceu em volta do navio, ou aqui no PAINEL, no botão Atacar. No teclado, é a tecla 1.',
           wait: ev => ev.name === 'chooseAction' && game.state.action === 'attack',
-          fail: ev => ev.name === 'chooseAction' && game.state.action !== 'attack' ? 'Nesse treino, vamos usar ATACAR. Toque em Cancelar e depois em Atacar.' : null },
-        { id: 'fire', skip: () => !canShoot() && !this.data.fired, title: 'PASSO 3 · ESCOLHA NO MAPA', target: { zone: () => 1 }, enter: () => game.focusZone(1, true),
+          fail: ev => ev.name === 'chooseAction' && game.state.action !== 'attack' ? 'Nesse treino, vamos usar ATACAR. Toque em Cancelar e depois no botão vermelho Atacar.' : null },
+        { id: 'fire', skip: () => !canShoot() && !this.data.fired, title: 'PASSO 3 · ESCOLHA NO MAPA', target: { board: true }, enter: () => game.focusZone(1, true),
           text: () => 'Cada canhão tem um alcance. As casas CLARINHAS são onde ele consegue atirar. Toque numa casa clarinha!',
           wait: ev => ev.name === 'actionDone' && ev.data && ev.data.type === 'attack',
           done: ev => { this.data.hit = !!(ev.data && ev.data.hit); this.data.fired = true; } },
-        { id: 'shotResult', skip: () => !canShoot() && !this.data.fired, title: () => this.data.hit ? 'ACERTO!' : 'ÁGUA!', light: true,
+        { id: 'shotResult', mood: () => this.data.hit ? 'comemorando' : 'surpreso', skip: () => !canShoot() && !this.data.fired, title: () => this.data.hit ? 'ACERTO!' : 'ÁGUA!', light: true,
           text: () => this.data.hit ? 'Na mosca, capitão! Cada acerto tira vida do navio inimigo.' : 'Splash! Ali só tinha água. Os navios do pirata estão mais longe, no oceano da direita.',
           buttons: [['CONTINUAR', () => this.next(), 'primary']] },
+        { id: 'chest', title: 'BAÚS DO TESOURO!', mood: 'surpreso', target: { zone: () => 1 }, skip: () => !(game.state.chests || []).some(c => !c.taken),
+          enter: () => game.focusZone(1, true),
+          text: () => 'Olha só! Essas caixinhas marrons no Oceano Neutro são BAÚS DO TESOURO! Leve um navio seu até a casa do baú e ele ganha um prêmio surpresa: balas novas, conserto do navio ou uma luneta que mostra um navio do pirata.',
+          text2: () => 'Mas seja rápido: o Barba-Rubra também quer os baús!',
+          buttons: [['QUERO UM BAÚ!', () => this.next(), 'primary']] },
         { id: 'moveSel', title: 'CHEGUE MAIS PERTO!', target: { zone: () => this.zoneOf(game.state.turn) },
           enter: () => game.focusZone(this.zoneOf(game.state.turn), true),
-          text: () => 'Para alcançar o pirata, precisamos navegar até ele. Escolha OUTRO navio seu, que ainda não jogou.',
+          text: () => 'Agora vamos navegar! Assim chegamos mais perto do pirata, ou de um baú. Escolha OUTRO navio seu, que ainda não jogou.',
           wait: ev => ev.name === 'battleSelect' && ev.data && !ev.data.ship.turnLocked,
           fail: ev => ev.name === 'battleSelect' && ev.data && ev.data.ship.turnLocked ? 'Esse navio já jogou nesta vez. Escolha outro!' : null },
-        { id: 'moveAct', title: 'MOVER', target: { dom: '[data-key="act:move"]' },
-          text: () => 'Agora escolha MOVER (tecla 2). Navios pequenos andam mais: o Destroier anda 3 casas!',
+        { id: 'moveAct', title: 'MOVER', target: { dom: '[data-key="act:move"]' }, open: true,
+          text: () => 'Agora escolha MOVER: no botão verde em volta do navio, no mapa, ou no botão Mover do painel (tecla 2). Navios pequenos andam mais: o Destroier anda 3 casas!',
           wait: ev => ev.name === 'chooseAction' && game.state.action === 'move',
           fail: ev => ev.name === 'chooseAction' && game.state.action !== 'move' ? 'Agora vamos usar MOVER. Toque em Cancelar e depois em Mover.' : null },
-        { id: 'moveGo', title: 'MOVER', target: { zone: () => this.zoneOf(game.state.turn) },
+        { id: 'moveGo', title: 'MOVER', target: { board: true },
           text: () => 'Toque numa casa VERDE para o navio andar até lá. Ir para a direita deixa você mais perto do pirata!',
           wait: ev => ev.name === 'actionDone' && ev.data && ev.data.type === 'move',
           done: () => this.cheer('Vrum! Navegando!') },
-        { id: 'radar', title: 'O RADAR', target: { dom: '[data-tab="radar"]' }, skip: () => !game.questionsLoaded,
-          text: () => 'Capitão! Nosso radar encontrou um sinal misterioso. Para decifrar, responda se a frase é VERDADEIRA ou FALSA. Vamos treinar!',
+        { id: 'trapInfo', title: 'O LANÇA-ARMADILHAS', mood: 'pensando', target: { dom: '#gdmTabPanel-game .ships' },
+          text: () => 'Sabe o nosso maior navio, o LANÇA-ARMADILHAS? Ele não atira: ele esconde MINAS no mar, até 7 casas longe dele, no nosso oceano ou no Oceano Neutro.',
+          text2: () => 'Se um navio do pirata passar por cima de uma mina: BUM! 1500 de dano! Para usar: escolha o Lança-Armadilhas, depois ARMADILHA (tecla 3) e toque numa casa. Cuidado: o Barba-Rubra também esconde minas!',
+          buttons: [['QUE ESPERTO!', () => this.next(), 'primary']] },
+        { id: 'contact', title: 'BIP, BIP! O RADAR!', mood: 'surpreso', skip: () => !game.questionsLoaded,
+          enter: () => { this.data.live = this.forceContact(); if (this.data.live) game.focusZone(1, true); },
+          target: { cell: () => this.data.contact ? [this.data.contact.row, this.data.contact.col] : null },
+          text: () => this.data.live
+            ? 'Olha esse “?” no mapa! O radar achou alguma coisa perto do nosso navio. Pode ser um navio do Barba-Rubra... ou uma MINA escondida!'
+            : 'O radar acha sinais misteriosos “?” perto dos nossos navios. Pode ser um navio do Barba-Rubra... ou uma MINA escondida!',
+          text2: () => 'Se você atirar sem saber o que é, pode gastar a bala numa bomba! Por isso, primeiro a gente ANALISA: responde uma pergunta e descobre o que é.',
+          buttons: [['VAMOS ANALISAR!', () => this.next(), 'primary']] },
+        { id: 'anSel', title: 'ANALISAR · ESCOLHA UM NAVIO', mood: 'pensando', target: { board: true }, skip: () => !this.data.live,
+          text: () => 'Escolha o navio seu que está MAIS PERTO do “?”. O radar dele alcança até 5 casas.',
+          wait: ev => ev.name === 'battleSelect' && ev.data },
+        { id: 'anAct', title: 'ANALISAR · ESCOLHA A AÇÃO', target: { dom: '[data-key="act:analyze"]' }, open: true, skip: () => !this.data.live,
+          text: () => 'Agora escolha ANALISAR: no botão azul com a lupa, em volta do navio, ou no painel. No teclado, é a tecla 4.',
+          wait: ev => ev.name === 'analyzeMode' },
+        { id: 'anGo', title: 'ANALISAR · TOQUE NO “?”', target: { board: true }, skip: () => !this.data.live,
+          text: () => 'Toque no “?” no mapa e responda: a frase é VERDADEIRA ou FALSA?',
+          wait: ev => ev.name === 'answerRight' || ev.name === 'answerWrong',
+          done: ev => { this.data.correct = ev.name === 'answerRight'; } },
+        { id: 'radar', title: 'O RADAR', mood: 'pensando', target: { dom: '[data-tab="radar"]' }, skip: () => !game.questionsLoaded || this.data.live,
+          text: () => 'Vamos treinar com um sinal de mentirinha. Responda se a frase é VERDADEIRA ou FALSA!',
           buttons: [['DECIFRAR SINAL', () => { if (!game.openPracticeQuestion()) this.next(); }, 'primary']],
           wait: ev => ev.name === 'practiceClosed' },
-        { id: 'radarResult', title: () => this.data.correct ? 'EXCELENTE!' : 'QUASE!', light: true,
-          text: () => this.data.correct
-            ? 'Você decifrou o sinal! Na batalha, acertar a frase revela se o “?” do radar é um navio ou uma armadilha.'
-            : 'Essa era difícil, mas agora você já sabe! Na batalha, acertar a frase revela se o “?” do radar é um navio ou uma armadilha.',
+        { id: 'radarResult', mood: () => this.data.correct ? 'comemorando' : 'feliz', title: () => this.data.correct ? 'EXCELENTE!' : 'QUASE!', light: true,
+          text: () => {
+            if (!this.data.live) return this.data.correct ? 'Você decifrou o sinal! Na batalha, acertar a frase mostra se o “?” é um navio ou uma mina.' : 'Essa era difícil, mas agora você já sabe! Na batalha, acertar a frase mostra se o “?” é um navio ou uma mina.';
+            return this.data.correct
+              ? 'Você decifrou! Era um NAVIO do Barba-Rubra! Agora ele aparece no mapa e você sabe exatamente onde atirar. E ainda ganhou uma bala extra!'
+              : 'Ops, essa frase era difícil! O “?” continua um mistério. Na próxima vez você analisa de novo: lembre, nunca atire no escuro!';
+          },
           buttons: [['CONTINUAR', () => this.next(), 'primary']] },
         { id: 'end', title: 'PASSAR A VEZ', target: { dom: '[data-key="end"]' },
           text: () => 'Quando terminar suas jogadas, aperte PASSAR A VEZ (tecla Espaço).',
           wait: ev => ev.name === 'endTurn' },
         { id: 'watch', hidden: true, wait: ev => ev.name === 'turnStart' },
-        { id: 'done', title: 'MISSÃO CUMPRIDA!',
+        { id: 'done', title: 'MISSÃO CUMPRIDA!', mood: 'comemorando', villain: true, villainMood: 'medo',
           enter: () => { game.audio.play('win'); this.confetti(); this.markDone(); },
-          text: () => 'Você já sabe jogar, capitão! Se ficar em dúvida, olhe o quadro AGORA FAÇA ISTO ou peça uma Dica do Capitão.',
+          text: () => 'Você já sabe jogar, capitão! Olha só: o Barba-Rubra já está com medo de você! Se ficar em dúvida, olhe o quadro AGORA FAÇA ISTO ou peça uma Dica do Capitão.',
           buttons: [['BORA JOGAR!', () => this.stop(), 'primary']] }
       ];
     }
@@ -226,8 +309,8 @@
         { id: 'ax-intro', title: 'TECLADO E LEITOR DE TELA',
           text: () => 'Vou mostrar como jogar sem mouse e com o Narrador do Windows. Você pode pular quando quiser.',
           buttons: [['COMEÇAR', () => this.next(), 'primary']] },
-        { id: 'ax-sr', title: 'MODO LEITOR DE TELA',
-          text: () => `Você usa o Narrador do Windows? Para ligar o Narrador, aperte as teclas Windows, Control e Enter juntas. Depois, ligue aqui o Modo leitor de tela. Com ele ligado, o computador joga mais devagar e o Capitão fala as dicas sem mudar o lugar onde você está. Agora o Modo leitor de tela está ${sr() ? 'LIGADO' : 'DESLIGADO'}.`,
+        { id: 'ax-sr', title: 'MODO LEITOR DE TELA', mood: 'pensando',
+          text: () => `Você usa o Narrador do Windows? Para ligar o Narrador, aperte as teclas Windows, Control e Enter juntas. Depois, ligue aqui o Modo leitor de tela. Com ele ligado, o Barba-Rubra joga mais devagar e o Capitão fala as dicas sem mudar o lugar onde você está. Agora o Modo leitor de tela está ${sr() ? 'LIGADO' : 'DESLIGADO'}.`,
           buttons: [[() => sr() ? 'DESLIGAR MODO LEITOR' : 'LIGAR MODO LEITOR', () => { game.toggleScreenReader(); this.render(true); }, 'soft'], ['PRÓXIMO', () => this.next(), 'primary']] },
         { id: 'ax-coords', title: 'AS CASAS DO MAPA',
           text: () => 'O mapa tem 3 oceanos. Cada oceano tem 10 colunas e 10 linhas. As LETRAS, de A até J, são as colunas. Elas mudam quando você anda na HORIZONTAL, para a esquerda ou para a direita. Os NÚMEROS, de 1 até 10, são as linhas. Eles mudam quando você anda na VERTICAL, para cima ou para baixo. Exemplo: a casa C7 fica na coluna C e na linha 7.',
@@ -258,11 +341,22 @@
       ];
     }
 
-    startA11yGuide(thenTutorial = false) {
-      this.mode = 'mission'; this.active = true; this.data = {}; this.index = -1;
-      this.list = this.a11ySteps(thenTutorial);
-      if (game.panel) game.panel.open(null);
+    // Resposta da pergunta do Capitão: com teclado/leitor, as explicações de acessibilidade entram no tutorial.
+    chooseA11y(yes) {
+      if (yes && !this.list.some(x => x.id === 'ax-sr')) {
+        const extra = this.a11ySteps(true).filter(x => !['ax-intro', 'ax-done'].includes(x.id));
+        this.list.splice(this.index + 1, 0, ...extra);
+        if (game.panel) game.panel.open(null);
+      }
       this.next();
+    }
+
+    // Atalho antigo (botão da Ajuda): abre o tutorial já com a parte de teclado e leitor de tela.
+    startA11yGuide() {
+      this.start();
+      if (!this.active || !this.list) return;
+      this.index = this.list.findIndex(x => x.id === 'ask');
+      this.chooseA11y(true);
     }
 
     start(skipHello = false) {
@@ -410,7 +504,7 @@
         return `Toque numa casa verde para colocar o ${game.shipName(game.selectedShip())}.`;
       }
       if (st.phase === 'battle') {
-        if (game.isAiTurn()) return 'Espere: o computador está jogando.';
+        if (game.isAiTurn()) return 'Espere: o Barba-Rubra está jogando.';
         const a = st.action;
         if (a === 'attack') return 'Toque numa casa clarinha para atirar.';
         if (a === 'move') return 'Toque numa casa verde para navegar.';
@@ -440,7 +534,7 @@
         return 'Escolha um navio e toque numa casa verde. GIRAR deixa o navio em pé ou deitado, AUTOMÁTICO arruma tudo.';
       }
       if (st.phase === 'battle') {
-        if (game.isAiTurn()) return 'É a vez do computador. Observe o seu oceano e espere a sua vez!';
+        if (game.isAiTurn()) return 'É a vez do Barba-Rubra. Observe o seu oceano e espere a sua vez!';
         const a = st.action;
         if (a === 'attack') return 'As casas clarinhas são onde o canhão alcança. Se o pirata estiver longe, use MOVER para chegar mais perto.';
         if (a === 'move') return 'Toque numa casa verde: o navio navega até lá. Navios pequenos andam mais!';
@@ -514,11 +608,11 @@
     }
 
     // Falas rápidas do Capitão durante a partida (sem bloquear).
-    quip(title, text, ms = 2200, speaker = null) {
+    quip(title, text, ms = 2200, speaker = null, mood = null) {
       if (this.active && (this.mode === 'mission' || this.mode === 'tip')) return;
       if (game.state.settings.screenReader) return;
       this.mode = 'quip'; this.active = true; this.index = 0;
-      this.list = [{ id: 'quip', title, light: true, small: true, speaker, text: () => text, buttons: [] }];
+      this.list = [{ id: 'quip', title, light: true, small: true, speaker, mood: speaker === 'villain' ? null : mood, villainMood: speaker === 'villain' ? mood : null, text: () => text, buttons: [] }];
       this.render(true);
       clearTimeout(this.quipTimer);
       this.quipTimer = setTimeout(() => { if (this.mode === 'quip') this.hideTip(); }, ms);
@@ -536,7 +630,8 @@
       }[kind];
       if (!L || window.innerHeight < 500) return;
       if (kind === 'playerHit' && Math.random() < 0.5) return;
-      this.quip('BARBA-RUBRA', L[Math.floor(Math.random() * L.length)], 1900, 'villain');
+      const MOOD = { aiHit: 'rindo', aiMiss: 'bravo', aiSink: 'rindo', playerHit: 'surpreso', playerSink: 'chorando', chest: 'bravo' };
+      this.quip('BARBA-RUBRA', L[Math.floor(Math.random() * L.length)], 1900, 'villain', MOOD[kind]);
     }
 
     reactQuip(name, data) {
@@ -545,10 +640,10 @@
       // Tiros já têm a palavra grande no mapa e o aviso no topo; o Capitão só aparece em momentos especiais.
       if (window.innerHeight < 500) return;
       if (name === 'radarContact') {
-        this.quip('CONTATO NO RADAR!', 'Tem alguma coisa por perto! Veja a aba Radar.', 2600);
+        this.quip('CONTATO NO RADAR!', 'Tem alguma coisa por perto! Veja a aba Radar.', 2600, null, 'surpreso');
         const tab = $('[data-tab="radar"]');
         if (tab) { tab.classList.remove('m-attention'); void tab.offsetWidth; tab.classList.add('m-attention'); }
-      } else if (name === 'answerRight' && data && data.stars === 3) setTimeout(() => this.quip('3 ESTRELAS!', 'Você está mandando muito bem!', 2600), 1600);
+      } else if (name === 'answerRight' && data && data.stars === 3) setTimeout(() => this.quip('3 ESTRELAS!', 'Você está mandando muito bem!', 2600, null, 'comemorando'), 1600);
     }
 
     idleCheck() {
@@ -677,8 +772,16 @@
       const villainTalks = st.speaker === 'villain';
       this.nameTag.textContent = villainTalks ? 'Barba-Rubra' : 'Capitão Maré';
       this.el.classList.toggle('is-villain-talk', villainTalks);
-      const want = villainTalks ? VILLAIN_PNG : HERO_PNG;
+      const val = v => (typeof v === 'function' ? v() : v) || '';
+      const heroMood = val(st.mood), villMood = val(st.villainMood);
+      // fala rápida do pirata (sem o Capitão na tela): a imagem grande vira o pirata
+      const want = villainTalks && !st.villain ? pic('vilao', villMood) : pic('capitao', heroMood);
       if (!this.hero.src.endsWith(want)) this.hero.src = want;
+      this.hero.dataset.mood = villainTalks && !st.villain ? villMood : heroMood;
+      const wantV = pic('vilao', villMood);
+      if (!this.villain.src.endsWith(wantV)) this.villain.src = wantV;
+      this.villain.dataset.mood = villMood;
+      this.el.classList.toggle('villain-speaks', villainTalks && !!st.villain);
       this.count.textContent = n ? `${n}/${missionSteps.length}` : '';
       this.progress.hidden = !n;
       if (n) this.progress.innerHTML = missionSteps.map((_, i) => `<i class="${i < n ? 'on' : ''}"></i>`).join('');
@@ -890,7 +993,7 @@
       if (t.board) return clip({ x: ox + game.zoneX(0) - 30, y: oy + g.gy - 34, w: game.zoneX(2) + g.cell * 10 - game.zoneX(0) + 60, h: g.gh + 44 });
       if (t.cols !== undefined) return clip({ x: ox + game.zoneX(t.cols) - 4, y: oy + g.gy - Math.max(26, g.cell * 0.7), w: g.cell * 10 + 8, h: Math.max(24, g.cell * 0.68) });
       if (t.rows !== undefined) return clip({ x: ox + game.zoneX(t.rows) - Math.max(30, g.cell * 0.8), y: oy + g.gy - 2, w: Math.max(28, g.cell * 0.78), h: g.cell * 10 + 4 });
-      if (t.cell) { const [row, col] = t.cell; return clip({ x: ox + game.colX(col) - 4, y: oy + game.rowY(row) - 4, w: g.cell + 8, h: g.cell + 8 }); }
+      if (t.cell) { const tc = typeof t.cell === 'function' ? t.cell() : t.cell; if (!tc) return null; const [row, col] = tc; return clip({ x: ox + game.colX(col) - 4, y: oy + game.rowY(row) - 4, w: g.cell + 8, h: g.cell + 8 }); }
       if (t.zone) { const z = t.zone(); return clip({ x: ox + game.zoneX(z) - 30, y: oy + g.gy - 34, w: g.cell * 10 + 60, h: g.gh + 44 }); }
       return null;
     }

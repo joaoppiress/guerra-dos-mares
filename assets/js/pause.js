@@ -147,6 +147,15 @@
     }
   }, true);
 
+  // Botão sempre visível no jogo para abrir o menu (mesmo que a tecla Esc).
+  const gear = document.createElement('button');
+  gear.type = 'button'; gear.id = 'gdmGear';
+  gear.setAttribute('aria-label', 'Menu e configurações (tecla Esc)'); gear.title = 'Menu e configurações (Esc)';
+  gear.innerHTML = '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" aria-hidden="true"><circle cx="12" cy="12" r="3.2"/><path d="M12 2.5v2.6M12 18.9v2.6M4.6 4.6l1.8 1.8M17.6 17.6l1.8 1.8M2.5 12h2.6M18.9 12h2.6M4.6 19.4l1.8-1.8M17.6 6.4l1.8-1.8"/></svg>';
+  gear.addEventListener('click', () => open());
+  document.body.appendChild(gear);
+  setInterval(() => { const hide = !!game.titleOpen || !el.hidden; if (gear.hidden !== hide) gear.hidden = hide; }, 300);
+
   game.openPause = open;
   game.closePause = close;
 })();

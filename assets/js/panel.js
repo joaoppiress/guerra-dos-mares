@@ -37,8 +37,8 @@
   const FAQ = [
     ['Antes de começar', [
       ['Contra quem eu jogo?', 'Contra o computador, que comanda a frota do Barba-Rubra. Ele não espia onde estão os seus navios.'],
-      ['Como ganho a partida?', 'Afundando todos os navios do computador antes que ele afunde os seus.'],
-      ['O que são os três oceanos?', 'À esquerda, o seu oceano. No meio, o Oceano Neutro, onde todos podem navegar. À direita, o oceano do computador.'],
+      ['Como ganho a partida?', 'Afundando todos os navios do Barba-Rubra antes que ele afunde os seus.'],
+      ['O que são os três oceanos?', 'À esquerda, o seu oceano. No meio, o Oceano Neutro, onde todos podem navegar. À direita, o oceano do Barba-Rubra.'],
       ['Como leio uma casa, tipo C7?', 'A letra é a coluna (em cima) e o número é a linha (ao lado). C7 é a coluna C com a linha 7.']
     ]],
     ['Montando a frota', [
@@ -60,19 +60,19 @@
       ['Como descubro o que é?', 'Use ANALISAR no "?" e responda se a frase é Verdadeira ou Falsa. Acertando, o contato é revelado.'],
       ['E se eu errar a pergunta?', 'Você vê a resposta certa com a explicação. Dá para analisar de novo na próxima vez (uma análise por vez).']
     ]],
-    ['Vez do computador', [
+    ['Vez do Barba-Rubra', [
       ['O que faço enquanto ele joga?', 'Espere e observe o seu oceano: os tiros dele aparecem no mapa e são avisados em voz e na tela.'],
       ['Ele pode trapacear?', 'Não. Ele usa as mesmas regras que você e só sabe o que os próprios tiros e o radar mostraram.']
     ]],
     ['Pontos e fim de jogo', [
-      ['Como ganho pontos?', 'Causando dano nos navios do computador, acertando as perguntas do radar e acertando os tiros. A nota vai de 0 a 100.'],
+      ['Como ganho pontos?', 'Causando dano nos navios do Barba-Rubra, acertando as perguntas do radar e acertando os tiros. A nota vai de 0 a 100.'],
       ['O que as estrelas do final mostram?', 'O seu desempenho na partida: quanto mais pontos, mais estrelas.']
     ]],
     ['Teclado, leitor de tela e acessibilidade', [
       ['Quando uso Tab e quando uso as setas?', 'Tab pula de um lugar para outro (do mapa para o painel, de botão em botão) e Shift+Tab volta. As setas andam de casa em casa dentro do mapa e trocam as abas do painel. Se ficar perdido, aperte a tecla Q.'],
       ['Como volto para o mapa?', 'Aperte N de qualquer lugar. No painel, o primeiro botão de cada aba é Voltar para o mapa.'],
       ['Dá para jogar só com o teclado?', 'Sim. Tab anda pelos botões, setas andam no mapa, Enter confirma e Esc cancela. G leva para o campo "Ir para a casa", onde você digita a casa (ex.: C7).'],
-      ['Uso o Narrador do Windows. O que ligo?', 'Em Opções ou Ajustes, ligue "Modo leitor de tela": o computador joga mais devagar e as dicas são faladas sem roubar o foco. A tecla I fala como está a partida, a tecla C fala a casa atual, a tecla T repete a dica do Capitão e a tecla Q diz onde você está.'],
+      ['Uso o Narrador do Windows. O que ligo?', 'Em Opções ou Ajustes, ligue "Modo leitor de tela": o Barba-Rubra joga mais devagar e as dicas são faladas sem roubar o foco. A tecla I fala como está a partida, a tecla C fala a casa atual, a tecla T repete a dica do Capitão e a tecla Q diz onde você está.'],
       ['A tela está difícil de ver.', 'Ligue Alto contraste, aumente o tamanho das letras ou troque o tipo de letra em Ajustes, na seção Texto.'],
       ['As animações me incomodam.', 'Ligue "Menos movimento" em Ajustes, na seção Tela.']
     ]]
@@ -482,7 +482,7 @@
           ${vol('sfx', 'Volume dos efeitos', s.sfxVol ?? 8, s.sfx)}
           ${sw('mapsounds', 'Sons do mapa', !!s.mapSounds, 'Esquerda/direita e grave/agudo mostram onde você está')}`;
       else if (sec === 'tela') body = `
-          ${sw('screenreader', 'Modo leitor de tela', !!s.screenReader, 'Para o Narrador: computador mais devagar e dicas faladas')}
+          ${sw('screenreader', 'Modo leitor de tela', !!s.screenReader, 'Para o Narrador: o pirata joga mais devagar e dicas faladas')}
           ${sw('contrast', 'Alto contraste', !!s.highContrast, 'Preto, branco e amarelo')}
           ${sw('motion', 'Menos movimento', !!s.reduceMotion, 'Peixes, ondas e tremidas param')}
           ${row('Tamanho do mapa', `<span class="opt-stepper">${btn('zoom-out', '−', { cls: 'opt-step', aria: 'Diminuir zoom' })}<span class="opt-zoom-val">${z}%</span>${btn('zoom-in', '+', { cls: 'opt-step', aria: 'Aumentar zoom' })}</span>`)}`;
@@ -522,7 +522,7 @@
             <li>Esconda seus navios no seu oceano.</li>
             <li>Na sua vez: escolha um navio, escolha uma ação e escolha uma casa no mapa.</li>
             <li>O radar mostra “?” perto dos seus navios. Analise e responda Verdadeiro ou Falso para descobrir o que é.</li>
-            <li>Afunde todos os navios do ${game.isAiMode() ? 'computador' : 'outro jogador'}!</li>
+            <li>Afunde todos os navios do ${game.isAiMode() ? 'Barba-Rubra' : 'outro jogador'}!</li>
           </ol>
         </details>
         <details class="card"><summary>Coordenadas</summary>

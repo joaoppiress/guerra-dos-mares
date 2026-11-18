@@ -4,200 +4,200 @@
     "nivel": 2,
     "dificuldade": "facil",
     "habilidade": "EF03CO01",
-    "pergunta": "A afirmação “2 + 2 não é igual a 5” é verdadeira.",
+    "pergunta": "2 + 2 é igual a 4.",
     "gabarito": "Verdadeiro",
     "resposta": true,
-    "explicacao": "Sim. Como 2 + 2 = 4, afirmar que o resultado não é 5 está correto."
+    "explicacao": "Isso mesmo! 2 + 2 = 4."
   },
   {
     "id": 2,
     "nivel": 2,
     "dificuldade": "facil",
     "habilidade": "EF03CO01",
-    "pergunta": "A afirmação “1 + 1 é igual a 3” é verdadeira.",
+    "pergunta": "1 + 1 é igual a 3.",
     "gabarito": "Falso",
     "resposta": false,
-    "explicacao": "Não. 1 + 1 = 2, portanto a afirmação é falsa."
+    "explicacao": "Não. 1 + 1 = 2."
   },
   {
     "id": 3,
     "nivel": 2,
     "dificuldade": "facil",
     "habilidade": "EF03CO01",
-    "pergunta": "A afirmação “3 + 2 é igual a 5” é verdadeira.",
+    "pergunta": "3 + 2 é igual a 5.",
     "gabarito": "Verdadeiro",
     "resposta": true,
-    "explicacao": "Sim. 3 + 2 = 5."
+    "explicacao": "Certo! 3 + 2 = 5."
   },
   {
     "id": 4,
     "nivel": 2,
     "dificuldade": "facil",
     "habilidade": "EF03CO01",
-    "pergunta": "Não é verdade que 1 + 3 seja igual a 5.",
-    "gabarito": "Verdadeiro",
-    "resposta": true,
-    "explicacao": "Correto. 1 + 3 = 4; por isso, negar que o resultado seja 5 torna a sentença verdadeira."
+    "pergunta": "5 + 5 é igual a 8.",
+    "gabarito": "Falso",
+    "resposta": false,
+    "explicacao": "Não. 5 + 5 = 10."
   },
   {
     "id": 5,
     "nivel": 2,
     "dificuldade": "facil",
     "habilidade": "EF03CO01",
-    "pergunta": "A afirmação “5 + 5 não é igual a 10” é verdadeira.",
-    "gabarito": "Falso",
-    "resposta": false,
-    "explicacao": "Não. 5 + 5 = 10, então a negação apresentada é falsa."
+    "pergunta": "Um triângulo tem 3 lados.",
+    "gabarito": "Verdadeiro",
+    "resposta": true,
+    "explicacao": "Isso! Todo triângulo tem 3 lados."
   },
   {
     "id": 6,
     "nivel": 2,
     "dificuldade": "facil",
     "habilidade": "EF03CO01",
-    "pergunta": "A afirmação “2 + 3 é diferente de 5” é verdadeira.",
+    "pergunta": "O número 7 é maior que o número 9.",
     "gabarito": "Falso",
     "resposta": false,
-    "explicacao": "Não. 2 + 3 = 5; portanto, dizer que os valores são diferentes é falso."
+    "explicacao": "Não. O 9 vem depois do 7, então o 9 é maior."
   },
   {
     "id": 7,
     "nivel": 2,
     "dificuldade": "facil",
     "habilidade": "EF03CO01",
-    "pergunta": "A afirmação “2 × 3 é igual a 6” é verdadeira.",
+    "pergunta": "Uma semana tem 7 dias.",
     "gabarito": "Verdadeiro",
     "resposta": true,
-    "explicacao": "Sim. Duas vezes três resulta em seis."
+    "explicacao": "Certo! De domingo a sábado são 7 dias."
   },
   {
     "id": 8,
     "nivel": 2,
     "dificuldade": "facil",
     "habilidade": "EF04CO01",
-    "pergunta": "Em um grid com letras nas colunas e números nas linhas, A1 e A2 ficam na mesma coluna.",
+    "pergunta": "No mapa do jogo, as letras mostram as colunas.",
     "gabarito": "Verdadeiro",
     "resposta": true,
-    "explicacao": "Sim. A letra A identifica a mesma coluna; apenas o número da linha muda."
+    "explicacao": "Isso! As letras ficam em cima e mostram as colunas."
   },
   {
     "id": 9,
     "nivel": 2,
     "dificuldade": "facil",
     "habilidade": "EF04CO01",
-    "pergunta": "Em um grid, B3 e C3 ficam na mesma linha.",
+    "pergunta": "No mapa do jogo, os números mostram as linhas.",
     "gabarito": "Verdadeiro",
     "resposta": true,
-    "explicacao": "Sim. O número 3 identifica a mesma linha, enquanto as letras indicam colunas diferentes."
+    "explicacao": "Certo! Os números ficam do lado e mostram as linhas."
   },
   {
     "id": 10,
     "nivel": 2,
     "dificuldade": "facil",
     "habilidade": "EF04CO01",
-    "pergunta": "Em um grid, A1 e A5 ficam na mesma linha.",
+    "pergunta": "A casa A1 fica no canto de baixo, à direita.",
     "gabarito": "Falso",
     "resposta": false,
-    "explicacao": "Não. Elas ficam na mesma coluna A, mas nas linhas 1 e 5."
+    "explicacao": "Não. A1 fica no canto de cima, à esquerda."
   },
   {
     "id": 11,
     "nivel": 2,
     "dificuldade": "facil",
     "habilidade": "EF04CO01",
-    "pergunta": "A1 e B2 são vizinhas diretas, isto é, estão lado a lado ou uma acima da outra.",
-    "gabarito": "Falso",
-    "resposta": false,
-    "explicacao": "Não. B2 está na diagonal em relação a A1; não é uma vizinha direta."
+    "pergunta": "Na casa C5, a letra é C e o número é 5.",
+    "gabarito": "Verdadeiro",
+    "resposta": true,
+    "explicacao": "Isso! C é a coluna e 5 é a linha."
   },
   {
     "id": 12,
     "nivel": 2,
     "dificuldade": "facil",
     "habilidade": "EF04CO01",
-    "pergunta": "Um navio reto de 2 casas pode ser colocado na diagonal do tabuleiro.",
+    "pergunta": "Um navio pode ficar na diagonal do mapa.",
     "gabarito": "Falso",
     "resposta": false,
-    "explicacao": "Não. No jogo, um navio reto ocupa casas consecutivas na horizontal ou na vertical."
+    "explicacao": "Não. No jogo, os navios ficam deitados ou em pé, nunca na diagonal."
   },
   {
     "id": 13,
     "nivel": 2,
     "dificuldade": "facil",
     "habilidade": "EF04CO01",
-    "pergunta": "Um grid 10 × 10 possui 100 casas.",
-    "gabarito": "Verdadeiro",
-    "resposta": true,
-    "explicacao": "Sim. Dez linhas multiplicadas por dez colunas resultam em 100 posições."
+    "pergunta": "A casa A2 fica ao lado da casa B5.",
+    "gabarito": "Falso",
+    "resposta": false,
+    "explicacao": "Não. A2 e B5 estão em linhas diferentes e longe uma da outra."
   },
   {
     "id": 14,
     "nivel": 2,
     "dificuldade": "facil",
     "habilidade": "EF04CO01",
-    "pergunta": "Se um submarino está em B3 e se move uma casa para a direita, ele chega a B4.",
+    "pergunta": "A letra J vem antes da letra A.",
     "gabarito": "Falso",
     "resposta": false,
-    "explicacao": "Não. Mover para a direita altera a coluna: de B3, o submarino vai para C3."
+    "explicacao": "Não. A é a primeira letra e J vem bem depois."
   },
   {
     "id": 15,
     "nivel": 2,
     "dificuldade": "facil",
     "habilidade": "EF04CO08",
-    "pergunta": "Toda informação encontrada na Internet pode ser considerada confiável.",
+    "pergunta": "Tudo o que aparece na Internet é sempre verdade.",
     "gabarito": "Falso",
     "resposta": false,
-    "explicacao": "Não. Informações online podem estar erradas, desatualizadas ou ter sido publicadas para enganar."
+    "explicacao": "Não. Na Internet tem coisas certas e erradas, por isso precisamos conferir."
   },
   {
     "id": 16,
     "nivel": 2,
     "dificuldade": "facil",
     "habilidade": "EF04CO08",
-    "pergunta": "Antes de acreditar em uma mensagem de uma pessoa desconhecida, é importante verificar de onde veio a informação.",
+    "pergunta": "Antes de acreditar numa notícia, é bom perguntar a um adulto de confiança.",
     "gabarito": "Verdadeiro",
     "resposta": true,
-    "explicacao": "Sim. Conferir a origem ajuda a avaliar se a informação merece confiança."
+    "explicacao": "Isso! Um adulto de confiança ajuda a descobrir se a notícia é verdadeira."
   },
   {
     "id": 17,
     "nivel": 2,
     "dificuldade": "facil",
     "habilidade": "EF04CO08",
-    "pergunta": "Mesmo quando uma notícia é encaminhada por um amigo, ainda é importante verificar a fonte original.",
-    "gabarito": "Verdadeiro",
-    "resposta": true,
-    "explicacao": "Sim. Uma pessoa conhecida também pode compartilhar algo falso sem perceber."
+    "pergunta": "Posso contar a minha senha para qualquer pessoa na Internet.",
+    "gabarito": "Falso",
+    "resposta": false,
+    "explicacao": "Não. A senha é segredo e não deve ser contada para estranhos."
   },
   {
     "id": 18,
     "nivel": 2,
     "dificuldade": "facil",
     "habilidade": "EF04CO08",
-    "pergunta": "Uma notícia com muitas curtidas e compartilhamentos é automaticamente verdadeira.",
-    "gabarito": "Falso",
-    "resposta": false,
-    "explicacao": "Não. Popularidade não comprova a veracidade de uma informação."
+    "pergunta": "Se uma mensagem de um desconhecido pede meus dados, eu não devo responder.",
+    "gabarito": "Verdadeiro",
+    "resposta": true,
+    "explicacao": "Certo! Nunca envie seus dados para quem você não conhece."
   },
   {
     "id": 19,
     "nivel": 2,
     "dificuldade": "facil",
     "habilidade": "EF04CO08",
-    "pergunta": "Um endereço de site parecido com o nome de uma página oficial é suficiente para garantir que a fonte é confiável.",
+    "pergunta": "Uma notícia com muitas curtidas é sempre verdadeira.",
     "gabarito": "Falso",
     "resposta": false,
-    "explicacao": "Não. Sites falsos podem imitar nomes e aparência; é preciso conferir o endereço e a origem da informação."
+    "explicacao": "Não. Muitas curtidas não provam que a notícia é verdade."
   },
   {
     "id": 20,
     "nivel": 2,
     "dificuldade": "facil",
     "habilidade": "EF04CO08",
-    "pergunta": "Comparar a mesma informação em mais de uma fonte confiável ajuda a verificar se ela é verdadeira.",
+    "pergunta": "Ver a mesma notícia num site confiável ajuda a saber se ela é verdade.",
     "gabarito": "Verdadeiro",
     "resposta": true,
-    "explicacao": "Sim. Comparar fontes reduz o risco de aceitar uma informação falsa ou fora de contexto."
+    "explicacao": "Isso! Comparar com uma fonte confiável ajuda a conferir."
   },
   {
     "id": 21,

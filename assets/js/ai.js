@@ -12,9 +12,9 @@
 
   const PROFILES = {
     // actions: quantas ações a IA faz por vez; think: pausa de "pensamento" (ms, no máximo 5 s)
-    facil:   { actions: 2, think: [1200, 1900], step: [900, 1300], analyzeChance: 0.2, analyzeSkill: 0.4, riskyShot: 0.2, trapChance: 0.1, moveChance: 0.15 },
-    medio:   { actions: 3, think: [1300, 2300], step: [850, 1200], analyzeChance: 0.7, analyzeSkill: 0.7, riskyShot: 0.25, trapChance: 0.35, moveChance: 0.35 },
-    dificil: { actions: 5, think: [1500, 2600], step: [800, 1100], analyzeChance: 1, analyzeSkill: 0.85, riskyShot: 0, trapChance: 0.6, moveChance: 0.5 }
+    facil:   { actions: 2, think: [1200, 1900], step: [900, 1300], analyzeChance: 0.2, analyzeSkill: 0.4, riskyShot: 0.2, trapChance: 0.1, moveChance: 0.15, moveFirst: 0.6 },
+    medio:   { actions: 3, think: [1300, 2300], step: [850, 1200], analyzeChance: 0.7, analyzeSkill: 0.7, riskyShot: 0.25, trapChance: 0.35, moveChance: 0.35, moveFirst: 0.45 },
+    dificil: { actions: 5, think: [1500, 2600], step: [800, 1100], analyzeChance: 1, analyzeSkill: 0.85, riskyShot: 0, trapChance: 0.6, moveChance: 0.5, moveFirst: 0.35 }
   };
   const MAX_THINK_MS = 5000;
   const ME = 'player2', FOE = 'player1';
@@ -63,7 +63,7 @@
           if (!this.alive(token)) break;
           await sleep(between(prof.step) * slow);
         }
-        if (this.alive(token) && done === 0) g.toast('O computador preferiu esperar', 'info', 1400);
+        if (this.alive(token) && done === 0) g.toast('O Barba-Rubra preferiu esperar', 'info', 1400);
         if (this.alive(token)) await sleep(500);
       } catch (err) {
         console.error('IA:', err);
@@ -151,6 +151,12 @@
       const layer = ships.find(s => s.typeId === 'trap-layer' && s.availableCharges > 0 && s.trapStock > 0 && !s.turnLocked);
       const info = this.contacts();
 
+      // 0) Navegar: o pirata mexe a frota de verdade (uma vez por vez, na maioria das vezes).
+      if (this.movedRound !== st.round && Math.random() < (prof.moveFirst || 0)) {
+        const mv = this.planMove(ships, true);
+        if (mv) { this.movedRound = st.round; return mv; }
+      }
+
       // 1) Analisar um contato desconhecido que esteja perto de algum navio meu.
       if (st.analysisAvailable[ME] && info.unknown.length && Math.random() < prof.analyzeChance) {
         const reachable = info.unknown.filter(u => ships.some(s => u.cells.some(c => g.inScanRange(s, c.row, c.col))));
@@ -185,12 +191,17 @@
       }
 
       // 4) Aproximar navios para o alcance chegar ao oceano do jogador.
+      return this.planMove(ships, false);
+    }
+
+    planMove(ships, eager) {
+      const st = this.st, g = this.g, prof = this.profile(), diff = st.difficulty;
       const movers = ships.filter(s => !s.turnLocked);
       if (movers.length) {
         const front = s => Math.min(...s.cells.map(c => c.col));
         // prioridade: quem tem canhão e ainda está longe
         const far = movers.filter(s => s.chargeType === 'missile' && front(s) - g.shipRange(s) > 6);
-        const pool = far.length ? far : (Math.random() < prof.moveChance ? movers : []);
+        const pool = far.length ? far : (eager || Math.random() < prof.moveChance ? movers : []);
         if (pool.length) {
           const s = pick(pool), steps = g.shipMoveSteps(s);
           const opts = GDM_LOGIC.moveTargets(st, s, steps)
@@ -256,9 +267,9 @@
         st.stats[ME].verificationCorrect++;
         st.revealed[ME].add(target.id);
         if (target.type === 'trap') st.stats[ME].trapsDiscovered++;
-        g.toast('O computador decifrou um sinal do radar!', 'warn', 2000);
+        g.toast('O Barba-Rubra decifrou um sinal do radar!', 'warn', 2000);
       } else {
-        g.toast('O computador errou a pergunta do radar!', 'info', 2000);
+        g.toast('O Barba-Rubra errou a pergunta do radar!', 'info', 2000);
       }
       g.notify();
     }
