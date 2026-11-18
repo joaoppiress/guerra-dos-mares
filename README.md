@@ -243,6 +243,9 @@ Ao apertar **Jogar** o jogo pergunta a dificuldade (Fácil, Médio ou Difícil).
 
 ## Diversão extra
 
+- **História no tutorial:** o Capitão Maré e o Barba-Rubra conversam com emoções (medo, raiva, risada, comemoração). As expressões usam `assets/img/ui/capitao_<humor>.png` (feliz, medo, bravo, surpreso, pensando, comemorando) e `vilao_<humor>.png` (rindo, bravo, medo, chorando, surpreso, convencido); se o arquivo não existir, o jogo usa a imagem padrão.
+- **Tutorial único:** antes de começar, o Capitão pergunta se a criança joga com teclado ou leitor de tela; se sim, as explicações de acessibilidade entram no mesmo tutorial.
+
 - **Baús do tesouro:** 4 baús aparecem no Oceano Neutro no começo da batalha. O navio que passar por cima ganha um prêmio surpresa: balas recarregadas, conserto (+40% de vida) ou uma luneta que revela um navio inimigo. O computador também pode pegar baús.
 - **Pergunta certa vale bala:** acertar a pergunta do radar dá +1 bala para o navio que analisou.
 - **Barba-Rubra fala:** o pirata comenta os próprios tiros e reclama quando leva um tiro ou perde um baú.
