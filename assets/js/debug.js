@@ -19,7 +19,7 @@
   async function toBattle() {
     await closeTitle();
     if (game.mission && game.mission.active) game.mission.stop();
-    if (st().phase === 'end') { st().modal = null; game.resetMatch(st().difficulty); }
+    if (st().phase === 'end') { st().modal = null; game.resetMatch(st().difficulty); st().phase = 'placement'; }
     if (st().phase === 'placement') {
       game.autoPlace(); await wait(200);
       game.readyPlacement();

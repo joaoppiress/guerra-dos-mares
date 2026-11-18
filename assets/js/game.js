@@ -1518,7 +1518,7 @@
           revealed: { player1: setArr(st.revealed.player1), player2: setArr(st.revealed.player2) },
           marks: { player1: mapArr(st.marks.player1), player2: mapArr(st.marks.player2) },
           usedQuestionIds: setArr(st.usedQuestionIds), chests: st.chests || [], stars: st.stars || null, streak: st.streak || null,
-          achievements: st.achievements ? setArr(st.achievements) : [], elapsed: now() - (st.startAt || now())
+          achievements: st.achievements ? setArr(st.achievements) : [], elapsed: Date.now() - (st.startAt || Date.now())
         }
       };
       try { localStorage.setItem(SAVE_KEY, JSON.stringify(data)); } catch (_e) {}
@@ -1545,7 +1545,7 @@
         revealed: { player1: new Set(x.revealed.player1), player2: new Set(x.revealed.player2) },
         marks: { player1: new Map(x.marks.player1), player2: new Map(x.marks.player2) },
         usedQuestionIds: new Set(x.usedQuestionIds), chests: x.chests || [], stars: x.stars || undefined, streak: x.streak || undefined,
-        achievements: new Set(x.achievements || []), startAt: now() - (x.elapsed || 0),
+        achievements: new Set(x.achievements || []), startAt: Date.now() - (x.elapsed || 0),
         matchId: Date.now(), selectedShipId: null, action: null, modal: null
       });
       for (const o of ['player1', 'player2']) for (const s of st.ships[o]) if (!s.destroyed) GDM_LOGIC.refresh(s);
@@ -1855,7 +1855,8 @@
       this.analyze(row, col);
     }
 
-    elapsedSeconds() { return Math.max(0, Math.floor((Date.now() - (this.state.startAt || Date.now())) / 1000)); }
+    // No fim da partida o relógio para (vale também para os cenários do debug).
+    elapsedSeconds() { const end = this.state.phase === 'end' ? (this.state.endAt || (this.state.endAt = Date.now())) : Date.now(); return Math.max(0, Math.floor((end - (this.state.startAt || end)) / 1000)); }
     elapsedText() { const t = this.elapsedSeconds(); return `${String(Math.floor(t / 60)).padStart(2, '0')}:${String(t % 60).padStart(2, '0')}`; }
 
     performanceScore(owner) {
@@ -1879,6 +1880,7 @@
       const a = this.state.ships.player1.some(s => !s.destroyed), b = this.state.ships.player2.some(s => !s.destroyed);
       if (a && b) return false;
       this.state.winner = a ? 'player1' : 'player2';
+      this.state.endAt = Date.now();
       this.aiBusy = false;
       this.state.finalScores = { player1: this.performanceScore('player1'), player2: this.performanceScore('player2') };
       this.state.platformScore = this.state.finalScores.player1;
