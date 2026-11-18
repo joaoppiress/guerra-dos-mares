@@ -692,6 +692,7 @@
     }
 
     onKey(e) {
+      if (this.pauseOpen) return;
       if (e.key === 'F1') { e.preventDefault(); this.openHelp(); return; }
       if (e.key === 'F2') { e.preventDefault(); this.openSettings(); return; }
       if (e.key === 'F3') { e.preventDefault(); this.focusPanel(); return; }
@@ -711,6 +712,12 @@
       if (key === 'c' && !this.state.modal) { e.preventDefault(); this.announce(this.describeCell(this.state.cursor.row, this.state.cursor.col), true); return; }
       if (key === 't') { e.preventDefault(); this.announce(`Dica do Capitão: ${this.mission ? this.mission.tipText() : ''}`, true); return; }
       if (this.state.modal) { this.handleModalKey(e); return; }
+      // Esc sem nada para cancelar: abre o menu de pausa no meio da tela.
+      if (e.key === 'Escape' && !this.state.action && !this.spot.open && !(this.mission && this.mission.active)) {
+        e.preventDefault();
+        if (this.openPause) this.openPause();
+        return;
+      }
       if (this.state.phase === 'placement') this.handlePlacementKey(e);
       else if (this.state.phase === 'battle') {
         if (this.isAiTurn()) { if (['1', '2', '3', '4', ' ', 'enter'].includes(key)) { e.preventDefault(); this.blockedByAi(); } return; }
@@ -1369,7 +1376,70 @@
       } else this.beginBattle();
     }
 
+    // Baús do tesouro no Oceano Neutro: quem navegar por cima ganha um prêmio.
+    spawnChests() {
+      const st = this.state, out = [], used = new Set();
+      while (out.length < 4) {
+        const row = rand(10), col = 11 + rand(8), k = `${row}:${col}`;
+        if (used.has(k) || GDM_LOGIC.shipAt(st, row, col)) continue;
+        used.add(k); used.add(`${row}:${col + 1}`); used.add(`${row}:${col - 1}`);
+        out.push({ row, col, taken: false });
+      }
+      st.chests = out;
+    }
+
+    // Navio passou por cima de um baú: prêmio surpresa.
+    collectChests(ship) {
+      const st = this.state;
+      if (!st.chests) return;
+      for (const ch of st.chests) {
+        if (ch.taken || !ship.cells.some(c => c.row === ch.row && c.col === ch.col)) continue;
+        ch.taken = true;
+        const me = ship.owner, foe = GDM_LOGIC.other(me), byAi = this.isAiOwner(me);
+        const hidden = st.ships[foe].filter(x => !x.destroyed && !st.revealed[me].has(GDM_LOGIC.objectId(x, 'ship')));
+        const options = ['ammo', 'repair'];
+        if (hidden.length) options.push('spy', 'spy');
+        const prize = options[rand(options.length)];
+        this.audio.play('achievement');
+        if (prize === 'ammo') { ship.availableCharges = ship.maxCharges; ship.rechargeQueue = []; if (ship.typeId === 'trap-layer') ship.trapStock = Math.max(ship.trapStock, 3); }
+        if (prize === 'repair') ship.hp = Math.min(ship.maxHp, ship.hp + Math.round(ship.maxHp * 0.4));
+        let spied = null;
+        if (prize === 'spy') { spied = hidden[rand(hidden.length)]; const id = GDM_LOGIC.objectId(spied, 'ship'); st.detected[me].add(id); st.revealed[me].add(id); }
+        if (byAi) {
+          this.toast(prize === 'spy' ? 'O pirata achou um baú com uma luneta e viu um navio seu!' : 'O pirata achou um baú do tesouro!', 'warn', 2600);
+          this.announce(prize === 'spy' ? 'O pirata achou um baú com uma luneta e descobriu onde está um navio seu!' : 'O pirata achou um baú do tesouro.', true);
+          continue;
+        }
+        this.spawnWord(ch.row, ch.col, 'TESOURO!', C.sun);
+        this.flash(C.sun);
+        const text = {
+          ammo: `Baú de balas! O ${this.shipName(ship)} recarregou tudo!`,
+          repair: `Kit de conserto! O ${this.shipName(ship)} ganhou vida!`,
+          spy: spied ? `Luneta mágica! Você descobriu onde está o ${this.shipName(spied)} do pirata!` : ''
+        }[prize];
+        this.toast(text, 'success', 3000);
+        this.announce(`Tesouro! ${text}`, true);
+        this.achieve('treasure', 'CAÇADOR DE TESOUROS!', 'Você achou um baú');
+        setTimeout(() => this.tutorialEvent('villain', { kind: 'chest' }), 1200);
+      }
+    }
+
+    drawChest(row, col, t) {
+      const g = this.geom, s = g.cell, x = this.colX(col) + s * 0.18, y = this.rowY(row) + s * 0.26, w = s * 0.64, h = s * 0.5;
+      const bob = this.still ? 0 : Math.sin(t / 380 + col) * s * 0.03;
+      ctx.save(); ctx.translate(0, bob);
+      ctx.lineWidth = Math.max(2, s * 0.06); ctx.strokeStyle = '#22160f'; ctx.lineJoin = 'round';
+      // brilho
+      if (!this.hc) { ctx.beginPath(); ctx.arc(x + w / 2, y + h / 2, s * 0.46, 0, Math.PI * 2); ctx.fillStyle = 'rgba(255,214,90,.28)'; ctx.fill(); }
+      this.rr(x, y + h * 0.35, w, h * 0.65, s * 0.06); ctx.fillStyle = this.hc ? '#fff' : '#a8642c'; ctx.fill(); ctx.stroke();
+      this.rr(x - s * 0.02, y, w + s * 0.04, h * 0.42, s * 0.12); ctx.fillStyle = this.hc ? '#fff' : '#c27a3a'; ctx.fill(); ctx.stroke();
+      ctx.fillStyle = this.hc ? '#000' : '#ffc93c'; ctx.fillRect(x + w / 2 - s * 0.06, y + h * 0.3, s * 0.12, s * 0.16);
+      ctx.strokeRect(x + w / 2 - s * 0.06, y + h * 0.3, s * 0.12, s * 0.16);
+      ctx.restore();
+    }
+
     beginBattle() {
+      this.spawnChests();
       if (this.isAiMode()) {
         this.state.phase = 'battle';
         this.state.turn = 'player1'; this.state.roundStarter = 'player1'; this.state.round = 1; this.state.selectedShipId = null; this.state.action = null;
@@ -1446,7 +1516,7 @@
           detected: { player1: setArr(st.detected.player1), player2: setArr(st.detected.player2) },
           revealed: { player1: setArr(st.revealed.player1), player2: setArr(st.revealed.player2) },
           marks: { player1: mapArr(st.marks.player1), player2: mapArr(st.marks.player2) },
-          usedQuestionIds: setArr(st.usedQuestionIds), stars: st.stars || null, streak: st.streak || null,
+          usedQuestionIds: setArr(st.usedQuestionIds), chests: st.chests || [], stars: st.stars || null, streak: st.streak || null,
           achievements: st.achievements ? setArr(st.achievements) : [], elapsed: now() - (st.startAt || now())
         }
       };
@@ -1473,7 +1543,7 @@
         detected: { player1: new Set(x.detected.player1), player2: new Set(x.detected.player2) },
         revealed: { player1: new Set(x.revealed.player1), player2: new Set(x.revealed.player2) },
         marks: { player1: new Map(x.marks.player1), player2: new Map(x.marks.player2) },
-        usedQuestionIds: new Set(x.usedQuestionIds), stars: x.stars || undefined, streak: x.streak || undefined,
+        usedQuestionIds: new Set(x.usedQuestionIds), chests: x.chests || [], stars: x.stars || undefined, streak: x.streak || undefined,
         achievements: new Set(x.achievements || []), startAt: now() - (x.elapsed || 0),
         matchId: Date.now(), selectedShipId: null, action: null, modal: null
       });
@@ -1574,7 +1644,9 @@
         if (s.hp <= 0) { s.destroyed = true; s.cells = []; this.toast(byAi ? 'Sua armadilha afundou um navio do computador!' : `Que pena! Seu ${this.shipName(s)} afundou`, byAi ? 'success' : 'danger', 2400); }
       } else if (targetShip) {
         this.buzz(50);
-        targetShip.hp -= s.damage; this.state.stats[owner].hits++; this.state.marks[owner].set(`${row}:${col}`, 'hit'); this.spawnExplosion(row, col);
+        targetShip.hp -= s.damage; this.state.stats[owner].hits++;
+        // No Fácil, acertar mostra o navio inteiro do pirata: fica mais fácil terminar o serviço.
+        if (!byAi && this.state.difficulty === 'facil') this.state.revealed[owner].add(GDM_LOGIC.objectId(targetShip, 'ship')); this.state.marks[owner].set(`${row}:${col}`, 'hit'); this.spawnExplosion(row, col);
         this.audio.play('boom');
         this.spawnFloat(row, col, `-${s.damage}`, byAi ? C.p2Deep : '#c2410c');
         this.spawnWord(row, col, 'ACERTO!', byAi ? C.p2 : C.grass);
@@ -1586,6 +1658,7 @@
           if (streak[owner] >= 2) this.achieve('streak2', 'MIRA AFIADA!', '2 tiros certos seguidos');
           this.tutorialEvent('shot', { hit: true });
         }
+        this.tutorialEvent('villain', { kind: targetShip.hp <= 0 ? (byAi ? 'aiSink' : 'playerSink') : (byAi ? 'aiHit' : 'playerHit') });
         if (targetShip.hp <= 0) {
           if (!byAi) this.achieve('firstSink', 'NAVIO AFUNDADO!', 'Você afundou um navio inimigo');
           targetShip.destroyed = true; targetShip.cells = []; this.state.stats[owner].shipsDestroyed++;
@@ -1596,6 +1669,7 @@
         this.spawnWord(row, col, 'ÁGUA!', C.p1Deep);
         if (this.state.streak) this.state.streak[owner] = 0;
         if (!byAi) this.tutorialEvent('shot', { hit: false });
+        else this.tutorialEvent('villain', { kind: 'aiMiss' });
         this.audio.play('splash');
         this.toast(byAi ? `O computador errou! Água em ${where}` : `Splash! Água em ${where}`, 'info');
       }
@@ -1622,12 +1696,14 @@
         // Movimento do computador fica escondido: o jogador só fica sabendo que algo mudou.
         this.audio.play('move'); this.computeRadar(this.state.turn);
         this.toast('O computador moveu um navio escondido', 'info');
+        this.collectChests(s);
         return;
       }
       this.state.cursor = { row: s.row, col: s.col };
       this.ensureVisible(s.row, s.col);
       this.audio.play('move'); this.computeRadar(this.state.turn);
       this.toast(n > 1 ? `Vrum! O navio andou ${n} casas` : 'O navio andou 1 casa', 'success');
+      this.collectChests(s);
       this.tutorialEvent('actionDone', { type: 'move' });
     }
 
@@ -1668,7 +1744,7 @@
       if (!q) { this.toast('As 20 perguntas deste nível já foram usadas', 'warn'); this.announce('Todas as vinte perguntas deste nível já foram usadas nesta partida. Não haverá repetição.'); return; }
       this.state.analysisAvailable[owner] = false; this.state.action = null;
       this.state.stats[owner].verificationAttempts++;
-      this.state.modal = { type: 'question', question: q, target: obj, targetType: type, owner, buttons: [], openedAt: now() };
+      this.state.modal = { type: 'question', question: q, target: obj, targetType: type, owner, scannerId: scanner ? scanner.uid : null, buttons: [], openedAt: now() };
       this.audio.play('radar');
       this.tutorialEvent('analyzeMode');
       this.tutorialEvent('signal');
@@ -1706,13 +1782,16 @@
           this.tutorialEvent('answerRight', { stars: stars[m.owner] });
         }
         this.state.revealed[m.owner].add(GDM_LOGIC.objectId(m.target, m.targetType));
+        // Prêmio por acertar: o navio escolhido ganha 1 bala extra (quem aprende, ataca mais!).
+        const scanner = this.state.ships[m.owner].find(x => x.uid === m.scannerId && !x.destroyed);
+        if (human && scanner && scanner.chargeType === 'missile' && scanner.availableCharges < scanner.maxCharges) { scanner.availableCharges++; m.bonus = `+1 bala para o ${this.shipName(scanner)}!`; }
         if (m.targetType === 'trap') this.state.stats[m.owner].trapsDiscovered++;
         this.audio.play('correct');
       } else { this.audio.play('wrong'); if (human) this.tutorialEvent('answerWrong'); }
       const found = m.targetType === 'trap' ? 'uma armadilha' : `o ${this.shipName(m.target)}`;
-      this.state.modal = { type: 'feedback', correct, answer, question: q, found: correct ? found : null, buttons: [], openedAt: now() };
+      this.state.modal = { type: 'feedback', correct, answer, question: q, found: correct ? found : null, bonus: m.bonus || null, buttons: [], openedAt: now() };
       this.tutorialEvent('analyzeMode');
-      this.announce(`${correct ? `Excelente! Você acertou e o radar identificou o contato: ${found}.` : `Quase! Essa era difícil. A resposta correta é ${q.resposta ? 'Verdadeiro' : 'Falso'}.`} ${q.explicacao}${correct ? '' : ' Agora você já sabe para a próxima!'}`);
+      this.announce(`${correct ? `Excelente! Você acertou e o radar identificou o contato: ${found}. ${m.bonus || ''}` : `Quase! Essa era difícil. A resposta correta é ${q.resposta ? 'Verdadeiro' : 'Falso'}.`} ${q.explicacao}${correct ? '' : ' Agora você já sabe para a próxima!'}`);
     }
 
     closeFeedback() {
@@ -1803,6 +1882,7 @@
       this.state.platformScore = this.state.finalScores.player1;
       this.state.phase = 'end';
       this.clearSave();
+      if (this.state.winner === 'player1' && this.mission && this.mission.confetti) setTimeout(() => { try { this.mission.confetti(); } catch (_e) {} }, 300);
       this.state.toast = null; this.state.action = null; this.closeSpot && this.closeSpot();
       this.state.modal = { type: 'end', buttons: [], openedAt: now() };
       sendFinalScore({ score: this.state.platformScore, difficulty: getPlatformDifficulty() });
@@ -2446,97 +2526,50 @@
 
     /* ---------- navios ---------- */
 
-    // Navio desenhado à mão (vetor), visto de cima: popa em cima, proa embaixo.
-    // Estilo da logo: contorno escuro grosso, madeira quente e velas da cor do time.
+    // Monta o navio com casco + velas do Pirate Pack, sem esticar os sprites.
     buildShip(team, size, lenCells, damaged) {
-      const key = `v2:${team}:${size}:${lenCells.toFixed(2)}:${damaged}`;
+      const key = `${team}:${size}:${lenCells.toFixed(2)}:${damaged}`;
       if (this.shipCache.has(key)) return this.shipCache.get(key);
+      const hull = this.img.hull, sail = this.img[`sail_${team}${damaged ? '_torn' : ''}`], flag = this.img[`flag_${team}`];
       const L = Math.max(100, Math.round(lenCells * NATIVE_CELL - 10)), W = 76;
       const c = makeCanvas(W, L), x = c.getContext('2d');
-      const INK = '#22160f', WOOD = damaged ? '#7c4a2a' : '#b86b35', DECK = damaged ? '#9a6440' : '#e2a066', PLANK = 'rgba(80,40,15,.35)';
-      const SAIL = team === 'p1' ? (damaged ? '#6f8fb3' : '#2f86de') : (damaged ? '#b9746e' : '#e5433a');
-      const SAIL_D = team === 'p1' ? '#1d5fa8' : '#a92b23';
-      const hw = 27, cx = W / 2, top = 10, bow = L - 4;
-      x.lineJoin = 'round'; x.lineCap = 'round';
-      // casco
-      const hull = () => {
-        x.beginPath();
-        x.moveTo(cx - hw + 6, top);
-        x.quadraticCurveTo(cx - hw, top, cx - hw, top + 10);
-        x.lineTo(cx - hw, bow - 34);
-        x.quadraticCurveTo(cx - hw + 2, bow - 10, cx, bow);
-        x.quadraticCurveTo(cx + hw - 2, bow - 10, cx + hw, bow - 34);
-        x.lineTo(cx + hw, top + 10);
-        x.quadraticCurveTo(cx + hw, top, cx + hw - 6, top);
-        x.closePath();
-      };
-      hull(); x.fillStyle = WOOD; x.fill(); x.lineWidth = 4; x.strokeStyle = INK; x.stroke();
-      // convés (madeira clara) com tábuas
-      x.save(); hull(); x.clip();
-      x.beginPath(); x.rect(cx - hw + 7, top + 6, (hw - 7) * 2, bow - top - 22);
-      x.fillStyle = DECK; x.fill();
-      x.strokeStyle = PLANK; x.lineWidth = 1.5;
-      for (let px = cx - hw + 15; px < cx + hw - 7; px += 8) { x.beginPath(); x.moveTo(px, top + 6); x.lineTo(px, bow - 16); x.stroke(); }
-      x.restore();
-      // borda do convés
-      x.beginPath(); x.moveTo(cx - hw + 7, top + 8); x.lineTo(cx - hw + 7, bow - 32); x.moveTo(cx + hw - 7, top + 8); x.lineTo(cx + hw - 7, bow - 32);
-      x.strokeStyle = 'rgba(34,22,15,.45)'; x.lineWidth = 2; x.stroke();
-      // escotilhas / canhões nas laterais
-      const guns = size === 4 ? 3 : size === 3 ? 2 : size === 5 ? 0 : 1;
-      for (let i = 0; i < guns; i++) {
-        const gy = top + 20 + (i + 0.5) * ((bow - top - 60) / Math.max(1, guns));
+      const hx = (W - hull.width) / 2, STERN = 30, MID = 36, BOW = 42;
+      x.drawImage(hull, 0, 0, hull.width, STERN, hx, 0, hull.width, STERN);
+      let y = STERN;
+      const midEnd = L - BOW;
+      while (y < midEnd) {
+        const h = Math.min(MID, midEnd - y);
+        x.drawImage(hull, 0, STERN, hull.width, h, hx, y, hull.width, h);
+        y += h;
+      }
+      x.drawImage(hull, 0, hull.height - BOW, hull.width, BOW, hx, midEnd, hull.width, BOW);
+      const sails = { 2: 1, 3: 2, 4: 3, 5: 3 }[size] || 1;
+      const top = STERN + 4, bottom = L - BOW + 6, seg = (bottom - top) / sails;
+      const scale = clamp(seg / 44, 0.72, 1);
+      const crewKeys = ['crew1', 'crew2', 'crew3', 'crew4'];
+      if (size >= 3) {
+        for (let i = 1; i < sails; i++) {
+          const crew = this.img[crewKeys[(i + size) % 4]];
+          if (crew) x.drawImage(crew, W / 2 - crew.width / 2, top + seg * i - crew.height / 2 + 4);
+        }
+      }
+      if (size === 4 && this.img.cannon) {
+        const cn = this.img.cannon;
         for (const side of [-1, 1]) {
-          x.beginPath(); x.rect(cx + side * (hw + 1) - (side < 0 ? 7 : 0), gy - 3, 7, 6);
-          x.fillStyle = '#3b3f48'; x.fill(); x.lineWidth = 2; x.strokeStyle = INK; x.stroke();
+          x.save(); x.translate(W / 2 + side * 21, L * 0.55); x.rotate(side < 0 ? Math.PI : 0);
+          x.drawImage(cn, -4, -cn.height / 2, cn.width * 0.7, cn.height * 0.7); x.restore();
         }
       }
-      // velas (vistas de cima: faixa curvada atravessando o navio)
-      const sails = { 2: 1, 3: 2, 4: 3, 5: 2 }[size] || 1;
-      const zoneTop = top + 18, zoneBot = bow - (size === 5 ? 60 : 30), seg = (zoneBot - zoneTop) / sails;
       for (let i = 0; i < sails; i++) {
-        const sy = zoneTop + seg * (i + 0.5), sw = hw + 12, sh = Math.min(26, seg * 0.62);
-        // mastro
-        x.beginPath(); x.arc(cx, sy + sh * 0.15, 4.5, 0, Math.PI * 2); x.fillStyle = '#6b3d1e'; x.fill(); x.lineWidth = 2; x.strokeStyle = INK; x.stroke();
-        // vela
-        x.beginPath();
-        x.moveTo(cx - sw, sy - sh / 2);
-        x.quadraticCurveTo(cx, sy - sh / 2 + sh * 0.5, cx + sw, sy - sh / 2);
-        x.lineTo(cx + sw - 3, sy + sh / 2 - 2);
-        x.quadraticCurveTo(cx, sy + sh / 2 + sh * 0.55, cx - sw + 3, sy + sh / 2 - 2);
-        x.closePath();
-        x.fillStyle = SAIL; x.fill(); x.lineWidth = 3.5; x.strokeStyle = INK; x.stroke();
-        // faixa clara
-        x.beginPath(); x.moveTo(cx - sw + 6, sy - sh / 2 + 5); x.quadraticCurveTo(cx, sy - sh / 2 + sh * 0.55, cx + sw - 6, sy - sh / 2 + 5);
-        x.strokeStyle = 'rgba(255,255,255,.35)'; x.lineWidth = 3; x.stroke();
-        // emblema: âncora (azul) ou caveira (vermelho)
-        const ey = sy + sh * 0.12;
-        x.fillStyle = '#fff7e6'; x.strokeStyle = '#fff7e6';
-        if (team === 'p1') {
-          x.lineWidth = 2.4; x.beginPath(); x.arc(cx, ey - 6, 2.2, 0, Math.PI * 2); x.stroke();
-          x.beginPath(); x.moveTo(cx, ey - 4); x.lineTo(cx, ey + 6); x.moveTo(cx - 4, ey - 1); x.lineTo(cx + 4, ey - 1); x.stroke();
-          x.beginPath(); x.arc(cx, ey + 1, 6, 0.25 * Math.PI, 0.75 * Math.PI); x.stroke();
-        } else {
-          x.beginPath(); x.arc(cx, ey - 1, 5.5, 0, Math.PI * 2); x.fill();
-          x.fillRect(cx - 3.2, ey + 3, 6.4, 3.6);
-          x.fillStyle = SAIL_D; x.beginPath(); x.arc(cx - 2.2, ey - 1.5, 1.5, 0, Math.PI * 2); x.arc(cx + 2.2, ey - 1.5, 1.5, 0, Math.PI * 2); x.fill();
-        }
-        if (damaged) { // rasgo
-          x.beginPath(); x.moveTo(cx + sw * 0.35, sy - sh / 2 + 3); x.lineTo(cx + sw * 0.5, sy); x.lineTo(cx + sw * 0.3, sy + 3);
-          x.strokeStyle = INK; x.lineWidth = 2.5; x.stroke();
-        }
+        const cy = top + seg * (i + 0.5), sw = sail.width * scale, sh = sail.height * scale;
+        x.drawImage(sail, W / 2 - sw / 2, cy - sh / 2, sw, sh);
+        if (this.img.nest) { const n = this.img.nest; x.drawImage(n, W / 2 - n.width * 0.35, cy - sh / 2 - n.height * 0.15, n.width * 0.7, n.height * 0.7); }
       }
-      // Lança-Armadilhas: minas guardadas na popa
-      if (size === 5) {
-        for (let i = 0; i < 3; i++) {
-          const mx = cx - 14 + i * 14, my = bow - 46;
-          x.beginPath(); x.arc(mx, my, 5.5, 0, Math.PI * 2); x.fillStyle = '#3b3f48'; x.fill(); x.lineWidth = 2; x.strokeStyle = INK; x.stroke();
-          x.fillStyle = '#ffc93c'; x.fillRect(mx - 1, my - 8, 2, 3);
-        }
+      if (flag) x.drawImage(flag, W / 2 - flag.width / 2, 2, flag.width, flag.height);
+      if (size === 5 && this.img.cannonball) {
+        const b = this.img.cannonball;
+        for (let i = 0; i < 3; i++) x.drawImage(b, W / 2 - 13 + i * 9, L - BOW + 4, b.width * 0.8, b.height * 0.8);
       }
-      // bandeirinha na popa
-      x.beginPath(); x.moveTo(cx, top + 2); x.lineTo(cx, top - 4 + 12); x.strokeStyle = INK; x.lineWidth = 2; x.stroke();
-      x.beginPath(); x.moveTo(cx + 1, top - 1); x.lineTo(cx + 13, top + 3); x.lineTo(cx + 1, top + 7); x.closePath();
-      x.fillStyle = team === 'p1' ? '#ffc93c' : '#22160f'; x.fill(); x.lineWidth = 1.5; x.strokeStyle = INK; x.stroke();
       this.shipCache.set(key, c);
       return c;
     }
@@ -2659,6 +2692,7 @@
           else if (this.state.detected[viewer].has(id)) this.drawContact(tr.row, tr.col, t);
         }
       }
+      for (const ch of this.state.chests || []) if (!ch.taken) this.drawChest(ch.row, ch.col, t);
       for (const s of this.state.ships[viewer]) if (!s.destroyed) this.drawShip(s, { selected: s.uid === this.state.selectedShipId, t });
       for (const s of this.state.ships[opponent]) {
         if (s.destroyed) continue;
@@ -3119,8 +3153,8 @@
       this.text(sub, g.playW / 2, b.y + 118 + this.fs(28), { size: this.fs(16), color: C.inkSoft, align: 'center', maxWidth: b.w - 48 });
       this.paragraph(m.question.explicacao + (ok ? '' : ' Agora você já sabe para a próxima!'), b.x + 36, b.y + 118 + this.fs(64), b.w - 72, { size: this.fs(16), color: this.hc ? '#000' : C.ink, align: 'center' });
       if (ok && !m.practice) {
-        const chips = ['+ CONHECIMENTO', '+ CONTATO REVELADO'], csz = this.fs(13);
-        const cw = chips.map(c => this.measure(c, csz, 700) + 22), total = cw[0] + cw[1] + 10;
+        const chips = ['+ CONHECIMENTO', '+ CONTATO REVELADO'].concat(m.bonus ? ['+1 BALA'] : []), csz = this.fs(13);
+        const cw = chips.map(c => this.measure(c, csz, 700) + 22), total = cw.reduce((a, w) => a + w, 0) + 10 * (chips.length - 1);
         let cx = g.playW / 2 - total / 2; const cy = b.y + b.h - 56 - 24 - csz - 22;
         chips.forEach((c, i) => {
           ctx.save(); this.rr(cx, cy, cw[i], csz + 12, 8); ctx.fillStyle = this.hc ? '#fff' : C.neutralSoft; ctx.fill(); ctx.restore();

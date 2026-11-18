@@ -1,5 +1,5 @@
 const GDM_CONFIG = Object.freeze({
-  version: '2.9.1',
+  version: '2.10.1',
   grid: { rows: 10, cols: 30, zoneWidth: 10 },
   zones: {
     player1: { minCol: 0, maxCol: 9 },
@@ -12,10 +12,10 @@ const GDM_CONFIG = Object.freeze({
     dificil: { id:'dificil', label:'DIFÍCIL', coins:2700 }
   },
   ships: {
-    'trap-layer': { id:'trap-layer', name:'LANÇA-ARMADILHAS', price:1200, hp:2000, size:5, charges:1, damage:1500, chargeType:'trap', trapStock:3, move:1, range:0 },
-    battleship:   { id:'battleship', name:'ENCOURAÇADO',      price:900,  hp:1500, size:4, charges:1, damage:900,  chargeType:'missile', move:2, range:9 },
-    cruiser:      { id:'cruiser',    name:'CRUZADOR',         price:600,  hp:900,  size:3, charges:2, damage:300,  chargeType:'missile', move:2, range:7 },
-    destroyer:    { id:'destroyer',  name:'DESTROIER',        price:300,  hp:600,  size:2, charges:3, damage:170,  chargeType:'missile', move:3, range:6 }
+    'trap-layer': { id:'trap-layer', name:'LANÇA-ARMADILHAS', price:1200, hp:1500, size:5, charges:1, damage:1500, chargeType:'trap', trapStock:3, move:1, range:0 },
+    battleship:   { id:'battleship', name:'ENCOURAÇADO',      price:900,  hp:1000, size:4, charges:1, damage:900,  chargeType:'missile', move:2, range:11 },
+    cruiser:      { id:'cruiser',    name:'CRUZADOR',         price:600,  hp:700,  size:3, charges:2, damage:350,  chargeType:'missile', move:2, range:9 },
+    destroyer:    { id:'destroyer',  name:'DESTROIER',        price:300,  hp:400,  size:2, charges:3, damage:200,  chargeType:'missile', move:3, range:8 }
   },
   radar: { radius: 3 },
   // alcance para ANALISAR um "?" a partir do navio escolhido
