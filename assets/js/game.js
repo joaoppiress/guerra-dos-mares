@@ -387,7 +387,7 @@
       this.resetMatch(getPlatformDifficulty());
       this.state.phase = 'placement';
       this.invalidateCaches();
-      this.announce(`${TEAM.player1.label}, posicione sua frota no oceano da esquerda. A tecla F1 abre o guia, a tecla F2 abre os ajustes e a tecla F3 leva ao painel de comandos.`);
+      this.announce(`${TEAM.player1.label}, posicione sua frota no oceano da esquerda. A tecla F1 abre o guia, a tecla F2 abre as opções e a tecla F3 leva ao painel de comandos.`);
       if (window.innerHeight > window.innerWidth && window.innerWidth < 700) this.toast('Dica: deite o celular para ver mais mar', 'info', 3500);
       requestAnimationFrame(t => this.loop(t));
     }
@@ -401,7 +401,7 @@
       this.a11yRoot = root;
       this.live = root.querySelector('#gdmLive');
       this.alertLive = root.querySelector('#gdmAlert');
-      root.querySelector('#gdmInstructions').textContent = 'A tecla Tab pula para o próximo lugar e Shift mais Tab volta. As setas andam de casa em casa dentro do mapa. As letras são as colunas, na horizontal. Os números são as linhas, na vertical. A tecla Q diz onde você está. A tecla N volta para o mapa. A tecla Enter faz a ação. Outras teclas: a tecla I fala como está a partida, a tecla C fala a casa atual, a tecla T repete a dica do Capitão, a tecla R gira o navio, a tecla P coloca todos os navios, as teclas 1, 2, 3 e 4 escolhem Atacar, Mover, Armadilha e Analisar, a tecla Espaço passa a vez, a tecla F1 abre o guia, a tecla F2 abre os ajustes e a tecla F3 vai para o painel.';
+      root.querySelector('#gdmInstructions').textContent = 'A tecla Tab pula para o próximo lugar e Shift mais Tab volta. As setas andam de casa em casa dentro do mapa. As letras são as colunas, na horizontal. Os números são as linhas, na vertical. A tecla Q diz onde você está. A tecla N volta para o mapa. A tecla Enter faz a ação. Outras teclas: a tecla I fala como está a partida, a tecla C fala a casa atual, a tecla T repete a dica do Capitão, a tecla R gira o navio, a tecla P coloca todos os navios, as teclas 1, 2, 3 e 4 escolhem Atacar, Mover, Armadilha e Analisar, a tecla Espaço passa a vez, a tecla F1 abre o guia, a tecla F2 abre as opções e a tecla F3 vai para o painel.';
       root.querySelector('#gdmVisualDescription').textContent = 'Mapa do mar visto de cima com três oceanos de dez por dez casas: o seu oceano à esquerda, o Oceano Neutro no meio e o Oceano do Barba-Rubra à direita. Cada oceano usa colunas A até J e linhas 1 até 10, com A1 no canto superior esquerdo.';
       canvas.setAttribute('aria-describedby', 'gdmInstructions gdmVisualDescription gdmState');
       this.syncA11y();
@@ -424,7 +424,7 @@
       const phase = { placement: 'posicionamento', battle: 'batalha', end: 'fim de partida' }[this.state.phase] || 'carregando';
       const status = [
         `Fase de ${phase}. Vez do ${TEAM[owner].label}. Dificuldade ${GDM_CONFIG.difficulties[this.state.difficulty].label}. Rodada ${this.state.round}.`,
-        `Tempo ${this.elapsedText()}. Pontos: ${TEAM.player1.label} ${scores.player1} de 100, ${TEAM.player2.label} ${scores.player2} de 100.`,
+        `Tempo ${this.elapsedText()}. Seus pontos: ${scores.player1} de 100.`,
         `Cursor em ${GDM_LOGIC.coordWithZone(this.state.cursor.row, this.state.cursor.col)}.`
       ];
       const selected = this.selectedShip();
@@ -1984,7 +1984,7 @@
       this.announce('Guia do capitão aberto. Escape fecha.');
     }
 
-    openSettings() { if (this.panel) this.panel.open('settings', true); }
+    openSettings() { if (this.openPause) this.openPause('options'); }
     focusPanel() { if (this.panel) this.panel.open(null, true); }
 
     updateSetting(key, value, message) {
@@ -2967,11 +2967,9 @@
       const diffColors = { facil: [C.neutralSoft, C.neutralDeep], medio: ['#ffeaa8', '#8a5a00'], dificil: [C.p2Soft, C.p2Deep] }[this.state.difficulty];
       // Prioridade: tempo, dificuldade e placar; o que não couber fica de fora (o painel também mostra).
       if (chip(this.elapsedText(), '#eef4fa', C.ink) && chip(this.difficultyName(), diffColors[0], diffColors[1])) {
-        const s1 = `${TEAM.player1.short}  ${scores.player1}`, s2 = `${TEAM.player2.short}  ${scores.player2}`;
-        if (rx - chipWidth(s2, 'star') - chipWidth(s1, 'star') - 16 - tx >= minTitle) {
-          chip(s2, C.p2Soft, C.p2Deep, 'star');
-          chip(s1, C.p1Soft, C.p1Deep, 'star');
-        }
+        // Só os pontos do Capitão aparecem no placar.
+        const s1 = `${TEAM.player1.short}  ${scores.player1}`;
+        if (rx - chipWidth(s1, 'star') - 8 - tx >= minTitle) chip(s1, C.p1Soft, C.p1Deep, 'star');
       }
       const maxW = rx - tx - 4, color = this.hc ? '#000' : team.deep;
       if (g.compact) {
@@ -3302,10 +3300,10 @@
       this.text(this.winTitle(), g.playW / 2, b.y + 150, { size: this.fs(32), color: this.hc ? '#000' : win.deep, align: 'center', weight: 700, maxWidth: b.w - 48 });
       this.text(`${this.state.round} ${this.state.round === 1 ? 'rodada' : 'rodadas'} · ${this.elapsedText()} de jogo`, g.playW / 2, b.y + 150 + this.fs(30), { size: this.fs(15), color: C.inkSoft, align: 'center', maxWidth: b.w - 48 });
       const rowY = b.y + 150 + this.fs(66);
-      for (const [i, owner] of ['player1', 'player2'].entries()) {
+      for (const [i, owner] of ['player1'].entries()) {
         const st = this.state.stats[owner], team = TEAM[owner];
-        const rw = stackScores ? b.w - 48 : Math.min(250, (b.w - 64) / 2);
-        const rx = stackScores ? b.x + 24 : g.playW / 2 + (i === 0 ? -rw - 8 : 8), ry = stackScores ? rowY + i * (boxH + 12) : rowY;
+        const rw = Math.min(300, b.w - 48);
+        const rx = g.playW / 2 - rw / 2, ry = rowY + i * (boxH + 12);
         ctx.save(); this.rr(rx, ry, rw, boxH, 18); ctx.fillStyle = this.hc ? '#fff' : team.soft; ctx.fill();
         if (this.hc) { ctx.lineWidth = 2; ctx.strokeStyle = '#000'; ctx.stroke(); } ctx.restore();
         const tw = rw - 24, l1 = ry + 14 + this.fs(17), l2 = l1 + this.fs(14) * 1.45, l3 = l2 + this.fs(14) * 1.45;

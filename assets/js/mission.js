@@ -332,7 +332,7 @@
           text: () => 'Ao montar a frota: a tecla R gira o navio, e a tecla P coloca todos os navios sozinha. Na batalha: a tecla 1 escolhe Atacar, a tecla 2 escolhe Mover, a tecla 3 escolhe Armadilha e a tecla 4 escolhe Analisar. A tecla ESPAÇO passa a vez. Nas perguntas: a tecla V responde Verdadeiro e a tecla F responde Falso.',
           buttons: [['PRÓXIMO', () => this.next(), 'primary']] },
         { id: 'ax-settings', title: 'AJUSTES E AJUDA',
-          text: () => 'A tecla ESC abre o menu de pausa. A tecla F2 abre os Ajustes, onde você muda o alto contraste, o tamanho e o tipo de letra, o movimento da tela e o volume. A tecla F1 abre o Guia do Capitão. Na aba Ajuda tem as Dúvidas frequentes.',
+          text: () => 'A tecla ESC, ou o botão amarelo da engrenagem no canto, abre o menu. Lá ficam as Opções: alto contraste, tamanho do texto, menos animação e volume. A tecla F2 abre as Opções direto. A tecla F1 abre o Guia do Capitão, e na aba Ajuda tem as Dúvidas frequentes.',
           buttons: [['PRÓXIMO', () => this.next(), 'primary']] },
         { id: 'ax-done', title: 'PRONTO!',
           text: () => thenTutorial || !this.completed() ? 'Agora vamos aprender a jogar, passo a passo.' : 'Agora é com você, capitão!',

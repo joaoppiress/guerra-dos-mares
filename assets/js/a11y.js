@@ -208,20 +208,20 @@
     return 'body';
   }
   function explain(region, el) {
-    const tab = game.panel && game.panel.tab ? { game: 'Jogar', radar: 'Radar', help: 'Ajuda', settings: 'Ajustes' }[game.panel.tab] : '';
+    const tab = game.panel && game.panel.tab ? { game: 'Jogar', radar: 'Radar', help: 'Ajuda' }[game.panel.tab] : '';
     switch (region) {
       case 'map': {
         const c = game.state.cursor, where = GDM_LOGIC.coordWithZone(c.row, c.col);
         return `Você está no MAPA, na casa ${where}. ${COORD} No mapa, as SETAS andam de casa em casa e a tecla Enter faz a ação. A tecla G abre o campo para digitar uma casa, por exemplo C7. A tecla Tab sai do mapa e vai para o painel de comandos.`;
       }
-      case 'tabs': return 'Você está nas ABAS do painel: Jogar, Radar, Ajuda e Ajustes. As SETAS para a esquerda e para a direita trocam de aba. A tecla Tab entra nos botões da aba. A tecla N volta para o mapa.';
+      case 'tabs': return 'Você está nas ABAS do painel: Jogar, Radar e Ajuda. As SETAS para a esquerda e para a direita trocam de aba. A tecla Tab entra nos botões da aba. A tecla N volta para o mapa.';
       case 'panel': return `Você está no PAINEL DE COMANDOS, na aba ${tab}. Aqui as setas não funcionam. A tecla Tab vai para o próximo botão e as teclas Shift e Tab juntas voltam. A tecla Enter aperta o botão. A tecla N volta para o mapa. O primeiro botão do painel também é Voltar para o mapa.`;
       case 'jump': return 'Você está no campo IR PARA A CASA. Digite a letra e o número, por exemplo C7, e aperte a tecla Enter. A tecla Esc ou a tecla N voltam para o mapa.';
       case 'question': return 'Você está numa PERGUNTA do radar. Escute a frase. A tecla V responde Verdadeiro e a tecla F responde Falso. A tecla Tab anda entre as duas respostas.';
       case 'modal': return 'Uma janela está aberta. A tecla Tab anda pelos botões dela e a tecla Enter aperta o botão. A tecla Esc fecha a janela.';
       case 'mission': return 'Você está no QUADRO DO CAPITÃO, o tutorial. A tecla Tab anda pelos textos e botões do quadro e a tecla Enter aperta o botão. Quando o Capitão pedir uma casa do mapa, use as setas e a tecla Enter.';
       case 'title': return 'Você está na TELA INICIAL. As setas para cima e para baixo, ou a tecla Tab, escolhem um botão. A tecla Enter confirma.';
-      default: return 'A tecla N leva para o mapa e a tecla Tab leva para os botões. A tecla F1 abre o guia e a tecla F2 abre os ajustes.';
+      default: return 'A tecla N leva para o mapa e a tecla Tab leva para os botões. A tecla F1 abre o guia e a tecla F2 abre as opções.';
     }
   }
   // ---------- Tecla Q: lugar + campo atual + como se mexer ----------
@@ -257,7 +257,7 @@
     return parts.join(', ');
   }
   function placeOf(region, el) {
-    const tab = game.panel && game.panel.tab ? { game: 'Jogar', radar: 'Radar', help: 'Ajuda', settings: 'Ajustes' }[game.panel.tab] : '';
+    const tab = game.panel && game.panel.tab ? { game: 'Jogar', radar: 'Radar', help: 'Ajuda' }[game.panel.tab] : '';
     if (game.pauseOpen) return el.closest?.('[data-view="options"]') ? 'nas OPÇÕES do menu de pausa' : 'no MENU DE PAUSA';
     if (region === 'title') {
       if (el.closest?.('.tc-quick')) return 'no MENU INICIAL, nos botões do canto';
