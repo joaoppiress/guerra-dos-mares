@@ -70,14 +70,14 @@
             <li><span class="tc-sea tc-sea-foe"><img src="assets/img/ships/icon_p2.png" alt=""></span>Oceano inimigo</li>
           </ul>
         </section>
-        <p class="tc-foot">4º ano do Ensino Fundamental</p>
+        <p class="tc-foot">3º e 4º ano do Ensino Fundamental</p>
       </div>
       <section class="title-menu tc-diff" data-view="difficulty" aria-labelledby="gdmDiffHeading" hidden>
         <h2 id="gdmDiffHeading" class="tm-heading">Qual desafio você quer?</h2>
         <p class="tc-diff-sub tc-read" id="gdmDiffSub" tabindex="0">O Barba-Rubra joga do jeito que você escolher.</p>
-        <button type="button" class="tm-item tc-level tc-easy" data-diff="facil" aria-describedby="gdmDiffSub"><span class="tc-stars" aria-hidden="true">${star(1)}</span><span class="tc-level-text"><b>Fácil</b><small>Marinheiro: o pirata joga devagar</small></span></button>
-        <button type="button" class="tm-item tc-level tc-mid" data-diff="medio"><span class="tc-stars" aria-hidden="true">${star(2)}</span><span class="tc-level-text"><b>Médio</b><small>Capitão: uma batalha equilibrada</small></span></button>
-        <button type="button" class="tm-item tc-level tc-hard" data-diff="dificil"><span class="tc-stars" aria-hidden="true">${star(3)}</span><span class="tc-level-text"><b>Difícil</b><small>Almirante: o pirata joga com tudo!</small></span></button>
+        <button type="button" class="tm-item tc-level tc-easy" data-diff="facil" aria-describedby="gdmDiffSub"><span class="tc-stars" aria-hidden="true">${star(1)}</span><span class="tc-level-text"><b>Fácil</b><small>O pirata joga devagar</small></span></button>
+        <button type="button" class="tm-item tc-level tc-mid" data-diff="medio"><span class="tc-stars" aria-hidden="true">${star(2)}</span><span class="tc-level-text"><b>Médio</b><small>Uma batalha equilibrada</small></span></button>
+        <button type="button" class="tm-item tc-level tc-hard" data-diff="dificil"><span class="tc-stars" aria-hidden="true">${star(3)}</span><span class="tc-level-text"><b>Difícil</b><small>O pirata joga com tudo!</small></span></button>
         <button type="button" class="tm-back" data-go="main">Voltar</button>
       </section>
       <div class="title-board">
